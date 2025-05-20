@@ -278,7 +278,7 @@
 						{
 							"_type": "UMLAttribute",
 							"_id": "AAAAAAGWS2XxoEN4sxA=",
-							"name": "email",
+							"name": "mail",
 							"visibility": "private",
 							"type": "string"
 						},
@@ -2334,6 +2334,7 @@
 											"model": {
 												"$ref": "AAAAAAGWX7mI3d+QWps="
 											},
+											"visible": false,
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 533,
@@ -2349,7 +2350,7 @@
 									"left": 528,
 									"top": 425,
 									"width": 384.2041015625,
-									"height": 128
+									"height": 113
 								},
 								{
 									"_type": "UMLOperationCompartmentView",
@@ -2373,7 +2374,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 533,
-											"top": 558,
+											"top": 543,
 											"width": 374.2041015625,
 											"height": 13,
 											"text": "+cambiarEstado(nuevoEstado: IEstadoPartido): void",
@@ -2391,7 +2392,7 @@
 											"font": "Arial;13;0",
 											"parentStyle": true,
 											"left": 533,
-											"top": 573,
+											"top": 558,
 											"width": 374.2041015625,
 											"height": 13,
 											"text": "+cambiarEstrategia(estrategia: IEstrategiaEmparejamiento): void",
@@ -2401,7 +2402,7 @@
 									"font": "Arial;13;0",
 									"parentStyle": true,
 									"left": 528,
-									"top": 553,
+									"top": 538,
 									"width": 384.2041015625,
 									"height": 38
 								},
@@ -2602,7 +2603,7 @@
 											"top": 245,
 											"width": 285.6796875,
 											"height": 13,
-											"text": "-email: string",
+											"text": "-mail: string",
 											"horizontalAlignment": 0
 										},
 										{
@@ -13211,9 +13212,9 @@
 							"fillColor": "#C07575",
 							"font": "Arial;13;0",
 							"parentStyle": false,
-							"left": 344,
-							"top": 952,
-							"width": 400,
+							"left": 96,
+							"top": 896,
+							"width": 232,
 							"height": 103,
 							"text": "Partido Usuario sería composición?\nUsuario-partido partido-usuario?"
 						},
@@ -13500,6 +13501,21 @@
 							"headQualifiersCompartment": {
 								"$ref": "AAAAAAGWp214WYTK1cA="
 							}
+						},
+						{
+							"_type": "UMLNoteView",
+							"_id": "AAAAAAGW6l7ia62x+/8=",
+							"_parent": {
+								"$ref": "AAAAAAFF+qBtyKM79qY="
+							},
+							"fillColor": "#C07575",
+							"font": "Arial;13;0",
+							"parentStyle": false,
+							"left": 344,
+							"top": 896,
+							"width": 256,
+							"height": 103,
+							"text": "Clase Ubicacion? como manejamos la busqueda por cercania"
 						}
 					]
 				},
