@@ -1,17 +1,18 @@
 package com.findamatch.model;
 
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.time.LocalDateTime;
 
 public class Partido {
-    private Deporte deporte;
+    private Deporte tipoDeporte;
     private List<Usuario> jugadores;
-    private String ubicacion; // Deberia cambiar, quizas una clase o algo que ayude a la busqueda por cercania
-    private LocalDateTime comienzo;
-    private int duracionMinutos;
-    private String estado; // CAMBIAR A STATE
-    private String estrategiaEmparejamiento; // CAMBIAR A ESTRATEGIA DE EMPAREJAMIENTO
+    private int duracion;
+    private Ubicacion ubicacion;
+    private Date fecha;
+    private IEstadoPartido estado;
+    private IEstrategiaEmparejamiento estrategiaEmparejamiento;
 
     public Partido(
             Deporte deporte,
@@ -32,7 +33,7 @@ public class Partido {
 
     public String toString() {
         return "Partido{" +
-                "deporte=" + deporte +
+                "deporte=" + tipoDeporte +
                 // ", jugadores=" + jugadores +
                 ", ubicacion='" + ubicacion + '\'' +
                 ", comienzo=" + comienzo +
@@ -42,4 +43,26 @@ public class Partido {
                 '}';
     }
 
+
+    public void cambiarEstado(IEstadoPartido nuevoEstado) {
+
+    }
+    public void cambiarEstrategia(IEstrategiaEmparejamiento estrategia) {
+
+    }
+    public void crearPartido() {
+
+    }
+    public void buscarPartido() {
+
+    }
+    public void agregarPartido() {
+
+    }
+    public void cancelarPartido() {
+
+    }
+    public void confirmarPartido() {
+
+    }
 }

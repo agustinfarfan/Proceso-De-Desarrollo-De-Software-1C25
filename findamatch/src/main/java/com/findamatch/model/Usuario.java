@@ -1,19 +1,35 @@
 package com.findamatch.model;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
+import com.findamatch.model.dto.UsuarioDTO;
 
 public class Usuario {
-
     private String nombreUsuario;
     private String mail;
-    private String contrasena;
-    // private List<UsuarioDeporteFavorito> deportesFavoritos;
+    private String contraseña;
+    private List<UsuarioDeporte> deportes;
 
-    public Usuario(String nombreUsuario, String mail, String contrasena) {
+    public Usuario(String nombreUsuario, String mail, String contraseña) {
         this.nombreUsuario = nombreUsuario;
         this.mail = mail;
-        this.contrasena = contrasena;
+        this.contraseña = contraseña;
+        this.deportes = new ArrayList<>();
+    }
+
+    public void registrarUsuario(UsuarioDTO usuarioDTO) {
+
+    }
+
+    public boolean loginUsuario(UsuarioDTO usuarioDTO) {
+
+        return true;
+    }
+
+    public void actualizarDatosDelUsuario(UsuarioDTO usuarioDTO) {
+
+    }
+
+    public void eliminarUsuario() {
     }
 
 }
