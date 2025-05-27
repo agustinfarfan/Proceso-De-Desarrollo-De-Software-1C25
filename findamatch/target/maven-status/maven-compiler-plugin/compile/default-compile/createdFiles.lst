@@ -1,0 +1,7 @@
+com\findamatch\App.class
+com\findamatch\model\Deporte.class
+com\findamatch\controller\DeporteController.class
+com\findamatch\controller\PartidoController.class
+com\findamatch\model\enums\NIVEL_DEPORTE.class
+com\findamatch\model\Partido.class
+com\findamatch\model\Usuario.class
