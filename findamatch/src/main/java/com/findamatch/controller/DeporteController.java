@@ -9,7 +9,7 @@ public class DeporteController {
     private List<Deporte> deportes;
 
     public DeporteController() {
-        this.deportes = new ArrayList<>(deportes);
+        this.deportes = new ArrayList<Deporte>();
     }
 
     public void crearDeporte(String nombre, int cantMinJugadores, int cantMaxJugadores) {
