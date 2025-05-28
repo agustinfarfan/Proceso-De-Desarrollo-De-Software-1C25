@@ -9,33 +9,76 @@ import java.util.ArrayList;
 public class DeporteController {
 
     Deporte deporte;
+    private static DeporteController instance = null;
 
-    public DeporteController() {
+    // Constructor
 
+    private DeporteController() {
         this.deporte = new Deporte();
-
     }
 
-    public void crearDeporte(DeporteDTO deporteDTO) {
-        Deporte nuevoDeporte = new Deporte(deporteDTO.getNombreDeporte(), cantMinJugadores, cantMaxJmugadores,
-                descricpcion);
+    public static DeporteController getInstance() {
+        if (instance == null) {
+            instance = new DeporteController();
+        }
+        return instance;
+    }
 
+    // CRUD
+
+    public List<DeporteDTO> getAllDeportesDTOs() {
+
+        List<Deporte> deportes = deporte.findAllDeportes();
+        List<DeporteDTO> deportesDto = new ArrayList<DeporteDTO>();
+
+        for (Deporte deporte : deportes) {
+            deportesDto.add(deporteToDTO(deporte));
+        }
+
+        return deportesDto;
+    }
+
+    public DeporteDTO getDeporteDTOById(int id) {
+
+        Deporte deporteEncontrado = deporte.findDeporteById(id);
+        DeporteDTO deporteDto = deporteToDTO(deporteEncontrado);
+
+        return deporteDto;
+    }
+
+    public void createDeporte(DeporteDTO deporteDTO) {
+        Deporte nuevoDeporte = new Deporte(
+                deporteDTO.getId(),
+                deporteDTO.getNombre(),
+                deporteDTO.getCantMinJugadores(),
+                deporteDTO.getCantMaxJugadores(),
+                deporteDTO.getDescripcion());
         this.deporte.saveDeporte(nuevoDeporte);
     }
 
-    public List<DeporteDTO> listarDeportes() {
-
-        List<Deporte> deportes = deporte.findDeportes();
-
-        // Mapeo de deporte a deporteDTO
-
-        return deportes;
+    public void updateDeporte(DeporteDTO deporteDTO) {
+        Deporte deporteEncontrado = deporte.findDeporteById(deporteDTO.getId());
+        deporteEncontrado.setNombre(deporteDTO.getNombre());
+        deporteEncontrado.setCantMinJugadores(deporteDTO.getCantMinJugadores());
+        deporteEncontrado.setCantMaxJugadores(deporteDTO.getCantMaxJugadores());
+        deporteEncontrado.setDescripcion(deporteDTO.getDescripcion());
+        deporte.updateDeporte(deporteEncontrado);
     }
 
-    public void mostrarDeportes() {
-        for (Deporte deporte : deportes) {
-            System.out.println(deporte.toString());
-        }
+    public void deleteDeporte(int id) {
+        deporte.deleteDeporte(id);
+    }
+
+    // Auxiliar
+
+    private DeporteDTO deporteToDTO(Deporte deporte) {
+        DeporteDTO deporteDTO = new DeporteDTO(
+                deporte.getId(),
+                deporte.getNombre(),
+                deporte.getCantMinJugadores(),
+                deporte.getCantMaxJugadores(),
+                deporte.getDescripcion());
+        return deporteDTO;
     }
 
 }
