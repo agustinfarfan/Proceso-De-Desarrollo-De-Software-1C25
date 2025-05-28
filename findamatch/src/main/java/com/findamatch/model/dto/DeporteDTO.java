@@ -7,7 +7,8 @@ public class DeporteDTO {
     private String descripcion;
 
     // Constructor
-    public DeporteDTO() {}
+    public DeporteDTO() {
+    }
 
     public DeporteDTO(String nombreDeporte, int cantMinDeJugadores, int cantMaxDeJugadores, String descripcion) {
         this.nombreDeporte = nombreDeporte;

@@ -2,6 +2,8 @@ package com.findamatch.controller;
 
 import com.findamatch.model.Deporte;
 import com.findamatch.model.Partido;
+import com.findamatch.model.Ubicacion;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -17,7 +19,7 @@ public class PartidoController {
     public void crearPartido(
             Deporte deporte,
             // List<Usuario> jugadores,
-            String ubicacion,
+            Ubicacion ubicacion,
             LocalDateTime comienzo,
             int duracionMinutos) {
         // String estado,

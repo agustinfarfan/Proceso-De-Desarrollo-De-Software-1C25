@@ -9,8 +9,7 @@ import com.findamatch.controller.DeporteController;
 public class App {
     public static void main(String[] args) {
         DeporteController dc = new DeporteController();
-        dc.crearDeporte("Futbol", 5, 5);
-        dc.mostrarDeportes();
+        dc.listarDeportes();
 
     }
 }
