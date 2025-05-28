@@ -47,12 +47,7 @@ public class DeporteController {
     }
 
     public void createDeporte(DeporteDTO deporteDTO) {
-        Deporte nuevoDeporte = new Deporte(
-                deporteDTO.getId(),
-                deporteDTO.getNombre(),
-                deporteDTO.getCantMinJugadores(),
-                deporteDTO.getCantMaxJugadores(),
-                deporteDTO.getDescripcion());
+        Deporte nuevoDeporte = dtoToDeporte(deporteDTO);
         this.deporte.saveDeporte(nuevoDeporte);
     }
 
@@ -81,4 +76,13 @@ public class DeporteController {
         return deporteDTO;
     }
 
+    private Deporte dtoToDeporte(DeporteDTO deporteDTO) {
+        Deporte deporte = new Deporte(
+                deporteDTO.getId(),
+                deporteDTO.getNombre(),
+                deporteDTO.getCantMinJugadores(),
+                deporteDTO.getCantMaxJugadores(),
+                deporteDTO.getDescripcion());
+        return deporte;
+    }
 }
