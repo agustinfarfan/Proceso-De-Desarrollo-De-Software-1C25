@@ -3,6 +3,7 @@ package com.findamatch.model;
 import java.sql.SQLException;
 import java.util.*;
 
+import com.findamatch.dao.DeporteDAO;
 import com.findamatch.dao.UsuarioDAO;
 import com.findamatch.model.dto.UsuarioDTO;
 
@@ -12,19 +13,18 @@ public class Usuario {
     private String nombreUsuario;
     private String mail;
     private String contrasena;
-    private int edad;
     private String ubicacion;
     private List<UsuarioDeporte> deportes;
 
     UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
+    DeporteDAO deporteDAO = DeporteDAO.getInstance();
 
-    public Usuario(int id, String nombreUsuario, String mail, String contrasena, int edad, String ubicacion) {
+    public Usuario(int id, String nombreUsuario, String mail, String contrasena, String ubicacion) {
 
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.mail = mail;
         this.contrasena = contrasena;
-        this.edad = edad;
         this.ubicacion = ubicacion;
 
         this.deportes = new ArrayList<>();
@@ -64,12 +64,15 @@ public class Usuario {
 
     }
 
-    public void saveUsuario(Usuario usuario) {
+    public int saveUsuario(Usuario usuario) {
 
         try {
-            usuarioDAO.saveUsuario(usuario);
+            int id = usuarioDAO.saveUsuario(usuario);
+            return id;
+
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         }
 
     }
@@ -128,14 +131,6 @@ public class Usuario {
         this.contrasena = contrasena;
     }
 
-    public int getEdad() {
-        return edad;
-    }
-
-    public void setEdad(int edad) {
-        this.edad = edad;
-    }
-
     public String getUbicacion() {
         return ubicacion;
     }
@@ -152,7 +147,6 @@ public class Usuario {
                 ", nombreUsuario='" + nombreUsuario + '\'' +
                 ", mail='" + mail + '\'' +
                 ", contrasena='" + contrasena + '\'' +
-                ", edad=" + edad +
                 ", ubicacion='" + ubicacion + '\'' +
                 '}';
     }

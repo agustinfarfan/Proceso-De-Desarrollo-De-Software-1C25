@@ -41,9 +41,8 @@ public class UsuarioDAO {
                 String nombreUsuario = rs.getString("nombre_usuario");
                 String mail = rs.getString("mail");
                 String contrasena = rs.getString("contrasena");
-                int edad = rs.getInt("edad");
-                String ubicacion = rs.getString("ubicacion");
-                Usuario usuario = new Usuario(id, nombreUsuario, mail, contrasena, edad, ubicacion);
+                String ubicacion = rs.getString("domicilio");
+                Usuario usuario = new Usuario(id, nombreUsuario, mail, contrasena, ubicacion);
                 usuarios.add(usuario);
             }
         } catch (SQLException e) {
@@ -66,9 +65,8 @@ public class UsuarioDAO {
                 String nombreUsuario = rs.getString("nombre_usuario");
                 String mail = rs.getString("mail");
                 String contrasena = rs.getString("contrasena");
-                int edad = rs.getInt("edad");
-                String ubicacion = rs.getString("ubicacion");
-                usuario = new Usuario(idUsuario, nombreUsuario, mail, contrasena, edad, ubicacion);
+                String ubicacion = rs.getString("domicilio");
+                usuario = new Usuario(idUsuario, nombreUsuario, mail, contrasena, ubicacion);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -78,19 +76,40 @@ public class UsuarioDAO {
         return usuario;
     }
 
-    public void saveUsuario(Usuario usuario) throws SQLException {
+    public int saveUsuario(Usuario usuario) throws SQLException {
         Connection con = conectar();
-        String sql = "INSERT INTO usuario (id, nombre_usuario, mail, contrasena, edad, ubicacion) VALUES (?,?,?,?,?,?)";
+        String sql = "INSERT INTO usuario (nombre_usuario, mail, contrasena, domicilio) VALUES (?,?,?,?) RETURNING id";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, usuario.getId());
-            ps.setString(2, usuario.getNombreUsuario());
-            ps.setString(3, usuario.getMail());
-            ps.setString(4, usuario.getContrasena());
-            ps.setInt(5, usuario.getEdad());
-            ps.setString(6, usuario.getUbicacion());
-            ps.executeUpdate();
+            ps.setString(1, usuario.getNombreUsuario());
+            ps.setString(2, usuario.getMail());
+            ps.setString(3, usuario.getContrasena());
+            ps.setString(4, usuario.getUbicacion());
+
+            // Obtener el ID generado
+            int usuarioId = -1;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    usuarioId = rs.getInt("id");
+                } else {
+                    throw new SQLException("No se pudo obtener el ID del usuario insertado.");
+                }
+            }
+
+            // CREAMOS LAS RELACIONES CON DEPORTE DEFAULTS
+            String insertRelaciones = """
+                        INSERT INTO usuariodeporte (usuario_id, deporte_id)
+                        SELECT ?, id FROM deporte
+                    """;
+            try (PreparedStatement psRelacion = con.prepareStatement(insertRelaciones)) {
+                psRelacion.setInt(1, usuarioId);
+                psRelacion.executeUpdate();
+            }
+
+            return usuarioId;
+
         } catch (SQLException e) {
             e.printStackTrace();
+            return -1;
         } finally {
             con.close();
         }
@@ -98,14 +117,13 @@ public class UsuarioDAO {
 
     public void updateUsuario(Usuario usuario) throws SQLException {
         Connection con = conectar();
-        String sql = "UPDATE usuario SET nombre_usuario =?, mail =?, contrasena =?, edad =?, ubicacion =? WHERE id =?";
+        String sql = "UPDATE usuario SET nombre_usuario =?, mail =?, contrasena =?, domicilio =? WHERE id =?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, usuario.getNombreUsuario());
             ps.setString(2, usuario.getMail());
             ps.setString(3, usuario.getContrasena());
-            ps.setInt(4, usuario.getEdad());
-            ps.setString(5, usuario.getUbicacion());
-            ps.setInt(6, usuario.getId());
+            ps.setString(4, usuario.getUbicacion());
+            ps.setInt(5, usuario.getId());
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

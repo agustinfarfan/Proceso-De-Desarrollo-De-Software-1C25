@@ -3,12 +3,15 @@ package com.findamatch.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.findamatch.model.Deporte;
 import com.findamatch.model.Usuario;
+import com.findamatch.model.UsuarioDeporte;
 import com.findamatch.model.dto.UsuarioDTO;
 
 public class UsuarioController {
 
     Usuario usuario;
+    UsuarioDeporte usuarioDeporte;
 
     private static UsuarioController instance = null;
 
@@ -16,6 +19,7 @@ public class UsuarioController {
 
     private UsuarioController() {
         this.usuario = new Usuario();
+        this.usuarioDeporte = new UsuarioDeporte();
     }
 
     public static UsuarioController getInstance() {
@@ -47,11 +51,13 @@ public class UsuarioController {
         return usuarioDTO;
     }
 
-    public void createUsuario(UsuarioDTO usuarioDTO) {
+    public int createUsuario(UsuarioDTO usuarioDTO) {
 
         Usuario usuarioNuevo = dtoToUsuario(usuarioDTO);
 
-        usuario.saveUsuario(usuarioNuevo);
+        int id = usuario.saveUsuario(usuarioNuevo);
+
+        return id;
     }
 
     public void updateUsuario(UsuarioDTO usuarioDTO) {
@@ -73,19 +79,17 @@ public class UsuarioController {
         usuarioDTO.setNombreUsuario(usuario.getNombreUsuario());
         usuarioDTO.setMail(usuario.getMail());
         usuarioDTO.setContrasena(usuario.getContrasena());
-        usuarioDTO.setEdad(usuario.getEdad());
         usuarioDTO.setUbicacion(usuario.getUbicacion());
         return usuarioDTO;
     }
 
     private Usuario dtoToUsuario(UsuarioDTO usuarioDTO) {
         Usuario usuarioNuevo = new Usuario();
-        usuario.setId(usuarioDTO.getId());
-        usuario.setNombreUsuario(usuarioDTO.getNombreUsuario());
-        usuario.setMail(usuarioDTO.getMail());
-        usuario.setContrasena(usuarioDTO.getContrasena());
-        usuario.setEdad(usuarioDTO.getEdad());
-        usuario.setUbicacion(usuarioDTO.getUbicacion());
+        usuarioNuevo.setId(usuarioDTO.getId());
+        usuarioNuevo.setNombreUsuario(usuarioDTO.getNombreUsuario());
+        usuarioNuevo.setMail(usuarioDTO.getMail());
+        usuarioNuevo.setContrasena(usuarioDTO.getContrasena());
+        usuarioNuevo.setUbicacion(usuarioDTO.getUbicacion());
         return usuarioNuevo;
     }
 
