@@ -1,10 +1,6 @@
-package com.findamatch.model;
+package com.findamatch.model.dto;
 
-import java.util.List;
-
-import com.findamatch.dao.DeporteDAO;
-
-public class Deporte {
+public class DeporteDTO {
 
     private int id;
     private String nombre;
@@ -12,10 +8,25 @@ public class Deporte {
     private int cantMaxJugadores;
     private String descripcion;
 
-    DeporteDAO deporteDAO = DeporteDAO.getInstance();
+    // Constructor
 
-    public Deporte(int id, String nombre, int cantMinJugadores, int cantMaxJugadores, String descripcion) {
+    public DeporteDTO(
+            String nombre,
+            int cantMinJugadores,
+            int cantMaxJugadores,
+            String descripcion) {
+        this.nombre = nombre;
+        this.cantMinJugadores = cantMinJugadores;
+        this.cantMaxJugadores = cantMaxJugadores;
+        this.descripcion = descripcion;
+    }
 
+    public DeporteDTO(
+            int id,
+            String nombre,
+            int cantMinJugadores,
+            int cantMaxJugadores,
+            String descripcion) {
         this.id = id;
         this.nombre = nombre;
         this.cantMinJugadores = cantMinJugadores;
@@ -23,46 +34,7 @@ public class Deporte {
         this.descripcion = descripcion;
     }
 
-    public Deporte() {
-
-    }
-
-    // CRUD
-
-    public List<Deporte> findAllDeportes() {
-
-        List<Deporte> deportes = deporteDAO.findAllDeportes();
-
-        return deportes;
-
-    }
-
-    public Deporte findDeporteById(int id) {
-
-        Deporte deporte = null;
-
-        deporte = deporteDAO.findDeporteById(id);
-
-        return deporte;
-
-    }
-
-    public void saveDeporte(Deporte deporte) {
-
-        deporteDAO.saveDeporte(deporte);
-
-    }
-
-    public void updateDeporte(Deporte deporte) {
-        deporteDAO.updateDeporte(deporte);
-    }
-
-    public void deleteDeporte(int id) {
-        deporteDAO.deleteDeporte(id);
-    }
-
-    // Setters & Getters
-
+    // Getters y Setters
     public int getId() {
         return id;
     }
@@ -103,9 +75,11 @@ public class Deporte {
         this.descripcion = descripcion;
     }
 
+    // ToString
+
     @Override
     public String toString() {
-        return "Deporte{" +
+        return "DeporteDTO{" +
                 "id=" + id +
                 ", nombreDeporte=" + nombre +
                 ", cantMinDeJugadores=" + cantMinJugadores +
@@ -113,4 +87,5 @@ public class Deporte {
                 ", descripcion='" + descripcion + "}";
 
     }
+
 }

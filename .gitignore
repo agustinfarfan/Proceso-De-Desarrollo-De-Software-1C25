@@ -1,0 +1,30 @@
+# Ignorar archivos y carpetas generadas del proyecto Maven ubicado en /findamatch
+
+/findamatch/target/
+!/findamatch/.mvn/wrapper/maven-wrapper.jar
+/findamatch/.mvn/
+findamatch/pom.xml.tag
+findamatch/pom.xml.releaseBackup
+findamatch/pom.xml.versionsBackup
+findamatch/pom.xml.next
+findamatch/release.properties
+
+# IntelliJ IDEA
+/findamatch/.idea/
+/findamatch/*.iml
+/findamatch/out/
+
+/findamatch/.classpath
+/findamatch/.project
+/findamatch/.settings/
+/findamatch/bin/
+
+# VS Code
+/findamatch/.vscode/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+/findamatch/*.log
