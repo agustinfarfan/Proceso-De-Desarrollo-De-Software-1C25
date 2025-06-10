@@ -15,4 +15,53 @@ public class UsuarioDeporte {
         this.esFavorito = esFavorito;
     }
 
+    public UsuarioDeporte() {
+
+    }
+
+    // Getters y setters
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public Deporte getDeporte() {
+        return deporte;
+    }
+
+    public void setDeporte(Deporte deporte) {
+        this.deporte = deporte;
+    }
+
+    public Nivel getNivelJuego() {
+        return nivelJuego;
+    }
+
+    public void setNivelJuego(Nivel nivelJuego) {
+        this.nivelJuego = nivelJuego;
+    }
+
+    public boolean isEsFavorito() {
+        return esFavorito;
+    }
+
+    public void setEsFavorito(boolean esFavorito) {
+        this.esFavorito = esFavorito;
+    }
+
+    // To String
+    @Override
+    public String toString() {
+        return "UsuarioDeporte{" +
+                "usuario=" + usuario.getNombreUsuario() +
+                ", deporte=" + deporte.getNombre() +
+                ", nivelJuego=" + nivelJuego +
+                ", esFavorito=" + esFavorito +
+                '}';
+    }
+
 }

@@ -1,35 +1,176 @@
 package com.findamatch.model;
 
+import java.sql.SQLException;
 import java.util.*;
+
+import com.findamatch.dao.DeporteDAO;
+import com.findamatch.dao.UsuarioDAO;
 import com.findamatch.model.dto.UsuarioDTO;
 
 public class Usuario {
+
+    private int id;
     private String nombreUsuario;
     private String mail;
-    private String contraseña;
-    private List<UsuarioDeporte> deportes;
+    private String contrasena;
+    private String ubicacion;
+    private List<UsuarioDeporte> deportes; // lo tiene o no ?
 
-    public Usuario(String nombreUsuario, String mail, String contraseña) {
+    UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
+    DeporteDAO deporteDAO = DeporteDAO.getInstance();
+
+    public Usuario(int id, String nombreUsuario, String mail, String contrasena, String ubicacion) {
+
+        this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.mail = mail;
-        this.contraseña = contraseña;
-        this.deportes = new ArrayList<>();
+        this.contrasena = contrasena;
+        this.ubicacion = ubicacion;
     }
 
-    public void registrarUsuario(UsuarioDTO usuarioDTO) {
+    public Usuario() {
+        // TODO Auto-generated constructor stub
+    }
+
+    // CRUD
+
+    public List<Usuario> findAllUsuarios() {
+
+        List<Usuario> usuarios = new ArrayList<>();
+
+        try {
+            usuarios = usuarioDAO.findAllUsuarios();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return usuarios;
 
     }
 
-    public boolean loginUsuario(UsuarioDTO usuarioDTO) {
+    public Usuario findUsuarioById(int id) {
 
-        return true;
+        Usuario usuario = null;
+
+        try {
+            usuario = usuarioDAO.findUsuarioById(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return usuario;
+
     }
 
-    public void actualizarDatosDelUsuario(UsuarioDTO usuarioDTO) {
+    public int saveUsuario(Usuario usuario) {
+
+        try {
+            int id = usuarioDAO.saveUsuario(usuario);
+            return id;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
 
     }
 
-    public void eliminarUsuario() {
+    public void updateUsuario(Usuario usuario) {
+
+        try {
+            usuarioDAO.updateUsuario(usuario);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void deleteUsuario(int id) {
+
+        try {
+            usuarioDAO.deleteUsuario(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public List<UsuarioDeporte> getUsuarioDeportes() {
+        List<UsuarioDeporte> usuarioDeportes = new ArrayList<>();
+        try {
+            usuarioDeportes = usuarioDAO.getUsuarioDeportes();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usuarioDeportes;
+
+    }
+
+    public void updateUsuarioDeporte(UsuarioDeporte usuarioDeporte) throws SQLException {
+        usuarioDAO.updateUsuarioDeporte(usuarioDeporte);
+
+    }
+
+    // Getters y Setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public String getContrasena() {
+        return contrasena;
+    }
+
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
+    }
+
+    public String getUbicacion() {
+        return ubicacion;
+    }
+
+    public void setUbicacion(String ubicacion) {
+        this.ubicacion = ubicacion;
+    }
+
+    public List<UsuarioDeporte> getDeportes() {
+        return this.deportes;
+    }
+
+    public void setDeportes(List<UsuarioDeporte> deportes) {
+        this.deportes = deportes;
+    }
+
+    // ToString
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id=" + id +
+                ", nombreUsuario='" + nombreUsuario + '\'' +
+                ", mail='" + mail + '\'' +
+                ", contrasena='" + contrasena + '\'' +
+                ", ubicacion='" + ubicacion + '\'' +
+                '}';
     }
 
 }

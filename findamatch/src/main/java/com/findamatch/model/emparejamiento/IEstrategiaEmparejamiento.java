@@ -5,5 +5,7 @@ import com.findamatch.model.Usuario;
 import java.util.List;
 
 public interface IEstrategiaEmparejamiento {
+    int getId();
+
     List<Usuario> buscarEmparejamiento(Partido partido);
 }

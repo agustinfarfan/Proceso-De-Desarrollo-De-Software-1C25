@@ -1,32 +1,52 @@
 package com.findamatch.model.dto;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class PartidoDTO {
-    private String tipoDeporte;
+    private int id;
+    private int idDeporte;
+    private int idCreador;
     private String ubicacion;
-    private Date fecha;
+    private LocalDateTime comienzo;
     private int duracion;
-    private int horario;
+    private int estado;
+    private int estrategia;
 
     // Constructor
-    public PartidoDTO() {}
+    public PartidoDTO() {
+    }
 
-    public PartidoDTO(String tipoDeporte, String ubicacion, Date fecha, int duracion, int horario) {
-        this.tipoDeporte = tipoDeporte;
+    public PartidoDTO(int idDeporte, int idCreador, String ubicacion, LocalDateTime comienzo, int duracion) {
+        this.idDeporte = idDeporte;
+        this.idCreador = idCreador;
         this.ubicacion = ubicacion;
-        this.fecha = fecha;
         this.duracion = duracion;
-        this.horario = horario;
+        this.comienzo = comienzo;
     }
 
-    // Getters y Setters
-    public String getTipoDeporte() {
-        return tipoDeporte;
+    public int getId() {
+        return id;
     }
 
-    public void setTipoDeporte(String tipoDeporte) {
-        this.tipoDeporte = tipoDeporte;
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getIdDeporte() {
+        return idDeporte;
+    }
+
+    public void setIdDeporte(int idDeporte) {
+        this.idDeporte = idDeporte;
+    }
+
+    public int getIdCreador() {
+        return idCreador;
+    }
+
+    public void setIdCreador(int idCreador) {
+        this.idCreador = idCreador;
     }
 
     public String getUbicacion() {
@@ -37,12 +57,12 @@ public class PartidoDTO {
         this.ubicacion = ubicacion;
     }
 
-    public Date getFecha() {
-        return fecha;
+    public LocalDateTime getComienzo() {
+        return comienzo;
     }
 
-    public void setFecha(Date fecha) {
-        this.fecha = fecha;
+    public void setComienzo(LocalDateTime comienzo) {
+        this.comienzo = comienzo;
     }
 
     public int getDuracion() {
@@ -53,11 +73,22 @@ public class PartidoDTO {
         this.duracion = duracion;
     }
 
-    public int getHorario() {
-        return horario;
+    public int getEstado() {
+        return estado;
     }
 
-    public void setHorario(int horario) {
-        this.horario = horario;
+    public void setEstado(int estado) {
+        this.estado = estado;
     }
+
+    public int getEstrategia() {
+        return estrategia;
+    }
+
+    public void setEstrategia(int estrategia) {
+        this.estrategia = estrategia;
+    }
+
+    // Getters y Setters
+
 }

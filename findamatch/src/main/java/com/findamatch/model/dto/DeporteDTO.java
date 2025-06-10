@@ -1,44 +1,70 @@
 package com.findamatch.model.dto;
 
 public class DeporteDTO {
-    private String nombreDeporte;
-    private int cantMinDeJugadores;
-    private int cantMaxDeJugadores;
+
+    private int id;
+    private String nombre;
+    private int cantMinJugadores;
+    private int cantMaxJugadores;
     private String descripcion;
 
     // Constructor
-    public DeporteDTO() {}
 
-    public DeporteDTO(String nombreDeporte, int cantMinDeJugadores, int cantMaxDeJugadores, String descripcion) {
-        this.nombreDeporte = nombreDeporte;
-        this.cantMinDeJugadores = cantMinDeJugadores;
-        this.cantMaxDeJugadores = cantMaxDeJugadores;
+    public DeporteDTO(
+            String nombre,
+            int cantMinJugadores,
+            int cantMaxJugadores,
+            String descripcion) {
+        this.nombre = nombre;
+        this.cantMinJugadores = cantMinJugadores;
+        this.cantMaxJugadores = cantMaxJugadores;
+        this.descripcion = descripcion;
+    }
+
+    public DeporteDTO(
+            int id,
+            String nombre,
+            int cantMinJugadores,
+            int cantMaxJugadores,
+            String descripcion) {
+        this.id = id;
+        this.nombre = nombre;
+        this.cantMinJugadores = cantMinJugadores;
+        this.cantMaxJugadores = cantMaxJugadores;
         this.descripcion = descripcion;
     }
 
     // Getters y Setters
-    public String getNombreDeporte() {
-        return nombreDeporte;
+    public int getId() {
+        return id;
     }
 
-    public void setNombreDeporte(String nombreDeporte) {
-        this.nombreDeporte = nombreDeporte;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    public int getCantMinDeJugadores() {
-        return cantMinDeJugadores;
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setCantMinDeJugadores(int cantMinDeJugadores) {
-        this.cantMinDeJugadores = cantMinDeJugadores;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public int getCantMaxDeJugadores() {
-        return cantMaxDeJugadores;
+    public int getCantMinJugadores() {
+        return cantMinJugadores;
     }
 
-    public void setCantMaxDeJugadores(int cantMaxDeJugadores) {
-        this.cantMaxDeJugadores = cantMaxDeJugadores;
+    public void setCantMinJugadores(int cantMinJugadores) {
+        this.cantMinJugadores = cantMinJugadores;
+    }
+
+    public int getCantMaxJugadores() {
+        return cantMaxJugadores;
+    }
+
+    public void setCantMaxJugadores(int cantMaxJugadores) {
+        this.cantMaxJugadores = cantMaxJugadores;
     }
 
     public String getDescripcion() {
@@ -48,4 +74,18 @@ public class DeporteDTO {
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
+
+    // ToString
+
+    @Override
+    public String toString() {
+        return "DeporteDTO{" +
+                "id=" + id +
+                ", nombreDeporte=" + nombre +
+                ", cantMinDeJugadores=" + cantMinJugadores +
+                ", cantMaxDeJugadores=" + cantMaxJugadores +
+                ", descripcion='" + descripcion + "}";
+
+    }
+
 }
