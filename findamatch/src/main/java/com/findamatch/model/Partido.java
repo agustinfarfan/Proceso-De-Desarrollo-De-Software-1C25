@@ -2,6 +2,7 @@ package com.findamatch.model;
 
 import com.findamatch.dao.PartidoDAO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
+import com.findamatch.model.emparejamiento.estrategias.PorCercania;
 import com.findamatch.model.estado.EstadoCreado;
 import com.findamatch.model.estado.IEstadoPartido;
 
@@ -40,7 +41,7 @@ public class Partido {
         this.fecha = fecha;
         this.duracion = duracionMinutos;
         this.estado = new EstadoCreado(); // Estado inicial
-        this.estrategiaEmparejamiento = new PorCercania();
+        this.estrategiaEmparejamiento = new PorCercania(); // Estrategia default
     }
 
     public Partido(int id, Deporte deporte, Usuario creador, Ubicacion ubicacion,
@@ -56,7 +57,7 @@ public class Partido {
     }
 
     //
-  
+
     public void confirmarPartido() {
         estado.confirmar(this);
     }
@@ -67,10 +68,9 @@ public class Partido {
 
     public void finalizarPartido() {
         estado.finalizar(this);
-      
-     
-    // comenzar partido?
+    }
 
+    // comenzar partido?
 
     // CRUD
 

@@ -4,6 +4,8 @@ import com.findamatch.model.Partido;
 
 public class EstadoCancelado implements IEstadoPartido {
 
+    private final String nombre = "CANCELADO";
+
     @Override
     public void confirmar(Partido partido) {
         System.out.println("No se puede confirmar un partido cancelado.");
@@ -21,6 +23,6 @@ public class EstadoCancelado implements IEstadoPartido {
 
     @Override
     public String nombre() {
-        return "Cancelado";
+        return this.nombre;
     }
 }

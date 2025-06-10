@@ -43,12 +43,6 @@ public class EstadoDAO {
         }
         // return estado;
 
-        return new IEstadoPartido() {
-            @Override
-            public int getId() {
-                return id;
-            }
-
-        };
+        return null; // Debería haber algun switch con el estado
     }
 }

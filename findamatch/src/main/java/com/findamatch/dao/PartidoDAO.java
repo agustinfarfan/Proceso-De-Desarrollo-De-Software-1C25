@@ -106,7 +106,8 @@ public class PartidoDAO {
             ps.setString(3, partido.getUbicacion().toString());
             ps.setTimestamp(4, Timestamp.valueOf(partido.getFecha()));
             ps.setInt(5, partido.getDuracion());
-            ps.setInt(6, partido.getEstado().getId());
+            ps.setInt(6, partido.getEstado().getId()); // SWITCH PARA AGARRAR EL ID POR EL NOMBRE | PREGUNTAR AL PROFE
+                                                       // POR ID
             ps.setInt(7, partido.getEstrategiaEmparejamiento().getId());
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -133,7 +134,7 @@ public class PartidoDAO {
             ps.setString(3, partido.getUbicacion().toString());
             ps.setTimestamp(4, Timestamp.valueOf(partido.getFecha()));
             ps.setInt(5, partido.getDuracion());
-            ps.setInt(6, partido.getEstado().getId());
+            ps.setInt(6, partido.getEstado().getId()); // SWITCH PARA AGARRAR EL ID POR EL NOMBRE
             ps.setInt(7, partido.getEstrategiaEmparejamiento().getId());
             ps.setInt(8, partido.getId());
             ps.executeUpdate();

@@ -4,6 +4,8 @@ import com.findamatch.model.Partido;
 
 public class EstadoCreado implements IEstadoPartido {
 
+    private final String nombre = "CREADO";
+
     @Override
     public void confirmar(Partido partido) {
         partido.setEstado(new EstadoConfirmado());
@@ -23,6 +25,6 @@ public class EstadoCreado implements IEstadoPartido {
 
     @Override
     public String nombre() {
-        return "Creado";
+        return this.nombre;
     }
 }

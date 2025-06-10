@@ -4,6 +4,8 @@ import com.findamatch.model.Partido;
 
 public class EstadoFinalizado implements IEstadoPartido {
 
+    private final String nombre = "FINALIZADO";
+
     @Override
     public void confirmar(Partido partido) {
         System.out.println("No se puede confirmar un partido ya finalizado.");
@@ -21,6 +23,6 @@ public class EstadoFinalizado implements IEstadoPartido {
 
     @Override
     public String nombre() {
-        return "Finalizado";
+        return this.nombre;
     }
 }
