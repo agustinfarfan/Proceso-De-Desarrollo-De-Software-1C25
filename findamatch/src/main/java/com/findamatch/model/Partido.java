@@ -1,16 +1,14 @@
 package com.findamatch.model;
 
-import java.util.Date;
-import java.util.List;
-
 import com.findamatch.dao.PartidoDAO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
-import com.findamatch.model.emparejamiento.estrategias.PorCercania;
+import com.findamatch.model.estado.EstadoCreado;
 import com.findamatch.model.estado.IEstadoPartido;
 
-import java.util.ArrayList;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Partido {
     private int id;
@@ -41,7 +39,7 @@ public class Partido {
         this.ubicacion = ubicacion;
         this.fecha = fecha;
         this.duracion = duracionMinutos;
-        // this.estado = estado; // TODO: implementar estados de partido
+        this.estado = new EstadoCreado(); // Estado inicial
         this.estrategiaEmparejamiento = new PorCercania();
     }
 
@@ -57,33 +55,22 @@ public class Partido {
         this.estrategiaEmparejamiento = estrategia;
     }
 
-    // CRUD
-
-    public void cambiarEstado(IEstadoPartido nuevoEstado) {
-    }
-
-    public void cambiarEstrategia(IEstrategiaEmparejamiento estrategia) {
-    }
-
-    public void crearPartido() {
-
-    }
-
-    public void buscarPartido() {
-
-    }
-
-    public void agregarPartido() {
-
+    //
+  
+    public void confirmarPartido() {
+        estado.confirmar(this);
     }
 
     public void cancelarPartido() {
-
+        estado.cancelar(this);
     }
 
-    public void confirmarPartido() {
+    public void finalizarPartido() {
+        estado.finalizar(this);
+      
+     
+    // comenzar partido?
 
-    }
 
     // CRUD
 
@@ -217,4 +204,5 @@ public class Partido {
                 // ", estrategiaEmparejamiento='" + estrategiaEmparejamiento + '\'' +
                 '}';
     }
+
 }

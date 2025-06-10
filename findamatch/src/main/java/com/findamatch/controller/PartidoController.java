@@ -1,15 +1,15 @@
 package com.findamatch.controller;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.findamatch.model.Deporte;
 import com.findamatch.model.Partido;
 import com.findamatch.model.Ubicacion;
 import com.findamatch.model.Usuario;
 import com.findamatch.model.dto.PartidoDTO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.time.LocalDateTime;
 
 public class PartidoController {
 
@@ -103,5 +103,24 @@ public class PartidoController {
         // partido.setEstrategiaEmparejamiento(IEstrategiaEmparejamiento.findById(partidoDTO.getEstrategia()));
         return partido;
     }
-
+public void confirmarPartido(int index) {
+        if (index >= 0 && index < partidos.size()) {
+            partidos.get(index).confirmarPartido();
+        }
+    }
+public void cancelarPartido(int index) {
+        if (index >= 0 && index < partidos.size()) {
+            partidos.get(index).cancelarPartido();
+        }
+    }
+public void finalizarPartido(int index) {
+        if (index >= 0 && index < partidos.size()) {
+            partidos.get(index).finalizarPartido();
+        }
+    }
+    public void buscarPartido(int index) {
+        if (index >= 0 && index < partidos.size()) {
+            partidos.get(index).buscarPartido(); // esto usará la estrategia
+        }
+    }
 }
