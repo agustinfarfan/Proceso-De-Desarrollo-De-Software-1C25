@@ -15,4 +15,8 @@ public class UsuarioDeporte {
         this.esFavorito = esFavorito;
     }
 
+    public UsuarioDeporte() {
+
+    }
+
 }

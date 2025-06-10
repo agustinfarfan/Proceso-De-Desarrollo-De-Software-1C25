@@ -6,27 +6,24 @@ public class UsuarioDTO {
     private String nombreUsuario;
     private String mail;
     private String contrasena;
-    private int edad;
     private String ubicacion;
 
     // Constructor
     public UsuarioDTO() {
     }
 
-    public UsuarioDTO(String nombreUsuario, String mail, String contrasena, int edad, String ubicacion) {
+    public UsuarioDTO(String nombreUsuario, String mail, String contrasena, String ubicacion) {
         this.nombreUsuario = nombreUsuario;
         this.mail = mail;
         this.contrasena = contrasena;
-        this.edad = edad;
         this.ubicacion = ubicacion;
     }
 
-    public UsuarioDTO(int id, String nombreUsuario, String mail, String contrasena, int edad, String ubicacion) {
+    public UsuarioDTO(int id, String nombreUsuario, String mail, String contrasena, String ubicacion) {
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.mail = mail;
         this.contrasena = contrasena;
-        this.edad = edad;
         this.ubicacion = ubicacion;
     }
 
@@ -64,14 +61,6 @@ public class UsuarioDTO {
         this.contrasena = contrasena;
     }
 
-    public int getEdad() {
-        return edad;
-    }
-
-    public void setEdad(int edad) {
-        this.edad = edad;
-    }
-
     public String getUbicacion() {
         return ubicacion;
     }
@@ -88,7 +77,6 @@ public class UsuarioDTO {
                 ", nombreUsuario='" + nombreUsuario + '\'' +
                 ", mail='" + mail + '\'' +
                 ", contrasena='" + contrasena + '\'' +
-                ", edad=" + edad +
                 ", ubicacion='" + ubicacion + '\'' +
                 '}';
     }

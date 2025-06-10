@@ -1,37 +1,62 @@
 package com.findamatch.model;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.findamatch.dao.PartidoDAO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 import com.findamatch.model.estado.EstadoCreado;
 import com.findamatch.model.estado.IEstadoPartido;
 
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Partido {
+    private int id;
     private Deporte deporte;
     private List<Usuario> jugadores;
-    private int duracion;
+    private Usuario creador;
     private Ubicacion ubicacion;
     private LocalDateTime fecha;
+    private int duracion;
     private IEstadoPartido estado;
     private IEstrategiaEmparejamiento estrategiaEmparejamiento;
 
+    PartidoDAO partidoDAO = PartidoDAO.getInstance();
+
+    public Partido() {
+    }
+
     public Partido(
             Deporte deporte,
+            Usuario creador,
             Ubicacion ubicacion,
             LocalDateTime fecha,
             int duracionMinutos) {
-
         this.deporte = deporte;
-        this.jugadores = new ArrayList<>();
+        this.jugadores = new ArrayList<Usuario>();
+        this.jugadores.add(creador);
+        this.creador = creador;
         this.ubicacion = ubicacion;
         this.fecha = fecha;
         this.duracion = duracionMinutos;
         this.estado = new EstadoCreado(); // Estado inicial
+        this.estrategiaEmparejamiento = new PorCercania();
     }
 
-    // --------- MÉTODOS STATE ----------
+    public Partido(int id, Deporte deporte, Usuario creador, Ubicacion ubicacion,
+            LocalDateTime comienzo, int duracion, IEstadoPartido estado, IEstrategiaEmparejamiento estrategia) {
+        this.id = id;
+        this.deporte = deporte;
+        this.creador = creador;
+        this.ubicacion = ubicacion;
+        this.fecha = comienzo;
+        this.duracion = duracion;
+        this.estado = estado;
+        this.estrategiaEmparejamiento = estrategia;
+    }
+
+    //
+  
     public void confirmarPartido() {
         estado.confirmar(this);
     }
@@ -42,26 +67,67 @@ public class Partido {
 
     public void finalizarPartido() {
         estado.finalizar(this);
+      
+     
+    // comenzar partido?
+
+
+    // CRUD
+
+    public List<Partido> findAllPartidos() throws Exception {
+        List<Partido> partidos = new ArrayList<Partido>();
+        partidos = PartidoDAO.getInstance().findAllPartidos();
+        return partidos;
     }
 
-    public void setEstado(IEstadoPartido estado) {
-        this.estado = estado;
+    public Partido findPartidoById(int id) throws Exception {
+        Partido partido = null;
+        partido = partidoDAO.findPartidoById(id);
+        return partido;
+
     }
 
-    public IEstadoPartido getEstado() {
-        return estado;
+    public int savePartido(Partido partido) {
+        try {
+            int id = partidoDAO.savePartido(partido);
+            return id;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1;
+        }
+
     }
 
-    // --------- MÉTODOS STRATEGY ----------
-    public void setEstrategiaEmparejamiento(IEstrategiaEmparejamiento estrategia) {
-        this.estrategiaEmparejamiento = estrategia;
+    public void updatePartido(Partido partido) {
+
+        try {
+            partidoDAO.updatePartido(partido);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public void buscarPartido() {
-       
+    public void deletePartido(int id) {
+
+        try {
+            partidoDAO.deletePartido(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    // --------- GETTERS / SETTERS ----------
+    // getters and setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public Deporte getDeporte() {
         return deporte;
     }
@@ -76,6 +142,14 @@ public class Partido {
 
     public void setJugadores(List<Usuario> jugadores) {
         this.jugadores = jugadores;
+    }
+
+    public Usuario getCreador() {
+        return creador;
+    }
+
+    public void setCreador(Usuario creador) {
+        this.creador = creador;
     }
 
     public int getDuracion() {
@@ -102,20 +176,33 @@ public class Partido {
         this.fecha = fecha;
     }
 
-    // --------- TO STRING ----------
-    @Override
+    public IEstadoPartido getEstado() {
+        return estado;
+    }
+
+    public void setEstado(IEstadoPartido estado) {
+        this.estado = estado;
+    }
+
+    public IEstrategiaEmparejamiento getEstrategiaEmparejamiento() {
+        return estrategiaEmparejamiento;
+    }
+
+    public void setEstrategiaEmparejamiento(IEstrategiaEmparejamiento estrategiaEmparejamiento) {
+        this.estrategiaEmparejamiento = estrategiaEmparejamiento;
+    }
+
+    // ToString
     public String toString() {
         return "Partido{" +
                 "deporte=" + deporte +
-                ", ubicacion=" + ubicacion +
+                // ", jugadores=" + jugadores +
+                ", ubicacion='" + ubicacion + '\'' +
                 ", comienzo=" + fecha +
                 ", duracionMinutos=" + duracion +
-                ", estado=" + (estado != null ? estado.nombre() : "Sin estado") +
+                // ", estado='" + estado + '\'' +
+                // ", estrategiaEmparejamiento='" + estrategiaEmparejamiento + '\'' +
                 '}';
     }
 
-    // --------- OTROS MÉTODOS VACÍOS ----------
-    public void crearPartido() {}
-
-    public void agregarPartido() {}
 }

@@ -7,42 +7,101 @@ import java.util.List;
 import com.findamatch.model.Deporte;
 import com.findamatch.model.Partido;
 import com.findamatch.model.Ubicacion;
+import com.findamatch.model.Usuario;
+import com.findamatch.model.dto.PartidoDTO;
+import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 
 public class PartidoController {
-    private List<Partido> partidos;
 
-    public PartidoController() {
-        // SINGLETON
-        partidos = new ArrayList<>();
-    }
+    Partido partido;
+    Deporte deporte;
+    Usuario usuario;
 
-    public void crearPartido(
-            Deporte deporte,
-            // List<Usuario> jugadores,
-            Ubicacion ubicacion,
-            LocalDateTime comienzo,
-            int duracionMinutos) {
-        // String estado,
-        // String estrategiaEmparejamiento)
+    private static PartidoController instance = null;
 
-        Partido partido = new Partido(
-                deporte,
-                // jugadores,
-                ubicacion,
-                comienzo,
-                duracionMinutos
-        // estado,
-        // estrategiaEmparejamiento
-        );
+    // Constructor
 
-        partidos.add(partido);
+    private PartidoController() {
+
+        partido = new Partido();
+        deporte = new Deporte();
+        usuario = new Usuario();
 
     }
 
-    public void mostrarPartidos() {
-        for (Partido partido : partidos) {
-            System.out.println(partido);
+    public static PartidoController getInstance() {
+        if (instance == null) {
+            instance = new PartidoController();
         }
+        return instance;
+    }
+
+    // CRUD
+
+    public List<PartidoDTO> getAllPartidosDTO() throws Exception {
+
+        List<Partido> partidos = partido.findAllPartidos();
+        List<PartidoDTO> partidosDTO = new ArrayList<>();
+
+        for (Partido p : partidos) {
+            PartidoDTO partidoDTO = partidoToDTO(p);
+            partidosDTO.add(partidoDTO);
+        }
+
+        return partidosDTO;
+
+    }
+
+    public PartidoDTO getPartidoDTOById(int id) throws Exception {
+        Partido partidoEncontrado = partido.findPartidoById(id);
+        PartidoDTO partidoDTO = partidoToDTO(partidoEncontrado);
+        return partidoDTO;
+    }
+
+    public int createPartido(PartidoDTO partidoDTO) throws Exception {
+
+        Partido partido = dtoToPartido(partidoDTO);
+
+        int id = partido.savePartido(partido);
+
+        return id;
+
+    }
+
+    public void updatePartido(PartidoDTO partidoDTO) throws Exception {
+        Partido partido = dtoToPartido(partidoDTO);
+        partido.updatePartido(partido);
+    }
+
+    public void deletePartido(int id) {
+        partido.deletePartido(id);
+    }
+
+    // Conversiones DTO - Partido
+    public PartidoDTO partidoToDTO(Partido partido) {
+        PartidoDTO partidoDTO = new PartidoDTO();
+        partidoDTO.setId(partido.getId());
+        partidoDTO.setIdDeporte(partido.getDeporte().getId());
+        partidoDTO.setIdCreador(partido.getCreador().getId());
+        partidoDTO.setUbicacion(partido.getUbicacion().getDireccion());
+        partidoDTO.setComienzo(partido.getFecha());
+        partidoDTO.setDuracion(partido.getDuracion());
+        partidoDTO.setEstado(partido.getEstado().getId());
+        partidoDTO.setEstrategia(partido.getEstrategiaEmparejamiento().getId());
+        return partidoDTO;
+    }
+
+    public Partido dtoToPartido(PartidoDTO partidoDTO) throws Exception {
+        Partido partido = new Partido();
+        partido.setId(partidoDTO.getId());
+        partido.setDeporte(deporte.findDeporteById(partidoDTO.getIdDeporte()));
+        partido.setCreador(usuario.findUsuarioById(partidoDTO.getIdCreador()));
+        partido.setUbicacion(new Ubicacion(partidoDTO.getUbicacion()));
+        partido.setFecha(partidoDTO.getComienzo());
+        partido.setDuracion(partidoDTO.getDuracion());
+        // partido.setEstado(partido.getEstado().findById(partidoDTO.getEstado()));
+        // partido.setEstrategiaEmparejamiento(IEstrategiaEmparejamiento.findById(partidoDTO.getEstrategia()));
+        return partido;
     }
 public void confirmarPartido(int index) {
         if (index >= 0 && index < partidos.size()) {
