@@ -1,17 +1,23 @@
 package com.findamatch.controller;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.findamatch.model.Deporte;
 import com.findamatch.model.Usuario;
 import com.findamatch.model.UsuarioDeporte;
+import com.findamatch.model.dto.DeporteDTO;
 import com.findamatch.model.dto.UsuarioDTO;
+import com.findamatch.model.enums.Nivel;
 
 public class UsuarioController {
 
     Usuario usuario;
     UsuarioDeporte usuarioDeporte;
+
+    DeporteController dc = DeporteController.getInstance();
 
     private static UsuarioController instance = null;
 
@@ -69,6 +75,21 @@ public class UsuarioController {
 
     public void deleteUsuario(int id) {
         usuario.deleteUsuario(id);
+    }
+
+    public List<UsuarioDeporte> getUsuarioDeportes() {
+        List<UsuarioDeporte> deportesUsuario = usuario.getUsuarioDeportes(); // deberia existir un dao?
+        return deportesUsuario;
+    }
+
+    public void updateUsuarioDeporte(UsuarioDTO usuarioDTO, DeporteDTO deporteDTO, Nivel nivelJuego,
+            boolean esFavorito) throws SQLException {
+
+        Usuario usuario = dtoToUsuario(usuarioDTO);
+        Deporte deporte = dc.dtoToDeporte(deporteDTO);
+        UsuarioDeporte usuarioDeporte = new UsuarioDeporte(usuario, deporte, nivelJuego, esFavorito);
+
+        usuario.updateUsuarioDeporte(usuarioDeporte);
     }
 
     // Auxiliar

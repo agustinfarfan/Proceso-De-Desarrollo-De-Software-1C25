@@ -4,7 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.findamatch.model.Deporte;
 import com.findamatch.model.Usuario;
+import com.findamatch.model.UsuarioDeporte;
+import com.findamatch.model.enums.Nivel;
 
 public class UsuarioDAO {
 
@@ -23,7 +26,7 @@ public class UsuarioDAO {
     // Habria que implementar el metodo en una misma clase para no repetirlo en
     // todos los dao
     private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres";
+        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres?sslmode=require";
         String user = "postgres";
         String password = "findamatchuade";
 
@@ -138,6 +141,63 @@ public class UsuarioDAO {
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            con.close();
+        }
+    }
+
+    public List<UsuarioDeporte> getUsuarioDeportes() throws SQLException {
+        List<UsuarioDeporte> lista = new ArrayList<>();
+        Connection con = conectar();
+
+        String sql = "SELECT usuario_id, deporte_id, nivelJuego, esFavorito FROM usuariodeporte";
+
+        try (PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                int usuarioId = rs.getInt("usuario_id");
+                int deporteId = rs.getInt("deporte_id");
+                String nivelJuego = rs.getString("nivelJuego");
+                boolean esFavorito = rs.getBoolean("esFavorito");
+
+                // Obtener Usuario y Deporte completos
+                Usuario usuario = findUsuarioById(usuarioId); // asumido existente
+                DeporteDAO deporteDAO = DeporteDAO.getInstance();
+                Deporte deporte = deporteDAO.findDeporteById(deporteId); // asumido existente
+
+                // Crear UsuarioDeporte
+                UsuarioDeporte ud = new UsuarioDeporte(usuario, deporte, Nivel.valueOf(nivelJuego), esFavorito);
+                lista.add(ud);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            con.close();
+        }
+
+        return lista;
+    }
+
+    public void updateUsuarioDeporte(UsuarioDeporte usuarioDeporte) throws SQLException {
+        Connection con = conectar();
+        String sql = "UPDATE usuariodeporte " +
+                "SET nivelJuego = ?, esFavorito = ? " +
+                "WHERE usuario_id = ? AND deporte_id = ?";
+
+        try (
+                PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, usuarioDeporte.getNivelJuego().name()); // suponiendo enum
+            ps.setBoolean(2, usuarioDeporte.isEsFavorito());
+            ps.setInt(3, usuarioDeporte.getUsuario().getId());
+            ps.setInt(4, usuarioDeporte.getDeporte().getId());
+
+            ps.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

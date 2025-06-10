@@ -1,5 +1,9 @@
 package com.findamatch.model.dto;
 
+import java.util.List;
+
+import com.findamatch.model.UsuarioDeporte;
+
 public class UsuarioDTO {
 
     private int id;
@@ -7,6 +11,7 @@ public class UsuarioDTO {
     private String mail;
     private String contrasena;
     private String ubicacion;
+    private List<UsuarioDeporte> deportes;
 
     // Constructor
     public UsuarioDTO() {
@@ -19,12 +24,18 @@ public class UsuarioDTO {
         this.ubicacion = ubicacion;
     }
 
-    public UsuarioDTO(int id, String nombreUsuario, String mail, String contrasena, String ubicacion) {
+    public UsuarioDTO(int id,
+            String nombreUsuario,
+            String mail,
+            String contrasena,
+            String ubicacion,
+            List<UsuarioDeporte> deportes) {
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.mail = mail;
         this.contrasena = contrasena;
         this.ubicacion = ubicacion;
+        this.deportes = deportes;
     }
 
     // Getters y Setters

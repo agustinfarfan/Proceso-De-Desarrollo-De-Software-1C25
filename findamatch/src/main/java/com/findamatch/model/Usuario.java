@@ -14,7 +14,7 @@ public class Usuario {
     private String mail;
     private String contrasena;
     private String ubicacion;
-    private List<UsuarioDeporte> deportes;
+    private List<UsuarioDeporte> deportes; // lo tiene o no ?
 
     UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
     DeporteDAO deporteDAO = DeporteDAO.getInstance();
@@ -26,8 +26,6 @@ public class Usuario {
         this.mail = mail;
         this.contrasena = contrasena;
         this.ubicacion = ubicacion;
-
-        this.deportes = new ArrayList<>();
     }
 
     public Usuario() {
@@ -97,6 +95,22 @@ public class Usuario {
 
     }
 
+    public List<UsuarioDeporte> getUsuarioDeportes() {
+        List<UsuarioDeporte> usuarioDeportes = new ArrayList<>();
+        try {
+            usuarioDeportes = usuarioDAO.getUsuarioDeportes();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usuarioDeportes;
+
+    }
+
+    public void updateUsuarioDeporte(UsuarioDeporte usuarioDeporte) throws SQLException {
+        usuarioDAO.updateUsuarioDeporte(usuarioDeporte);
+
+    }
+
     // Getters y Setters
 
     public int getId() {
@@ -137,6 +151,14 @@ public class Usuario {
 
     public void setUbicacion(String ubicacion) {
         this.ubicacion = ubicacion;
+    }
+
+    public List<UsuarioDeporte> getDeportes() {
+        return this.deportes;
+    }
+
+    public void setDeportes(List<UsuarioDeporte> deportes) {
+        this.deportes = deportes;
     }
 
     // ToString

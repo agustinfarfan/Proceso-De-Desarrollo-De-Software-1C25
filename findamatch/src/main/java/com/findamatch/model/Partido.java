@@ -56,7 +56,7 @@ public class Partido {
         this.estrategiaEmparejamiento = estrategia;
     }
 
-    //
+    // Acciones Estado
 
     public void confirmarPartido() {
         estado.confirmar(this);
@@ -71,6 +71,12 @@ public class Partido {
     }
 
     // comenzar partido?
+
+    // Acciones Emparejamiento
+
+    public List<Usuario> buscarEmparejamiento() {
+        return estrategiaEmparejamiento.buscarEmparejamiento(this);
+    }
 
     // CRUD
 
