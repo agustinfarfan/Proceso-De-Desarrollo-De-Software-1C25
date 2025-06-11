@@ -27,5 +27,10 @@ public class EstadoConfirmado implements IEstadoPartido {
     public String nombre() {
         return this.nombre;
     }
+    @Override
+    public void comenzar(Partido partido) {
+    partido.setEstado(new EstadoEnCurso());
+    System.out.println("El partido ha comenzado.");
+    }
 
 }

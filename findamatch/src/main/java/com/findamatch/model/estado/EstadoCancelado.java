@@ -25,4 +25,8 @@ public class EstadoCancelado implements IEstadoPartido {
     public String nombre() {
         return this.nombre;
     }
+    @Override
+    public void comenzar(Partido partido) {
+    System.out.println("No se puede comenzar un partido cancelado.");
+}
 }

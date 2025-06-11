@@ -27,4 +27,8 @@ public class EstadoCreado implements IEstadoPartido {
     public String nombre() {
         return this.nombre;
     }
+    @Override
+    public void comenzar(Partido partido) {
+    System.out.println("El partido debe ser confirmado antes de comenzar.");
+    }
 }
