@@ -86,7 +86,8 @@ public class PartidoController {
         partidoDTO.setUbicacion(partido.getUbicacion().getDireccion());
         partidoDTO.setComienzo(partido.getFecha());
         partidoDTO.setDuracion(partido.getDuracion());
-        partidoDTO.setEstado(partido.getEstado().getId());
+        // REVISAR TEMA IDS CON EL PROFE
+        // partidoDTO.setEstado(partido.getEstado().getId());
         partidoDTO.setEstrategia(partido.getEstrategiaEmparejamiento().getId());
         return partidoDTO;
     }
@@ -99,28 +100,32 @@ public class PartidoController {
         partido.setUbicacion(new Ubicacion(partidoDTO.getUbicacion()));
         partido.setFecha(partidoDTO.getComienzo());
         partido.setDuracion(partidoDTO.getDuracion());
-        // partido.setEstado(partido.getEstado().findById(partidoDTO.getEstado()));
+        // REVISAR TEMA IDS CON EL PROFE
+        // partido.setEstado(partido.getEstado().findById(partidoDTO.getEstado())); //
         // partido.setEstrategiaEmparejamiento(IEstrategiaEmparejamiento.findById(partidoDTO.getEstrategia()));
         return partido;
     }
-public void confirmarPartido(int index) {
-        if (index >= 0 && index < partidos.size()) {
-            partidos.get(index).confirmarPartido();
-        }
+
+    public void confirmarPartido(int id) throws Exception {
+        Partido partidoEncontrado = partido.findPartidoById(id);
+        partidoEncontrado.confirmarPartido();
+        partido.updatePartido(partidoEncontrado);
     }
-public void cancelarPartido(int index) {
-        if (index >= 0 && index < partidos.size()) {
-            partidos.get(index).cancelarPartido();
-        }
+
+    public void cancelarPartido(int id) throws Exception {
+
+        Partido partidoEncontrado = partido.findPartidoById(id);
+        partidoEncontrado.cancelarPartido();
+        partido.updatePartido(partidoEncontrado);
+
     }
-public void finalizarPartido(int index) {
-        if (index >= 0 && index < partidos.size()) {
-            partidos.get(index).finalizarPartido();
-        }
+
+    public void finalizarPartido(int id) throws Exception {
+
+        Partido partidoEncontrado = partido.findPartidoById(id);
+        partidoEncontrado.finalizarPartido();
+        partido.updatePartido(partidoEncontrado);
+
     }
-    public void buscarPartido(int index) {
-        if (index >= 0 && index < partidos.size()) {
-            partidos.get(index).buscarPartido(); // esto usará la estrategia
-        }
-    }
+
 }

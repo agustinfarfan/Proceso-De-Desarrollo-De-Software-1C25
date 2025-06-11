@@ -23,7 +23,7 @@ public class DeporteDAO {
     // Habria que implementar el metodo en una misma clase para no repetirlo en
     // todos los dao
     private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres";
+        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres?sslmode=require";
         String user = "postgres";
         String password = "findamatchuade";
 

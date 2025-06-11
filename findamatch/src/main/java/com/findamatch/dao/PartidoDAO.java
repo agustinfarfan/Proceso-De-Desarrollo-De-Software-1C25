@@ -24,7 +24,7 @@ public class PartidoDAO {
     }
 
     private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres";
+        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres?sslmode=require";
         String user = "postgres";
         String password = "findamatchuade";
         return DriverManager.getConnection(url, user, password);
@@ -106,8 +106,9 @@ public class PartidoDAO {
             ps.setString(3, partido.getUbicacion().toString());
             ps.setTimestamp(4, Timestamp.valueOf(partido.getFecha()));
             ps.setInt(5, partido.getDuracion());
-            ps.setInt(6, partido.getEstado().getId());
-            ps.setInt(7, partido.getEstrategiaEmparejamiento().getId());
+            ps.setInt(6, 1);// El estado inicial siempre va a ser 1
+            ps.setInt(7, 1); // , partido.getEstrategiaEmparejamiento().getId()); // VER COMO HACER ESTA
+                             // PARTE
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -133,8 +134,10 @@ public class PartidoDAO {
             ps.setString(3, partido.getUbicacion().toString());
             ps.setTimestamp(4, Timestamp.valueOf(partido.getFecha()));
             ps.setInt(5, partido.getDuracion());
-            ps.setInt(6, partido.getEstado().getId());
-            ps.setInt(7, partido.getEstrategiaEmparejamiento().getId());
+            ps.setInt(6, 1);// partido.getEstado().getId()); // SWITCH PARA AGARRAR EL ID POR EL NOMBRE |
+                            // PREGUNTAR AL PROFE
+                            // POR ID
+            ps.setInt(7, 1); // partido.getEstrategiaEmparejamiento().getId()); MISMO PROBLEMA
             ps.setInt(8, partido.getId());
             ps.executeUpdate();
         } catch (SQLException e) {

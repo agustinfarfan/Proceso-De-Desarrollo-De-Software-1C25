@@ -19,7 +19,7 @@ public class EstadoDAO {
     }
 
     private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres";
+        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres?sslmode=require";
         String user = "postgres";
         String password = "findamatchuade";
         return DriverManager.getConnection(url, user, password);
@@ -43,12 +43,6 @@ public class EstadoDAO {
         }
         // return estado;
 
-        return new IEstadoPartido() {
-            @Override
-            public int getId() {
-                return id;
-            }
-
-        };
+        return null; // Debería haber algun switch con el estado
     }
 }

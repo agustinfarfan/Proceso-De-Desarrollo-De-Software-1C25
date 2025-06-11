@@ -66,7 +66,7 @@ public class DeporteController {
 
     // Auxiliar
 
-    private DeporteDTO deporteToDTO(Deporte deporte) {
+    public DeporteDTO deporteToDTO(Deporte deporte) {
         DeporteDTO deporteDTO = new DeporteDTO(
                 deporte.getId(),
                 deporte.getNombre(),
@@ -76,7 +76,7 @@ public class DeporteController {
         return deporteDTO;
     }
 
-    private Deporte dtoToDeporte(DeporteDTO deporteDTO) {
+    public Deporte dtoToDeporte(DeporteDTO deporteDTO) {
         Deporte deporte = new Deporte(
                 deporteDTO.getId(),
                 deporteDTO.getNombre(),
