@@ -3,8 +3,13 @@ package com.findamatch.model;
 import com.findamatch.dao.PartidoDAO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 import com.findamatch.model.emparejamiento.estrategias.PorCercania;
+import com.findamatch.model.estado.EstadoCancelado;
+import com.findamatch.model.estado.EstadoConfirmado;
 import com.findamatch.model.estado.EstadoCreado;
 import com.findamatch.model.estado.IEstadoPartido;
+import com.findamatch.model.notificacion.Notificacion;
+import com.findamatch.model.notificacion.Notificador;
+import com.findamatch.model.notificacion.interfaces.INotificacion;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -21,6 +26,9 @@ public class Partido {
     private int duracion;
     private IEstadoPartido estado;
     private IEstrategiaEmparejamiento estrategiaEmparejamiento;
+    //private List<INotificacion> observadores = new ArrayList<>();
+    private Notificador notificador = new Notificador();
+
 
     PartidoDAO partidoDAO = PartidoDAO.getInstance();
 
@@ -189,7 +197,10 @@ public class Partido {
     }
 
     public void setEstado(IEstadoPartido estado) {
-        this.estado = estado;
+        if (!this.estado.nombre().equals(estado.nombre())) {
+            this.estado = estado;
+            notificarCambioEstado();
+        }
     }
 
     public IEstrategiaEmparejamiento getEstrategiaEmparejamiento() {
@@ -213,4 +224,15 @@ public class Partido {
                 '}';
     }
 
+    public void agregarEstrategiaNotificacion(INotificacion estrategia) {
+        notificador.agregarEstrategia(estrategia);
+    }
+
+    public void quitarEstrategiaNotificacion(INotificacion estrategia) {
+        notificador.quitarEstrategia(estrategia);
+    }
+
+    public void notificarCambioEstado() {
+        notificador.notificar(this);
+    }
 }
