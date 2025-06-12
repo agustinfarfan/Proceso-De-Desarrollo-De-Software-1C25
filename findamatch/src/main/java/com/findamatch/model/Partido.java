@@ -77,8 +77,10 @@ public class Partido {
     public void finalizarPartido() {
         estado.finalizar(this);
     }
+    public void comenzarPartido() {
+    estado.comenzar(this);
+    }
 
-    // comenzar partido?
 
     // Acciones Emparejamiento
 

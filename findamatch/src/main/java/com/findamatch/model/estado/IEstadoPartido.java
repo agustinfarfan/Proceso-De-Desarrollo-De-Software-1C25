@@ -3,7 +3,6 @@ package com.findamatch.model.estado;
 import com.findamatch.model.Partido;
 
 public interface IEstadoPartido {
-
     String nombre();
 
     void confirmar(Partido partido);
@@ -12,4 +11,5 @@ public interface IEstadoPartido {
 
     void finalizar(Partido partido);
 
+    void comenzar(Partido partido); // ← Nuevo método
 }
