@@ -24,9 +24,9 @@ public class PartidoDAO {
     }
 
     private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres?sslmode=require";
-        String user = "postgres";
-        String password = "findamatchuade";
+        String url = "jdbc:postgresql://dpg-d1498ifdiees73d2f170-a.oregon-postgres.render.com:5432/findamatch?sslmode=require";
+        String user = "dbo";
+        String password = "lNht7nfjCEH9hmQ03eTT7Z3k4yeVoKZL";
         return DriverManager.getConnection(url, user, password);
     }
 
