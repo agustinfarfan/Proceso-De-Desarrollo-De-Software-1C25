@@ -6,6 +6,7 @@ import java.util.*;
 import com.findamatch.dao.DeporteDAO;
 import com.findamatch.dao.UsuarioDAO;
 import com.findamatch.model.dto.UsuarioDTO;
+import com.findamatch.model.enums.Nivel;
 
 public class Usuario {
 
@@ -34,33 +35,53 @@ public class Usuario {
 
     // CRUD
 
-    public List<Usuario> findAllUsuarios() {
+   public List<Usuario> findAllUsuarios() {
+    List<Usuario> usuarios = new ArrayList<>();
+    try {
+        usuarios = usuarioDAO.findAllUsuarios();
 
-        List<Usuario> usuarios = new ArrayList<>();
-
-        try {
-            usuarios = usuarioDAO.findAllUsuarios();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        // Relacionar UsuarioDeporte a cada Usuario
+        List<UsuarioDeporte> relaciones = usuarioDAO.getUsuarioDeportes();
+        for (Usuario usuario : usuarios) {
+            List<UsuarioDeporte> deportesUsuario = new ArrayList<>();
+            for (UsuarioDeporte rel : relaciones) {
+                if (rel.getUsuario().getId() == usuario.getId()) {
+                    deportesUsuario.add(rel);
+                }
+            }
+            usuario.setDeportes(deportesUsuario);
         }
 
-        return usuarios;
-
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return usuarios;
+}
 
-    public Usuario findUsuarioById(int id) {
+    
 
-        Usuario usuario = null;
+   public Usuario findUsuarioById(int id) {
+    Usuario usuario = null;
+    try {
+        usuario = usuarioDAO.findUsuarioById(id);
 
-        try {
-            usuario = usuarioDAO.findUsuarioById(id);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        // Cargar sus deportes
+        if (usuario != null) {
+            List<UsuarioDeporte> relaciones = usuarioDAO.getUsuarioDeportes();
+            List<UsuarioDeporte> deportesUsuario = new ArrayList<>();
+            for (UsuarioDeporte rel : relaciones) {
+                if (rel.getUsuario().getId() == usuario.getId()) {
+                    deportesUsuario.add(rel);
+                }
+            }
+            usuario.setDeportes(deportesUsuario);
         }
 
-        return usuario;
-
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return usuario;
+}
 
     public int saveUsuario(Usuario usuario) {
 
@@ -110,6 +131,19 @@ public class Usuario {
         usuarioDAO.updateUsuarioDeporte(usuarioDeporte);
 
     }
+
+    public Nivel getNivelPorDeporte(Deporte deporte) {
+    if (deportes == null) return null;
+
+    for (UsuarioDeporte ud : deportes) {
+        if (ud.getDeporte().getId() == deporte.getId()) {
+            return ud.getNivelJuego();
+        }
+    }
+
+
+    return null;
+}
 
     // Getters y Setters
 
