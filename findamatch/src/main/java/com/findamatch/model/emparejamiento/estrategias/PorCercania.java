@@ -1,9 +1,9 @@
 package com.findamatch.model.emparejamiento.estrategias;
 
-import com.findamatch.controller.UsuarioController;
 import com.findamatch.model.Partido;
 import com.findamatch.model.Ubicacion;
 import com.findamatch.model.Usuario;
+import com.findamatch.dao.PartidoDAO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 
 import java.util.ArrayList;
@@ -14,44 +14,53 @@ public class PorCercania implements IEstrategiaEmparejamiento {
 
     @Override
     public int getId() {
-        return 2; // ID correspondiente a esta estrategia
+        return 2; // ID de estrategia
     }
 
     @Override
-    public List<Usuario> buscarEmparejamiento(Partido partido) {
-        List<Usuario> todosLosUsuarios = UsuarioController.getInstance()
-                .getAllUsuariosDTO()
-                .stream()
-                .map(dto -> {
-                    try {
-                        return UsuarioController.getInstance().dtoToUsuario(dto);
-                    } catch (Exception e) {
-                        return null;
-                    }
-                })
-                .filter(u -> u != null && u.getId() != partido.getCreador().getId())
-                .toList();
+    public List<Partido> buscarEmparejamiento(Usuario usuario) {
+        List<Partido> partidosEmparejados = new ArrayList<>();
+        PartidoDAO partidoDAO = PartidoDAO.getInstance();
+        List<Partido> todosLosPartidos;
 
-        Ubicacion ubicacionPartido = partido.getUbicacion();
-        double varianzaMaxima = ubicacionPartido.getVarianza(); // distancia máxima permitida
-
-        List<UsuarioDistancia> candidatos = new ArrayList<>();
-
-        for (Usuario usuario : todosLosUsuarios) {
-            Ubicacion ubicacionUsuario = usuario.getUbicacion();
-            double distancia = calcularDistancia(ubicacionPartido, ubicacionUsuario);
-
-            if (distancia <= varianzaMaxima) {
-                candidatos.add(new UsuarioDistancia(usuario, distancia));
-            }
+        try {
+            todosLosPartidos = partidoDAO.findAllPartidos();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return partidosEmparejados;
         }
 
-        // Ordenar por distancia creciente
-        candidatos.sort(Comparator.comparingDouble(UsuarioDistancia::getDistancia));
+    Ubicacion ubicacionUsuario;
+        try {
+            ubicacionUsuario = new Ubicacion(usuario.getUbicacion()); // crea el objeto y geolocaliza
+        } catch (Exception e) {
+            e.printStackTrace();
+            return partidosEmparejados; // no se pudo obtener coordenadas
+}
 
-        // Retornar solo los usuarios
+        double varianzaMaxima = ubicacionUsuario.getVarianza(); // radio de búsqueda
+
+        List<PartidoDistancia> candidatos = new ArrayList<>();
+
+       for (Partido partido : todosLosPartidos) {
+            if (partido.getCreador().getId() == usuario.getId()) continue; // omitir propios
+
+            // 👇 FILTRO POR ESTADO
+            if (!"ARMADO".equals(partido.getEstado().getNombre())) continue;
+
+            Ubicacion ubicacionPartido = partido.getUbicacion();
+            if (ubicacionPartido == null) continue;
+
+            double distancia = calcularDistancia(ubicacionUsuario, ubicacionPartido);
+            if (distancia <= varianzaMaxima) {
+        candidatos.add(new PartidoDistancia(partido, distancia));
+    }
+}
+
+        candidatos.sort(Comparator.comparingDouble(PartidoDistancia::getDistancia));
+
         return candidatos.stream()
-                .map(UsuarioDistancia::getUsuario)
+                .map(PartidoDistancia::getPartido)
                 .toList();
     }
 
@@ -73,18 +82,18 @@ public class PorCercania implements IEstrategiaEmparejamiento {
         return RADIO_TIERRA_KM * c;
     }
 
-    // Clase auxiliar interna para ordenar usuarios por distancia
-    private static class UsuarioDistancia {
-        private final Usuario usuario;
+    // Clase auxiliar para ordenar por distancia
+    private static class PartidoDistancia {
+        private final Partido partido;
         private final double distancia;
 
-        public UsuarioDistancia(Usuario usuario, double distancia) {
-            this.usuario = usuario;
+        public PartidoDistancia(Partido partido, double distancia) {
+            this.partido = partido;
             this.distancia = distancia;
         }
 
-        public Usuario getUsuario() {
-            return usuario;
+        public Partido getPartido() {
+            return partido;
         }
 
         public double getDistancia() {
