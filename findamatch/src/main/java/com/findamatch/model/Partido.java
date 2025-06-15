@@ -200,7 +200,7 @@ public class Partido {
     }
 
     public int getMinimoPartidosJugados() {
-    return minimoPartidosJugados;
+        return minimoPartidosJugados;
     }
 
     public void setMinimoPartidosJugados(int minimoPartidosJugados) {
@@ -218,7 +218,7 @@ public class Partido {
                 ", fecha=" + fecha +
                 ", duracion=" + duracion +
                 ", estado=" + (estado != null ? estado.getNombre() : "null") +
-                 ", minimoPartidosJugados=" + minimoPartidosJugados +
+                ", minimoPartidosJugados=" + minimoPartidosJugados +
                 '}';
     }
 

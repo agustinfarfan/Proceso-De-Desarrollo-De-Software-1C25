@@ -38,7 +38,6 @@ public class Usuario {
 
     // CRUD
 
-
     public List<Usuario> findAllUsuarios() throws Exception {
 
         List<Usuario> usuarios = new ArrayList<>();
@@ -61,9 +60,9 @@ public class Usuario {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return usuario;
     }
+
     
     public int saveUsuario(Usuario usuario) {
 
@@ -115,17 +114,17 @@ public class Usuario {
     }
 
     public Nivel getNivelPorDeporte(Deporte deporte) {
-    if (deportes == null) return null;
+        if (deportes == null)
+            return null;
 
-    for (UsuarioDeporte ud : deportes) {
-        if (ud.getDeporte().getId() == deporte.getId()) {
-            return ud.getNivelJuego();
+        for (UsuarioDeporte ud : deportes) {
+            if (ud.getDeporte().getId() == deporte.getId()) {
+                return ud.getNivelJuego();
+            }
         }
+
+        return null;
     }
-
-
-    return null;
-}
 
     // Getters y Setters
 
@@ -188,7 +187,6 @@ public class Usuario {
     public void setPartidos(List<Partido> partidos) {
         this.partidos = partidos;
     }
-
 
     // ToString
     @Override
