@@ -8,6 +8,7 @@ findamatch/pom.xml.releaseBackup
 findamatch/pom.xml.versionsBackup
 findamatch/pom.xml.next
 findamatch/release.properties
+.vscode/
 
 # IntelliJ IDEA
 /findamatch/.idea/
