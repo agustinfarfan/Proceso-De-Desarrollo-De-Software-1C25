@@ -121,7 +121,7 @@ public class MainView extends JFrame {
         try {
             List<PartidoDTO> partidos = PartidoController.getInstance().getAllPartidosDTO();
             for (PartidoDTO p : partidos) {
-                partidoListModel.addElement("Partido ID: " + p.getId() + " | Deporte ID: " + p.getIdDeporte() +
+                partidoListModel.addElement("Partido ID: " + p.getId() + " | Deporte: " + p.getDeporte() +
                         " | Lugar: " + p.getUbicacion() + " | Fecha: " + p.getComienzo());
             }
         } catch (Exception e) {
