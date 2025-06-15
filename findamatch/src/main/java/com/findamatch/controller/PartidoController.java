@@ -12,6 +12,8 @@ import com.findamatch.model.dto.PartidoDTO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 import com.findamatch.model.estado.FactoryEstado;
 import com.findamatch.model.estado.IEstadoPartido;
+import com.findamatch.model.notificacion.NotificacionEmail;
+import com.findamatch.model.notificacion.NotificacionPush;
 
 public class PartidoController {
     Partido partido;
