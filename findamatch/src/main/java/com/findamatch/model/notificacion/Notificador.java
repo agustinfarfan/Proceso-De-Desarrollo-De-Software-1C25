@@ -20,7 +20,7 @@ public class Notificador {
     }
 
     public void notificar(Partido partido) {
-        String mensaje = "El partido cambió al estado: " + partido.getEstado().nombre();
+        String mensaje = "El partido cambió al estado: " + partido.getEstado().getNombre();
 
         for (Usuario jugador : partido.getJugadores()) {
             Notificacion noti = new Notificacion(mensaje,

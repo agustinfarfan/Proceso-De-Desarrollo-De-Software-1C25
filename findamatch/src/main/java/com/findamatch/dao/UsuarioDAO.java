@@ -2,7 +2,9 @@ package com.findamatch.dao;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.findamatch.model.Deporte;
 import com.findamatch.model.Usuario;
@@ -11,6 +13,7 @@ import com.findamatch.model.enums.Nivel;
 
 public class UsuarioDAO {
 
+    ConexionDAO conexionDAO = ConexionDAO.getInstance();
     private static UsuarioDAO instance = null;
 
     private UsuarioDAO() {
@@ -23,64 +26,138 @@ public class UsuarioDAO {
         return instance;
     }
 
-    // Habria que implementar el metodo en una misma clase para no repetirlo en
-    // todos los dao
-
-    private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://dpg-d1498ifdiees73d2f170-a.oregon-postgres.render.com:5432/findamatch?sslmode=require";
-        String user = "dbo";
-        String password = "lNht7nfjCEH9hmQ03eTT7Z3k4yeVoKZL";
-        return DriverManager.getConnection(url, user, password);
-    }
-
     public List<Usuario> findAllUsuarios() throws SQLException {
-        Connection con = conectar();
-        String sql = "SELECT * FROM usuario";
-        List<Usuario> usuarios = new ArrayList<>();
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ResultSet rs = ps.executeQuery();
+        Connection con = ConexionDAO.conectar();
+        String sql = """
+                    SELECT
+                        u.id AS usuario_id,
+                        u.nombre_usuario,
+                        u.mail,
+                        u.contrasena,
+                        u.domicilio,
+                        d.id AS deporte_id,
+                        d.nombre,
+                        d.minJugadores,
+                        d.maxJugadores,
+                        d.descripcion,
+                        ud.nivelJuego,
+                        ud.esFavorito
+                    FROM usuario u
+                    JOIN usuariodeporte ud ON u.id = ud.usuario_id
+                    JOIN deporte d ON ud.deporte_id = d.id
+                    ORDER BY u.id
+                """;
+
+        Map<Integer, Usuario> mapaUsuarios = new LinkedHashMap<>();
+
+        try (PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
-                int id = rs.getInt("id");
-                String nombreUsuario = rs.getString("nombre_usuario");
-                String mail = rs.getString("mail");
-                String contrasena = rs.getString("contrasena");
-                String ubicacion = rs.getString("domicilio");
-                Usuario usuario = new Usuario(id, nombreUsuario, mail, contrasena, ubicacion);
-                usuarios.add(usuario);
+                int usuarioId = rs.getInt("usuario_id");
+
+                Usuario usuario = mapaUsuarios.get(usuarioId);
+                if (usuario == null) {
+                    usuario = new Usuario();
+
+                    usuario.setId(usuarioId);
+                    usuario.setNombreUsuario(rs.getString("nombre_usuario"));
+                    usuario.setMail(rs.getString("mail"));
+                    usuario.setContrasena(rs.getString("contrasena"));
+                    usuario.setUbicacion(rs.getString("domicilio"));
+
+                    mapaUsuarios.put(usuarioId, usuario);
+                }
+
+                // Crear Deporte
+                Deporte deporte = new Deporte(
+                        rs.getInt("deporte_id"),
+                        rs.getString("nombre"),
+                        rs.getInt("minJugadores"),
+                        rs.getInt("maxJugadores"),
+                        rs.getString("descripcion"));
+
+                // Crear UsuarioDeporte
+                Nivel nivel = Nivel.valueOf(rs.getString("nivelJuego"));
+                boolean esFavorito = rs.getBoolean("esFavorito");
+
+                UsuarioDeporte ud = new UsuarioDeporte(usuario, deporte, nivel, esFavorito);
+                usuario.addUsuarioDeporte(ud); // Asegurate de tener este método en la clase Usuario
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             con.close();
         }
-        return usuarios;
+
+        return new ArrayList<>(mapaUsuarios.values());
     }
 
     public Usuario findUsuarioById(int id) throws SQLException {
-        Connection con = conectar();
-        String sql = "SELECT * FROM usuario WHERE id =?";
+        Connection con = ConexionDAO.conectar();
+        String sql = """
+                    SELECT
+                        u.id AS usuario_id,
+                        u.nombre_usuario,
+                        u.mail,
+                        u.contrasena,
+                        u.domicilio,
+                        d.id AS deporte_id,
+                        d.nombre,
+                        d.minJugadores,
+                        d.maxJugadores,
+                        d.descripcion,
+                        ud.nivelJuego,
+                        ud.esFavorito
+                    FROM usuario u
+                    JOIN usuariodeporte ud ON u.id = ud.usuario_id
+                    JOIN deporte d ON ud.deporte_id = d.id
+                    WHERE u.id = ?
+                """;
+
         Usuario usuario = null;
+
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                int idUsuario = rs.getInt("id");
-                String nombreUsuario = rs.getString("nombre_usuario");
-                String mail = rs.getString("mail");
-                String contrasena = rs.getString("contrasena");
-                String ubicacion = rs.getString("domicilio");
-                usuario = new Usuario(idUsuario, nombreUsuario, mail, contrasena, ubicacion);
+
+            while (rs.next()) {
+                if (usuario == null) {
+                    usuario = new Usuario();
+                    usuario.setId(rs.getInt("usuario_id"));
+                    usuario.setNombreUsuario(rs.getString("nombre_usuario"));
+                    usuario.setMail(rs.getString("mail"));
+                    usuario.setContrasena(rs.getString("contrasena"));
+                    usuario.setUbicacion(rs.getString("domicilio"));
+                }
+
+                Deporte deporte = new Deporte(
+                        rs.getInt("deporte_id"),
+                        rs.getString("nombre"),
+                        rs.getInt("minJugadores"),
+                        rs.getInt("maxJugadores"),
+                        rs.getString("descripcion"));
+
+                Nivel nivel = Nivel.valueOf(rs.getString("nivelJuego"));
+                boolean esFavorito = rs.getBoolean("esFavorito");
+
+                UsuarioDeporte ud = new UsuarioDeporte(usuario, deporte, nivel, esFavorito);
+                usuario.addUsuarioDeporte(ud); // ← volvemos a usar este método
+
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             con.close();
         }
+
         return usuario;
     }
 
     public int saveUsuario(Usuario usuario) throws SQLException {
-        Connection con = conectar();
+        Connection con = ConexionDAO.conectar();
         String sql = "INSERT INTO usuario (nombre_usuario, mail, contrasena, domicilio) VALUES (?,?,?,?) RETURNING id";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, usuario.getNombreUsuario());
@@ -119,7 +196,7 @@ public class UsuarioDAO {
     }
 
     public void updateUsuario(Usuario usuario) throws SQLException {
-        Connection con = conectar();
+        Connection con = ConexionDAO.conectar();
         String sql = "UPDATE usuario SET nombre_usuario =?, mail =?, contrasena =?, domicilio =? WHERE id =?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, usuario.getNombreUsuario());
@@ -136,7 +213,7 @@ public class UsuarioDAO {
     }
 
     public void deleteUsuario(int id) throws SQLException {
-        Connection con = conectar();
+        Connection con = ConexionDAO.conectar();
         String sql = "DELETE FROM usuario WHERE id =?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -150,7 +227,7 @@ public class UsuarioDAO {
 
     public List<UsuarioDeporte> getUsuarioDeportes() throws SQLException {
         List<UsuarioDeporte> lista = new ArrayList<>();
-        Connection con = conectar();
+        Connection con = ConexionDAO.conectar();
 
         String sql = "SELECT usuario_id, deporte_id, nivelJuego, esFavorito FROM usuariodeporte";
 
@@ -183,7 +260,7 @@ public class UsuarioDAO {
     }
 
     public void updateUsuarioDeporte(UsuarioDeporte usuarioDeporte) throws SQLException {
-        Connection con = conectar();
+        Connection con = ConexionDAO.conectar();
         String sql = "UPDATE usuariodeporte " +
                 "SET nivelJuego = ?, esFavorito = ? " +
                 "WHERE usuario_id = ? AND deporte_id = ?";

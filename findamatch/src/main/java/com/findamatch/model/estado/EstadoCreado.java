@@ -4,7 +4,7 @@ import com.findamatch.model.Partido;
 
 public class EstadoCreado implements IEstadoPartido {
 
-    private final String nombre = "CREADO";
+    private final String nombre = "ARMADO";
 
     @Override
     public void confirmar(Partido partido) {
@@ -24,11 +24,12 @@ public class EstadoCreado implements IEstadoPartido {
     }
 
     @Override
-    public String nombre() {
+    public String getNombre() {
         return this.nombre;
     }
+
     @Override
     public void comenzar(Partido partido) {
-    System.out.println("El partido debe ser confirmado antes de comenzar.");
+        System.out.println("El partido debe ser confirmado antes de comenzar.");
     }
 }

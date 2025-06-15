@@ -74,7 +74,7 @@ public class App {
         partido.agregarEstrategiaNotificacion(new NotificacionEmail());
         partido.agregarEstrategiaNotificacion(new NotificacionPush());
 
-        partido.cancelarPartido(); 
+        partido.cancelarPartido();
         partido.confirmarPartido();
     }
 }

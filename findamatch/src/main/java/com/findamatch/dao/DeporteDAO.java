@@ -8,6 +8,7 @@ import com.findamatch.model.Deporte;
 
 public class DeporteDAO {
 
+    ConexionDAO conexionDAO = ConexionDAO.getInstance();
     private static DeporteDAO instance = null;
 
     private DeporteDAO() {
@@ -20,22 +21,12 @@ public class DeporteDAO {
         return instance;
     }
 
-    // Habria que implementar el metodo en una misma clase para no repetirlo en
-    // todos los dao
-
-    private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://dpg-d1498ifdiees73d2f170-a.oregon-postgres.render.com:5432/findamatch?sslmode=require";
-        String user = "dbo";
-        String password = "lNht7nfjCEH9hmQ03eTT7Z3k4yeVoKZL";
-        return DriverManager.getConnection(url, user, password);
-    }
-
     public List<Deporte> findAllDeportes() {
         List<Deporte> deportes = new ArrayList<>();
 
         String sql = "SELECT id, nombre, minJugadores, maxJugadores, descripcion FROM Deporte";
 
-        try (Connection conn = conectar();
+        try (Connection conn = ConexionDAO.conectar();
                 PreparedStatement stmt = conn.prepareStatement(sql);
                 ResultSet rs = stmt.executeQuery()) {
 
@@ -61,7 +52,7 @@ public class DeporteDAO {
         Deporte deporte = null;
         String sql = "SELECT id, nombre, minJugadores, maxJugadores, descripcion FROM Deporte WHERE id = ?";
 
-        try (Connection conn = conectar();
+        try (Connection conn = ConexionDAO.conectar();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id); // ← FALTA ESTO
@@ -85,7 +76,7 @@ public class DeporteDAO {
     public void saveDeporte(Deporte deporte) {
         String sql = "INSERT INTO Deporte (nombre, minJugadores, maxJugadores, descripcion) VALUES (?,?,?,?)";
 
-        try (Connection conn = conectar();
+        try (Connection conn = ConexionDAO.conectar();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, deporte.getNombre());
@@ -102,7 +93,7 @@ public class DeporteDAO {
     public void updateDeporte(Deporte deporte) {
         String sql = "UPDATE Deporte SET nombre = ?, minJugadores = ?, maxJugadores = ?, descripcion = ? WHERE id = ?";
 
-        try (Connection conn = conectar();
+        try (Connection conn = ConexionDAO.conectar();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, deporte.getNombre());
@@ -120,7 +111,7 @@ public class DeporteDAO {
     public void deleteDeporte(int id) {
         String sql = "DELETE FROM Deporte WHERE id = ?";
 
-        try (Connection conn = conectar();
+        try (Connection conn = ConexionDAO.conectar();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
