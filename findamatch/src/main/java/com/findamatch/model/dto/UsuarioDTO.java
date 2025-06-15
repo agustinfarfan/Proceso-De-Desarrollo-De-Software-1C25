@@ -11,7 +11,7 @@ public class UsuarioDTO {
     private String mail;
     private String contrasena;
     private String ubicacion;
-    private List<UsuarioDeporte> deportes;
+    private List<UsuarioDeporteDTO> deportesDTO;
 
     // Constructor
     public UsuarioDTO() {
@@ -29,13 +29,13 @@ public class UsuarioDTO {
             String mail,
             String contrasena,
             String ubicacion,
-            List<UsuarioDeporte> deportes) {
+            List<UsuarioDeporteDTO> deportesDTO) {
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.mail = mail;
         this.contrasena = contrasena;
         this.ubicacion = ubicacion;
-        this.deportes = deportes;
+        this.deportesDTO = deportesDTO;
     }
 
     // Getters y Setters
@@ -78,6 +78,14 @@ public class UsuarioDTO {
 
     public void setUbicacion(String ubicacion) {
         this.ubicacion = ubicacion;
+    }
+
+    public List<UsuarioDeporteDTO> getDeportes() {
+        return deportesDTO;
+    }
+
+    public void setDeportes(List<UsuarioDeporteDTO> deportesDTO) {
+        this.deportesDTO = deportesDTO;
     }
 
     // ToString

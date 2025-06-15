@@ -14,18 +14,20 @@ public class Usuario {
     private String mail;
     private String contrasena;
     private String ubicacion;
-    private List<UsuarioDeporte> deportes; // lo tiene o no ?
+    private List<UsuarioDeporte> deportes = new ArrayList<>();
 
     UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
     DeporteDAO deporteDAO = DeporteDAO.getInstance();
 
-    public Usuario(int id, String nombreUsuario, String mail, String contrasena, String ubicacion) {
+    public Usuario(int id, String nombreUsuario, String mail, String contrasena, String ubicacion,
+            List<UsuarioDeporte> deportes) {
 
         this.id = id;
         this.nombreUsuario = nombreUsuario;
         this.mail = mail;
         this.contrasena = contrasena;
         this.ubicacion = ubicacion;
+        this.deportes = deportes;
     }
 
     public Usuario() {
@@ -159,6 +161,10 @@ public class Usuario {
 
     public void setDeportes(List<UsuarioDeporte> deportes) {
         this.deportes = deportes;
+    }
+
+    public void addUsuarioDeporte(UsuarioDeporte ud) {
+        deportes.add(ud);
     }
 
     // ToString

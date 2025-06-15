@@ -29,19 +29,20 @@ public class App {
         PartidoController pc = PartidoController.getInstance();
         /*
          * 
-         * int id = uc.createUsuario(new UsuarioDTO(
-         * "usuario.nuevo",
-         * "mail",
-         * "123",
-         * "Av. Cabildo 2272, Belgrano, CABA"));
-         * 
-         * if (id != -1) {
-         * UsuarioDTO usuarioCreado = uc.getUsuarioByIdDTO(id);
-         * System.out.println(usuarioCreado.toString());
-         * } else {
-         * System.out.println("Error al crear el usuario.");
-         * }
-         * 
+         */
+        int id = uc.createUsuario(new UsuarioDTO(
+                "usuario.nuevo2",
+                "mail",
+                "123",
+                "Av. Cabildo 2272, Belgrano, CABA"));
+
+        if (id != -1) {
+            UsuarioDTO usuarioCreado = uc.getUsuarioByIdDTO(id);
+            System.out.println(usuarioCreado.toString());
+        } else {
+            System.out.println("Error al crear el usuario.");
+        }
+        /*
          * List<UsuarioDeporte> usuarioDeportes = uc.getUsuarioDeportes();
          * for (UsuarioDeporte ud : usuarioDeportes) {
          * System.out.println(ud.toString());
@@ -73,7 +74,7 @@ public class App {
         partido.agregarEstrategiaNotificacion(new NotificacionEmail());
         partido.agregarEstrategiaNotificacion(new NotificacionPush());
 
-        partido.cancelarPartido(); 
+        partido.cancelarPartido();
         partido.confirmarPartido();
     }
 }

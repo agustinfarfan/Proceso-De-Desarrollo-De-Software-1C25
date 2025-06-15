@@ -3,7 +3,7 @@ package com.findamatch.model.estado;
 import com.findamatch.model.Partido;
 
 public interface IEstadoPartido {
-    String nombre();
+    String getNombre();
 
     void confirmar(Partido partido);
 
