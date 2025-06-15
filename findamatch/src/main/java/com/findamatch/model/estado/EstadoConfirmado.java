@@ -24,13 +24,14 @@ public class EstadoConfirmado implements IEstadoPartido {
     }
 
     @Override
-    public String nombre() {
+    public String getNombre() {
         return this.nombre;
     }
+
     @Override
     public void comenzar(Partido partido) {
-    partido.setEstado(new EstadoEnCurso());
-    System.out.println("El partido ha comenzado.");
+        partido.setEstado(new EstadoEnCurso());
+        System.out.println("El partido ha comenzado.");
     }
 
 }

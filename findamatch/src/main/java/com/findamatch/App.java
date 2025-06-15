@@ -29,19 +29,20 @@ public class App {
         PartidoController pc = PartidoController.getInstance();
         /*
          * 
-         * int id = uc.createUsuario(new UsuarioDTO(
-         * "usuario.nuevo",
-         * "mail",
-         * "123",
-         * "Av. Cabildo 2272, Belgrano, CABA"));
-         * 
-         * if (id != -1) {
-         * UsuarioDTO usuarioCreado = uc.getUsuarioByIdDTO(id);
-         * System.out.println(usuarioCreado.toString());
-         * } else {
-         * System.out.println("Error al crear el usuario.");
-         * }
-         * 
+         */
+        int id = uc.createUsuario(new UsuarioDTO(
+                "usuario.nuevo2",
+                "mail",
+                "123",
+                "Av. Cabildo 2272, Belgrano, CABA"));
+
+        if (id != -1) {
+            UsuarioDTO usuarioCreado = uc.getUsuarioByIdDTO(id);
+            System.out.println(usuarioCreado.toString());
+        } else {
+            System.out.println("Error al crear el usuario.");
+        }
+        /*
          * List<UsuarioDeporte> usuarioDeportes = uc.getUsuarioDeportes();
          * for (UsuarioDeporte ud : usuarioDeportes) {
          * System.out.println(ud.toString());
@@ -57,27 +58,23 @@ public class App {
          * 60));
          */
 
-         /*
-          * Deporte futbol = new Deporte(1, "Fútbol", 5, 10, "Partido 5 vs 5");
-          * Usuario mathias = new Usuario(1, "mathias", "mathias@mail.com", "1234",
-          * "Calle 123");
-          * Ubicacion ubicacion = new Ubicacion("Plaza Mitre");
-          * 
-          * Partido partido = new Partido(
-          * futbol,
-          * mathias,
-          * ubicacion,
-          * LocalDateTime.now().plusDays(1),
-          * 60);
-          * 
-          * partido.getJugadores().add(new Usuario(2, "Facu", "facu@mail.com", "abcd",
-          * "Av 123"));
-          * 
-          * partido.agregarEstrategiaNotificacion(new NotificacionEmail());
-          * partido.agregarEstrategiaNotificacion(new NotificacionPush());
-          * 
-          * partido.cancelarPartido();
-          * partido.confirmarPartido();
-          */
+        Deporte futbol = new Deporte(1, "Fútbol", 5, 10, "Partido 5 vs 5");
+        Usuario mathias = new Usuario(1, "mathias", "mathias@mail.com", "1234", "Calle 123");
+        Ubicacion ubicacion = new Ubicacion("Plaza Mitre");
+
+        Partido partido = new Partido(
+                futbol,
+                mathias,
+                ubicacion,
+                LocalDateTime.now().plusDays(1),
+                60);
+
+        partido.getJugadores().add(new Usuario(2, "Facu", "facu@mail.com", "abcd", "Av 123"));
+
+        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partido.agregarEstrategiaNotificacion(new NotificacionPush());
+
+        partido.cancelarPartido();
+        partido.confirmarPartido();
     }
 }

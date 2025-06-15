@@ -2,28 +2,31 @@ package com.findamatch.model.dto;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 public class PartidoDTO {
     private int id;
-    private int idDeporte;
-    private int idCreador;
+    private DeporteDTO deporte;
+    private UsuarioDTO creador;
     private String ubicacion;
     private LocalDateTime comienzo;
     private int duracion;
-    private int estado;
-    private int estrategia;
+    private String estado;
+    private List<UsuarioDTO> jugadores;
 
     // Constructor
     public PartidoDTO() {
     }
 
-    public PartidoDTO(int idDeporte, int idCreador, String ubicacion, LocalDateTime comienzo, int duracion) {
-        this.idDeporte = idDeporte;
-        this.idCreador = idCreador;
+    public PartidoDTO(DeporteDTO deporte, UsuarioDTO creador, String ubicacion, LocalDateTime comienzo, int duracion) {
+        this.deporte = deporte;
+        this.creador = creador;
         this.ubicacion = ubicacion;
         this.duracion = duracion;
         this.comienzo = comienzo;
     }
+
+    // Getters and setters
 
     public int getId() {
         return id;
@@ -33,20 +36,20 @@ public class PartidoDTO {
         this.id = id;
     }
 
-    public int getIdDeporte() {
-        return idDeporte;
+    public DeporteDTO getDeporte() {
+        return deporte;
     }
 
-    public void setIdDeporte(int idDeporte) {
-        this.idDeporte = idDeporte;
+    public void setDeporte(DeporteDTO deporte) {
+        this.deporte = deporte;
     }
 
-    public int getIdCreador() {
-        return idCreador;
+    public UsuarioDTO getCreador() {
+        return creador;
     }
 
-    public void setIdCreador(int idCreador) {
-        this.idCreador = idCreador;
+    public void setCreador(UsuarioDTO creador) {
+        this.creador = creador;
     }
 
     public String getUbicacion() {
@@ -73,22 +76,36 @@ public class PartidoDTO {
         this.duracion = duracion;
     }
 
-    public int getEstado() {
+    public String getEstado() {
         return estado;
     }
 
-    public void setEstado(int estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
 
-    public int getEstrategia() {
-        return estrategia;
+    public List<UsuarioDTO> getJugadores() {
+        return jugadores;
     }
 
-    public void setEstrategia(int estrategia) {
-        this.estrategia = estrategia;
+    public void setJugadores(List<UsuarioDTO> jugadores) {
+        this.jugadores = jugadores;
     }
 
-    // Getters y Setters
+    // ToString
+
+    @Override
+    public String toString() {
+        return "PartidoDTO{" +
+                "id=" + id +
+                ", deporte=" + deporte +
+                ", creador=" + creador +
+                ", ubicacion='" + ubicacion + '\'' +
+                ", comienzo=" + comienzo +
+                ", duracion=" + duracion +
+                ", estado='" + estado + '\'' +
+                ", jugadores=" + jugadores +
+                '}';
+    }
 
 }

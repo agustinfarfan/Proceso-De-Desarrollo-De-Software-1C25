@@ -10,6 +10,7 @@ import com.findamatch.model.Usuario;
 import com.findamatch.model.UsuarioDeporte;
 import com.findamatch.model.dto.DeporteDTO;
 import com.findamatch.model.dto.UsuarioDTO;
+import com.findamatch.model.dto.UsuarioDeporteDTO;
 import com.findamatch.model.enums.Nivel;
 
 public class UsuarioController {
@@ -42,6 +43,7 @@ public class UsuarioController {
 
         for (Usuario u : usuarios) {
             UsuarioDTO usuarioDTO = usuarioToDto(u);
+            usuarioDTO.setDeportes(usuarioDeporteToDto(u.getDeportes()));
             usuariosDTO.add(usuarioDTO);
         }
         return usuariosDTO;
@@ -49,7 +51,12 @@ public class UsuarioController {
 
     public UsuarioDTO getUsuarioByIdDTO(int id) {
         Usuario usuarioNuevo = usuario.findUsuarioById(id);
+
         UsuarioDTO usuarioDTO = usuarioToDto(usuarioNuevo);
+
+        List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioNuevo.getDeportes());
+        usuarioDTO.setDeportes(usuariosDeporteDTO);
+
         return usuarioDTO;
     }
 
@@ -68,11 +75,6 @@ public class UsuarioController {
         usuario.deleteUsuario(id);
     }
 
-    public List<UsuarioDeporte> getUsuarioDeportes() {
-        List<UsuarioDeporte> deportesUsuario = usuario.getUsuarioDeportes(); // deberia existir un dao?
-        return deportesUsuario;
-    }
-
     public void updateUsuarioDeporte(UsuarioDTO usuarioDTO, DeporteDTO deporteDTO, Nivel nivelJuego,
             boolean esFavorito) throws SQLException {
 
@@ -84,17 +86,18 @@ public class UsuarioController {
 
     // Auxiliar
 
-    private UsuarioDTO usuarioToDto(Usuario usuario) {
+    public UsuarioDTO usuarioToDto(Usuario usuario) {
         UsuarioDTO usuarioDTO = new UsuarioDTO();
         usuarioDTO.setId(usuario.getId());
         usuarioDTO.setNombreUsuario(usuario.getNombreUsuario());
         usuarioDTO.setMail(usuario.getMail());
         usuarioDTO.setContrasena(usuario.getContrasena());
         usuarioDTO.setUbicacion(usuario.getUbicacion());
+
         return usuarioDTO;
     }
 
-    private Usuario dtoToUsuario(UsuarioDTO usuarioDTO) {
+    public Usuario dtoToUsuario(UsuarioDTO usuarioDTO) {
         Usuario usuarioNuevo = new Usuario();
         usuarioNuevo.setId(usuarioDTO.getId());
         usuarioNuevo.setNombreUsuario(usuarioDTO.getNombreUsuario());
@@ -103,4 +106,31 @@ public class UsuarioController {
         usuarioNuevo.setUbicacion(usuarioDTO.getUbicacion());
         return usuarioNuevo;
     }
+
+    private List<UsuarioDeporte> dtoToUsuarioDeporte(List<UsuarioDeporteDTO> deportesDTO) {
+        List<UsuarioDeporte> deportes = new ArrayList<UsuarioDeporte>();
+        for (UsuarioDeporteDTO deporteDTO : deportesDTO) {
+            UsuarioDeporte usuarioDeporte = new UsuarioDeporte(
+                    dtoToUsuario(deporteDTO.getUsuario()),
+                    dc.dtoToDeporte(deporteDTO.getDeporte()),
+                    deporteDTO.getNivel(),
+                    deporteDTO.isEsFavorito());
+            deportes.add(usuarioDeporte);
+        }
+        return deportes;
+    }
+
+    private List<UsuarioDeporteDTO> usuarioDeporteToDto(List<UsuarioDeporte> deportes) {
+        List<UsuarioDeporteDTO> deportesDTO = new ArrayList<UsuarioDeporteDTO>();
+        for (UsuarioDeporte deporte : deportes) {
+            UsuarioDeporteDTO usuarioDeporteDTO = new UsuarioDeporteDTO(
+                    usuarioToDto(deporte.getUsuario()),
+                    dc.deporteToDTO(deporte.getDeporte()),
+                    deporte.getNivelJuego(),
+                    deporte.isEsFavorito());
+            deportesDTO.add(usuarioDeporteDTO);
+        }
+        return deportesDTO;
+    }
+
 }
