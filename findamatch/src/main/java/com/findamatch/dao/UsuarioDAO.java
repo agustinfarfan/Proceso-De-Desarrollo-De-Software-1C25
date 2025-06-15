@@ -7,9 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import com.findamatch.model.Deporte;
+import com.findamatch.model.Partido;
+import com.findamatch.model.Ubicacion;
 import com.findamatch.model.Usuario;
 import com.findamatch.model.UsuarioDeporte;
 import com.findamatch.model.enums.Nivel;
+import com.findamatch.model.estado.FactoryEstado;
 
 public class UsuarioDAO {
 
@@ -26,7 +29,8 @@ public class UsuarioDAO {
         return instance;
     }
 
-    public List<Usuario> findAllUsuarios() throws SQLException {
+    public List<Usuario> findAllUsuarios() throws Exception {
+        System.out.println("COMIENZO");
         Connection con = ConexionDAO.conectar();
         String sql = """
                     SELECT
@@ -54,6 +58,7 @@ public class UsuarioDAO {
                 ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
+                System.out.println("COMIENZO USUARIO");
                 int usuarioId = rs.getInt("usuario_id");
 
                 Usuario usuario = mapaUsuarios.get(usuarioId);
@@ -67,6 +72,43 @@ public class UsuarioDAO {
                     usuario.setUbicacion(rs.getString("domicilio"));
 
                     mapaUsuarios.put(usuarioId, usuario);
+
+                    // Partidos
+
+                    List<Partido> partidos = new ArrayList<>();
+
+                    String sqlPartidos = "SELECT partido_id FROM usuariopartido WHERE usuario_id = ?";
+                    try (PreparedStatement psPartidos = con.prepareStatement(sqlPartidos)) {
+                        psPartidos.setInt(1, usuarioId);
+                        ResultSet rsPartidos = psPartidos.executeQuery();
+
+                        while (rsPartidos.next()) {
+                            System.out.println("COMIENZO PARTIDO");
+                            int partidoId = rsPartidos.getInt("partido_id");
+                            // Busco partido
+                            String sqlPartido = "SELECT id_deporte, ubicacion, comienzo, duracion, nombre FROM partido p JOIN estado e ON p.id_estado = e.id WHERE p.id = ? ";
+                            try (PreparedStatement psPartido = con.prepareStatement(sqlPartido)) {
+                                psPartido.setInt(1, partidoId);
+                                ResultSet rsPartido = psPartido.executeQuery();
+                                while (rsPartido.next()) {
+                                    Partido partido = new Partido();
+                                    partido.setId(partidoId);
+                                    partido.setDeporte(
+                                            DeporteDAO.getInstance().findDeporteById(rsPartido.getInt("id_deporte")));
+                                    partido.setUbicacion(new Ubicacion(rsPartido.getString("ubicacion")));
+                                    partido.setFecha(rsPartido.getTimestamp("comienzo").toLocalDateTime());
+                                    partido.setDuracion(rsPartido.getInt("duracion"));
+                                    partido.setEstado(FactoryEstado.getEstadoByName(rsPartido.getString("nombre")));
+
+                                    partidos.add(partido);
+                                }
+
+                            }
+
+                            usuario.setPartidos(partidos);
+
+                        }
+                    }
                 }
 
                 // Crear Deporte
@@ -82,7 +124,8 @@ public class UsuarioDAO {
                 boolean esFavorito = rs.getBoolean("esFavorito");
 
                 UsuarioDeporte ud = new UsuarioDeporte(usuario, deporte, nivel, esFavorito);
-                usuario.addUsuarioDeporte(ud); // Asegurate de tener este método en la clase Usuario
+                usuario.addUsuarioDeporte(ud);
+
             }
 
         } catch (SQLException e) {
@@ -94,7 +137,8 @@ public class UsuarioDAO {
         return new ArrayList<>(mapaUsuarios.values());
     }
 
-    public Usuario findUsuarioById(int id) throws SQLException {
+    public Usuario findUsuarioById(int id) throws Exception {
+
         Connection con = ConexionDAO.conectar();
         String sql = """
                     SELECT
@@ -130,6 +174,43 @@ public class UsuarioDAO {
                     usuario.setMail(rs.getString("mail"));
                     usuario.setContrasena(rs.getString("contrasena"));
                     usuario.setUbicacion(rs.getString("domicilio"));
+
+                    // Partidos
+
+                    List<Partido> partidos = new ArrayList<>();
+
+                    String sqlPartidos = "SELECT partido_id FROM usuariopartido WHERE usuario_id = ?";
+                    try (PreparedStatement psPartidos = con.prepareStatement(sqlPartidos)) {
+                        psPartidos.setInt(1, id);
+                        ResultSet rsPartidos = psPartidos.executeQuery();
+
+                        while (rsPartidos.next()) {
+                            System.out.println("COMIENZO PARTIDO");
+                            int partidoId = rsPartidos.getInt("partido_id");
+                            // Busco partido
+                            String sqlPartido = "SELECT id_deporte, ubicacion, comienzo, duracion, nombre FROM partido p JOIN estado e ON p.id_estado = e.id WHERE p.id = ? ";
+                            try (PreparedStatement psPartido = con.prepareStatement(sqlPartido)) {
+                                psPartido.setInt(1, partidoId);
+                                ResultSet rsPartido = psPartido.executeQuery();
+                                while (rsPartido.next()) {
+                                    Partido partido = new Partido();
+                                    partido.setId(partidoId);
+                                    partido.setDeporte(
+                                            DeporteDAO.getInstance().findDeporteById(rsPartido.getInt("id_deporte")));
+                                    partido.setUbicacion(new Ubicacion(rsPartido.getString("ubicacion")));
+                                    partido.setFecha(rsPartido.getTimestamp("comienzo").toLocalDateTime());
+                                    partido.setDuracion(rsPartido.getInt("duracion"));
+                                    partido.setEstado(FactoryEstado.getEstadoByName(rsPartido.getString("nombre")));
+
+                                    partidos.add(partido);
+                                }
+
+                            }
+
+                            usuario.setPartidos(partidos);
+
+                        }
+                    }
                 }
 
                 Deporte deporte = new Deporte(
@@ -225,7 +306,7 @@ public class UsuarioDAO {
         }
     }
 
-    public List<UsuarioDeporte> getUsuarioDeportes() throws SQLException {
+    public List<UsuarioDeporte> getUsuarioDeportes() throws Exception {
         List<UsuarioDeporte> lista = new ArrayList<>();
         Connection con = ConexionDAO.conectar();
 

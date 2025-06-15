@@ -208,17 +208,18 @@ public class Partido {
     }
 
     // ToString
+    @Override
     public String toString() {
         return "Partido{" +
                 "id=" + id +
-                ", deporte=" + deporte +
-                ", creador=" + creador.getNombreUsuario() +
-                ", ubicacion=" + ubicacion +
+                ", deporte=" + (deporte != null ? deporte.toString() : "null") +
+                ", creador=" + (creador != null ? creador.getNombreUsuario() : "null") +
+                ", ubicacion=" + (ubicacion != null ? ubicacion.toString() : "null") +
                 ", fecha=" + fecha +
                 ", duracion=" + duracion +
-                ", estado=" + estado.getNombre() +
+                ", estado=" + (estado != null ? estado.getNombre() : "null") +
+                 ", minimoPartidosJugados=" + minimoPartidosJugados +
                 '}'+
-                 ", minimoPartidosJugados=" + minimoPartidosJugados ;
     }
 
     public void agregarEstrategiaNotificacion(INotificacion estrategia) {

@@ -5,10 +5,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.text.html.HTMLDocument.HTMLReader.ParagraphAction;
+
 import com.findamatch.model.Deporte;
+import com.findamatch.model.Partido;
 import com.findamatch.model.Usuario;
 import com.findamatch.model.UsuarioDeporte;
 import com.findamatch.model.dto.DeporteDTO;
+import com.findamatch.model.dto.PartidoDTO;
 import com.findamatch.model.dto.UsuarioDTO;
 import com.findamatch.model.dto.UsuarioDeporteDTO;
 import com.findamatch.model.enums.Nivel;
@@ -19,6 +23,7 @@ public class UsuarioController {
     UsuarioDeporte usuarioDeporte;
 
     DeporteController dc = DeporteController.getInstance();
+    PartidoController pc = null;
 
     private static UsuarioController instance = null;
 
@@ -26,6 +31,7 @@ public class UsuarioController {
     private UsuarioController() {
         this.usuario = new Usuario();
         this.usuarioDeporte = new UsuarioDeporte();
+
     }
 
     public static UsuarioController getInstance() {
@@ -35,8 +41,19 @@ public class UsuarioController {
         return instance;
     }
 
+    public PartidoController getPartidoController() {
+        if (pc == null) {
+            pc = PartidoController.getInstance();
+        }
+        return pc;
+    }
+
     // CRUD
-    public List<UsuarioDTO> getAllUsuariosDTO() {
+
+    public List<UsuarioDTO> getAllUsuariosDTO() throws Exception {
+
+        pc = getPartidoController();
+
 
         List<Usuario> usuarios = usuario.findAllUsuarios();
         List<UsuarioDTO> usuariosDTO = new ArrayList<UsuarioDTO>();
@@ -44,18 +61,41 @@ public class UsuarioController {
         for (Usuario u : usuarios) {
             UsuarioDTO usuarioDTO = usuarioToDto(u);
             usuarioDTO.setDeportes(usuarioDeporteToDto(u.getDeportes()));
+
+            List<PartidoDTO> partidosDTO = new ArrayList<PartidoDTO>();
+            List<Partido> partidos = u.getPartidos();
+
+            for (Partido p : partidos) {
+                PartidoDTO partidoDTO = pc.partidoToDTO(p);
+                partidosDTO.add(partidoDTO);
+            }
+
+            usuarioDTO.setPartidos(partidosDTO);
             usuariosDTO.add(usuarioDTO);
         }
         return usuariosDTO;
     }
 
-    public UsuarioDTO getUsuarioByIdDTO(int id) {
-        Usuario usuarioNuevo = usuario.findUsuarioById(id);
+    public UsuarioDTO getUsuarioByIdDTO(int id) throws Exception {
 
-        UsuarioDTO usuarioDTO = usuarioToDto(usuarioNuevo);
+        this.pc = PartidoController.getInstance();
 
-        List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioNuevo.getDeportes());
+        Usuario usuarioEncontrado = usuario.findUsuarioById(id);
+
+        UsuarioDTO usuarioDTO = usuarioToDto(usuarioEncontrado);
+
+        List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioEncontrado.getDeportes());
         usuarioDTO.setDeportes(usuariosDeporteDTO);
+
+        List<PartidoDTO> partidosDTO = new ArrayList<PartidoDTO>();
+        List<Partido> partidos = usuarioEncontrado.getPartidos();
+
+        for (Partido p : partidos) {
+            PartidoDTO partidoDTO = pc.partidoToDTO(p);
+            partidosDTO.add(partidoDTO);
+        }
+
+        usuarioDTO.setPartidos(partidosDTO);
 
         return usuarioDTO;
     }

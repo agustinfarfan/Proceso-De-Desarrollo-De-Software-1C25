@@ -18,6 +18,7 @@ import com.findamatch.model.dto.UsuarioDTO;
 import com.findamatch.model.dto.UsuarioDeporteDTO;
 import com.findamatch.model.enums.Nivel;
 import com.findamatch.model.estado.EstadoConfirmado;
+import com.findamatch.model.estado.FactoryEstado;
 import com.findamatch.model.notificacion.Notificacion;
 import com.findamatch.model.notificacion.NotificacionEmail;
 import com.findamatch.model.notificacion.NotificacionPush;
@@ -29,7 +30,15 @@ public class App2 {
         UsuarioController uc = UsuarioController.getInstance();
         PartidoController pc = PartidoController.getInstance();
 
-        PartidoDTO partido = pc.getPartidoDTOById(2);
-        System.out.println(partido.toString());
+        // List<UsuarioDTO> usuarios = uc.getAllUsuariosDTO();
+
+        // for (UsuarioDTO u : usuarios) {
+        // System.out.println("=========" + u.getNombreUsuario() + "=========");
+        // System.out.println(u);
+        // }
+
+        UsuarioDTO usuario = uc.getUsuarioByIdDTO(7);
+        System.out.println(usuario);
+
     }
 }

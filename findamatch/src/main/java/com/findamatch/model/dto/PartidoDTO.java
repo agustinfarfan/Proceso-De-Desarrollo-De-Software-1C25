@@ -118,4 +118,8 @@ public class PartidoDTO {
                 + ", minimoPartidosJugados=" + minimoPartidosJugados ;
     }
 
+    public void addJugador(UsuarioDTO usuarioNuevo) {
+        this.jugadores.add(usuarioNuevo);
+    }
+
 }
