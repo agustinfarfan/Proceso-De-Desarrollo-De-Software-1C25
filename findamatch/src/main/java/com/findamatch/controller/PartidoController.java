@@ -12,9 +12,10 @@ import com.findamatch.model.dto.PartidoDTO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 import com.findamatch.model.estado.FactoryEstado;
 import com.findamatch.model.estado.IEstadoPartido;
+import com.findamatch.model.notificacion.NotificacionEmail;
+import com.findamatch.model.notificacion.NotificacionPush;
 
 public class PartidoController {
-
     Partido partido;
     Deporte deporte;
     Usuario usuario;
@@ -22,15 +23,12 @@ public class PartidoController {
     private DeporteController dc = DeporteController.getInstance();
     private UsuarioController uc = UsuarioController.getInstance();
     private static PartidoController instance = null;
-
+    
     // Constructor
-
     private PartidoController() {
-
         partido = new Partido();
         deporte = new Deporte();
         usuario = new Usuario();
-
     }
 
     public static PartidoController getInstance() {
@@ -43,7 +41,6 @@ public class PartidoController {
     // CRUD
 
     public List<PartidoDTO> getAllPartidosDTO() throws Exception {
-
         List<Partido> partidos = partido.findAllPartidos();
         List<PartidoDTO> partidosDTO = new ArrayList<>();
 
@@ -53,7 +50,6 @@ public class PartidoController {
         }
 
         return partidosDTO;
-
     }
 
     public PartidoDTO getPartidoDTOById(int id) throws Exception {
@@ -63,7 +59,6 @@ public class PartidoController {
     }
 
     public int createPartido(PartidoDTO partidoDTO) throws Exception {
-
         Partido partido = dtoToPartido(partidoDTO);
         IEstadoPartido estado = FactoryEstado.getEstadoByName("ARMADO");
         partido.setEstado(estado);
@@ -71,11 +66,12 @@ public class PartidoController {
         int id = partido.savePartido(partido);
 
         return id;
-
     }
 
     public void updatePartido(PartidoDTO partidoDTO) throws Exception {
         Partido partido = dtoToPartido(partidoDTO);
+        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partido.agregarEstrategiaNotificacion(new NotificacionPush());
         partido.updatePartido(partido);
     }
 
@@ -85,6 +81,8 @@ public class PartidoController {
 
     public void confirmarPartido(int id) throws Exception {
         Partido partidoEncontrado = partido.findPartidoById(id);
+        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partido.agregarEstrategiaNotificacion(new NotificacionPush());
         partidoEncontrado.confirmarPartido();
         partido.updatePartido(partidoEncontrado);
     }
@@ -92,17 +90,18 @@ public class PartidoController {
     public void cancelarPartido(int id) throws Exception {
 
         Partido partidoEncontrado = partido.findPartidoById(id);
+        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partido.agregarEstrategiaNotificacion(new NotificacionPush());
         partidoEncontrado.cancelarPartido();
         partido.updatePartido(partidoEncontrado);
-
     }
 
     public void finalizarPartido(int id) throws Exception {
-
         Partido partidoEncontrado = partido.findPartidoById(id);
+        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partido.agregarEstrategiaNotificacion(new NotificacionPush());
         partidoEncontrado.finalizarPartido();
         partido.updatePartido(partidoEncontrado);
-
     }
 
     // Conversiones DTO - Partido
