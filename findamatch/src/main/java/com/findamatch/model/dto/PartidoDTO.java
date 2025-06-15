@@ -13,6 +13,7 @@ public class PartidoDTO {
     private int duracion;
     private String estado;
     private List<UsuarioDTO> jugadores;
+    private int minimoPartidosJugados;
 
     // Constructor
     public PartidoDTO() {
@@ -91,6 +92,14 @@ public class PartidoDTO {
     public void setJugadores(List<UsuarioDTO> jugadores) {
         this.jugadores = jugadores;
     }
+    
+    public int getMinimoPartidosJugados() {
+    return minimoPartidosJugados;
+    }
+
+    public void setMinimoPartidosJugados(int minimoPartidosJugados) {
+        this.minimoPartidosJugados = minimoPartidosJugados;
+    }
 
     // ToString
 
@@ -105,7 +114,8 @@ public class PartidoDTO {
                 ", duracion=" + duracion +
                 ", estado='" + estado + '\'' +
                 ", jugadores=" + jugadores +
-                '}';
+                '}'
+                + ", minimoPartidosJugados=" + minimoPartidosJugados ;
     }
 
 }
