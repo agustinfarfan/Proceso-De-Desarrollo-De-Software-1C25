@@ -22,7 +22,6 @@ public class UsuarioController {
     private static UsuarioController instance = null;
 
     // Constructor
-
     private UsuarioController() {
         this.usuario = new Usuario();
         this.usuarioDeporte = new UsuarioDeporte();
@@ -36,7 +35,6 @@ public class UsuarioController {
     }
 
     // CRUD
-
     public List<UsuarioDTO> getAllUsuariosDTO() {
 
         List<Usuario> usuarios = usuario.findAllUsuarios();
@@ -46,9 +44,7 @@ public class UsuarioController {
             UsuarioDTO usuarioDTO = usuarioToDto(u);
             usuariosDTO.add(usuarioDTO);
         }
-
         return usuariosDTO;
-
     }
 
     public UsuarioDTO getUsuarioByIdDTO(int id) {
@@ -58,18 +54,13 @@ public class UsuarioController {
     }
 
     public int createUsuario(UsuarioDTO usuarioDTO) {
-
         Usuario usuarioNuevo = dtoToUsuario(usuarioDTO);
-
         int id = usuario.saveUsuario(usuarioNuevo);
-
         return id;
     }
 
     public void updateUsuario(UsuarioDTO usuarioDTO) {
-
         Usuario usuarioNuevo = dtoToUsuario(usuarioDTO);
-
         usuario.updateUsuario(usuarioNuevo);
     }
 
@@ -88,7 +79,6 @@ public class UsuarioController {
         Usuario usuario = dtoToUsuario(usuarioDTO);
         Deporte deporte = dc.dtoToDeporte(deporteDTO);
         UsuarioDeporte usuarioDeporte = new UsuarioDeporte(usuario, deporte, nivelJuego, esFavorito);
-
         usuario.updateUsuarioDeporte(usuarioDeporte);
     }
 
@@ -113,5 +103,4 @@ public class UsuarioController {
         usuarioNuevo.setUbicacion(usuarioDTO.getUbicacion());
         return usuarioNuevo;
     }
-
 }

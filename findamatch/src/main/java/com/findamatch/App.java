@@ -57,23 +57,27 @@ public class App {
          * 60));
          */
 
-        Deporte futbol = new Deporte(1, "Fútbol", 5, 10, "Partido 5 vs 5");
-        Usuario mathias = new Usuario(1, "mathias", "mathias@mail.com", "1234", "Calle 123");
-        Ubicacion ubicacion = new Ubicacion("Plaza Mitre");
-
-        Partido partido = new Partido(
-                futbol,
-                mathias,
-                ubicacion,
-                LocalDateTime.now().plusDays(1),
-                60);
-
-        partido.getJugadores().add(new Usuario(2, "Facu", "facu@mail.com", "abcd", "Av 123"));
-
-        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
-        partido.agregarEstrategiaNotificacion(new NotificacionPush());
-
-        partido.cancelarPartido(); 
-        partido.confirmarPartido();
+         /*
+          * Deporte futbol = new Deporte(1, "Fútbol", 5, 10, "Partido 5 vs 5");
+          * Usuario mathias = new Usuario(1, "mathias", "mathias@mail.com", "1234",
+          * "Calle 123");
+          * Ubicacion ubicacion = new Ubicacion("Plaza Mitre");
+          * 
+          * Partido partido = new Partido(
+          * futbol,
+          * mathias,
+          * ubicacion,
+          * LocalDateTime.now().plusDays(1),
+          * 60);
+          * 
+          * partido.getJugadores().add(new Usuario(2, "Facu", "facu@mail.com", "abcd",
+          * "Av 123"));
+          * 
+          * partido.agregarEstrategiaNotificacion(new NotificacionEmail());
+          * partido.agregarEstrategiaNotificacion(new NotificacionPush());
+          * 
+          * partido.cancelarPartido();
+          * partido.confirmarPartido();
+          */
     }
 }
