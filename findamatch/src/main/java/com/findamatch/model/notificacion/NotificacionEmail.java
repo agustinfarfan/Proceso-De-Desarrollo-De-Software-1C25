@@ -10,12 +10,8 @@ public class NotificacionEmail implements INotificacion {
     private IAdaptadorMail adaptadorMail;
 
     public NotificacionEmail() {
-        this.adaptadorMail = new JavaMail(); // Por ahora, hardcodeado
+        this.adaptadorMail = new JavaMail();
     }
-
-    // Si querés inyectarlo por constructor:
-    // public NotificacionEmail(IAdaptadorMail adaptador) { this.adaptadorMail =
-    // adaptador; }
 
     @Override
     public void enviarNotificacion(Notificacion notificacion) {

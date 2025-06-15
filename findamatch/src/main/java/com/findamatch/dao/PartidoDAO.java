@@ -38,7 +38,10 @@ public class PartidoDAO {
                 String ubicacionStr = rs.getString("ubicacion");
                 LocalDateTime comienzo = rs.getTimestamp("comienzo").toLocalDateTime();
                 int duracion = rs.getInt("duracion");
+
                 String estadoNombre = rs.getString("nombre");
+                int minimo = rs.getInt("minimo_partidos_jugados");
+
 
                 Deporte deporte = DeporteDAO.getInstance().findDeporteById(idDeporte);
                 Usuario creador = UsuarioDAO.getInstance().findUsuarioById(idCreador);
@@ -46,7 +49,6 @@ public class PartidoDAO {
                 IEstadoPartido estado = FactoryEstado.getEstadoByName(estadoNombre);
 
                 Partido partido = new Partido(id, deporte, creador, ubicacion, comienzo, duracion, estado);
-
                 // Jugadores
                 String sqlJugadores = "SELECT usuario_id FROM UsuarioPartido WHERE partido_id = ?";
                 List<Usuario> jugadores = new ArrayList<>();
@@ -61,6 +63,9 @@ public class PartidoDAO {
                     }
                 }
                 partido.setJugadores(jugadores);
+
+                partido.setMinimoPartidosJugados(minimo);
+
                 partidos.add(partido);
             }
         } catch (SQLException e) {
@@ -73,7 +78,7 @@ public class PartidoDAO {
 
     public Partido findPartidoById(int id) throws Exception {
         Connection con = ConexionDAO.conectar();
-        String sql = "SELECT id_deporte, id_creador, ubicacion, comienzo, duracion, nombre FROM partido p JOIN estado e ON p.id_estado = e.id WHERE p.id = ? ";
+        String sql = "SELECT id_deporte, id_creador, ubicacion, comienzo, duracion, nombre, minimo_partidos_jugados FROM partido p JOIN estado e ON p.id_estado = e.id WHERE p.id = ?";
         Partido partido = null;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -83,6 +88,7 @@ public class PartidoDAO {
                 int idCreador = rs.getInt("id_creador");
                 String ubicacionStr = rs.getString("ubicacion");
                 String nombreEstado = rs.getString("nombre");
+                int minimo = rs.getInt("minimo_partidos_jugados");
 
                 Deporte deporte = DeporteDAO.getInstance().findDeporteById(idDeporte);
                 Usuario creador = UsuarioDAO.getInstance().findUsuarioById(idCreador);
@@ -108,6 +114,9 @@ public class PartidoDAO {
 
                 partido = new Partido(id, deporte, creador, ubicacion, comienzo, duracion, estado);
                 partido.setJugadores(jugadores);
+
+                partido.setMinimoPartidosJugados(minimo);
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -117,10 +126,10 @@ public class PartidoDAO {
         return partido;
     }
 
+
     public int savePartido(Partido partido) throws SQLException {
         Connection con = ConexionDAO.conectar();
         try {
-
             String estadoNombre = partido.getEstado().getNombre();
             String sqlEstado = "SELECT id FROM estado WHERE nombre = ?";
             int idEstado;
@@ -135,9 +144,8 @@ public class PartidoDAO {
                 }
             }
 
-            String sql = "INSERT INTO partido (id_deporte, id_creador, ubicacion, comienzo, duracion, id_estado) "
-                    +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id";
+            String sql = "INSERT INTO partido (id_deporte, id_creador, ubicacion, comienzo, duracion, id_estado, minimo_partidos_jugados) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id";
 
             int partidoId;
             try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -146,7 +154,8 @@ public class PartidoDAO {
                 ps.setString(3, partido.getUbicacion().getDireccion());
                 ps.setTimestamp(4, Timestamp.valueOf(partido.getFecha()));
                 ps.setInt(5, partido.getDuracion());
-                ps.setInt(6, idEstado); // Estado dinámico según nombre
+                ps.setInt(6, idEstado);
+                ps.setInt(7, partido.getMinimoPartidosJugados());
 
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
@@ -157,7 +166,6 @@ public class PartidoDAO {
                 }
             }
 
-            // Metemos al creador en la tabla UsuarioPartido
             String insertUsuarioPartido = "INSERT INTO UsuarioPartido (usuario_id, partido_id, confirmado) VALUES (?, ?, ?)";
             try (PreparedStatement psRelacion = con.prepareStatement(insertUsuarioPartido)) {
                 psRelacion.setInt(1, partido.getCreador().getId());
@@ -176,9 +184,12 @@ public class PartidoDAO {
         }
     }
 
+
     public void updatePartido(Partido partido) throws SQLException {
         Connection con = ConexionDAO.conectar();
-        String sql = "UPDATE partido SET id_deporte = ?, id_creador = ?, ubicacion = ?, comienzo = ?, duracion = ?, id_estado = ? WHERE id = ?";
+
+        String sql = "UPDATE partido SET id_deporte = ?, id_creador = ?, ubicacion = ?, comienzo = ?, duracion = ?, id_estado = ?, minimo_partidos_jugados = ? WHERE id = ?";
+
         try (PreparedStatement ps = con.prepareStatement(sql)) {
 
             String estadoNombre = partido.getEstado().getNombre();
@@ -202,6 +213,9 @@ public class PartidoDAO {
             ps.setInt(5, partido.getDuracion());
             ps.setInt(6, idEstado); // Estado dinámico según nombre
             ps.setInt(7, partido.getId());
+            ps.setInt(7, partido.getMinimoPartidosJugados());
+            ps.setInt(8, partido.getId());
+
             ps.executeUpdate();
 
             // Actualizamos lista de jugadores

@@ -6,6 +6,7 @@ import java.util.*;
 import com.findamatch.dao.DeporteDAO;
 import com.findamatch.dao.UsuarioDAO;
 import com.findamatch.model.dto.UsuarioDTO;
+import com.findamatch.model.enums.Nivel;
 
 public class Usuario {
 
@@ -37,6 +38,7 @@ public class Usuario {
 
     // CRUD
 
+
     public List<Usuario> findAllUsuarios() throws Exception {
 
         List<Usuario> usuarios = new ArrayList<>();
@@ -59,10 +61,6 @@ public class Usuario {
             usuario = usuarioDAO.findUsuarioById(id);
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-
-        return usuario;
-
     }
 
     public int saveUsuario(Usuario usuario) {
@@ -113,6 +111,19 @@ public class Usuario {
         usuarioDAO.updateUsuarioDeporte(usuarioDeporte);
 
     }
+
+    public Nivel getNivelPorDeporte(Deporte deporte) {
+    if (deportes == null) return null;
+
+    for (UsuarioDeporte ud : deportes) {
+        if (ud.getDeporte().getId() == deporte.getId()) {
+            return ud.getNivelJuego();
+        }
+    }
+
+
+    return null;
+}
 
     // Getters y Setters
 
@@ -175,6 +186,7 @@ public class Usuario {
     public void setPartidos(List<Partido> partidos) {
         this.partidos = partidos;
     }
+
 
     // ToString
     @Override

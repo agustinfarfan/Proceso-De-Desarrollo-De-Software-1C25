@@ -28,7 +28,6 @@ public class UsuarioController {
     private static UsuarioController instance = null;
 
     // Constructor
-
     private UsuarioController() {
         this.usuario = new Usuario();
         this.usuarioDeporte = new UsuarioDeporte();
@@ -55,6 +54,7 @@ public class UsuarioController {
 
         pc = getPartidoController();
 
+
         List<Usuario> usuarios = usuario.findAllUsuarios();
         List<UsuarioDTO> usuariosDTO = new ArrayList<UsuarioDTO>();
 
@@ -73,9 +73,7 @@ public class UsuarioController {
             usuarioDTO.setPartidos(partidosDTO);
             usuariosDTO.add(usuarioDTO);
         }
-
         return usuariosDTO;
-
     }
 
     public UsuarioDTO getUsuarioByIdDTO(int id) throws Exception {
@@ -103,18 +101,13 @@ public class UsuarioController {
     }
 
     public int createUsuario(UsuarioDTO usuarioDTO) {
-
         Usuario usuarioNuevo = dtoToUsuario(usuarioDTO);
-
         int id = usuario.saveUsuario(usuarioNuevo);
-
         return id;
     }
 
     public void updateUsuario(UsuarioDTO usuarioDTO) {
-
         Usuario usuarioNuevo = dtoToUsuario(usuarioDTO);
-
         usuario.updateUsuario(usuarioNuevo);
     }
 
@@ -128,7 +121,6 @@ public class UsuarioController {
         Usuario usuario = dtoToUsuario(usuarioDTO);
         Deporte deporte = dc.dtoToDeporte(deporteDTO);
         UsuarioDeporte usuarioDeporte = new UsuarioDeporte(usuario, deporte, nivelJuego, esFavorito);
-
         usuario.updateUsuarioDeporte(usuarioDeporte);
     }
 
