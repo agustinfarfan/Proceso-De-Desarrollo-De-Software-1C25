@@ -15,6 +15,7 @@ public class Usuario {
     private String contrasena;
     private String ubicacion;
     private List<UsuarioDeporte> deportes = new ArrayList<>();
+    private List<Partido> partidos = new ArrayList<>();
 
     UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
     DeporteDAO deporteDAO = DeporteDAO.getInstance();
@@ -36,7 +37,7 @@ public class Usuario {
 
     // CRUD
 
-    public List<Usuario> findAllUsuarios() {
+    public List<Usuario> findAllUsuarios() throws Exception {
 
         List<Usuario> usuarios = new ArrayList<>();
 
@@ -50,7 +51,7 @@ public class Usuario {
 
     }
 
-    public Usuario findUsuarioById(int id) {
+    public Usuario findUsuarioById(int id) throws Exception {
 
         Usuario usuario = null;
 
@@ -97,7 +98,7 @@ public class Usuario {
 
     }
 
-    public List<UsuarioDeporte> getUsuarioDeportes() {
+    public List<UsuarioDeporte> getUsuarioDeportes() throws Exception {
         List<UsuarioDeporte> usuarioDeportes = new ArrayList<>();
         try {
             usuarioDeportes = usuarioDAO.getUsuarioDeportes();
@@ -167,6 +168,14 @@ public class Usuario {
         deportes.add(ud);
     }
 
+    public List<Partido> getPartidos() {
+        return this.partidos;
+    }
+
+    public void setPartidos(List<Partido> partidos) {
+        this.partidos = partidos;
+    }
+
     // ToString
     @Override
     public String toString() {
@@ -176,6 +185,8 @@ public class Usuario {
                 ", mail='" + mail + '\'' +
                 ", contrasena='" + contrasena + '\'' +
                 ", ubicacion='" + ubicacion + '\'' +
+                ", deportes='" + deportes + '\'' +
+                ", partidos='" + partidos + '\'' +
                 '}';
     }
 

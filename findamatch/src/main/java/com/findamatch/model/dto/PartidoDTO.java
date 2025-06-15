@@ -108,4 +108,8 @@ public class PartidoDTO {
                 '}';
     }
 
+    public void addJugador(UsuarioDTO usuarioNuevo) {
+        this.jugadores.add(usuarioNuevo);
+    }
+
 }
