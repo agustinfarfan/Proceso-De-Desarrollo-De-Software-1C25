@@ -22,11 +22,12 @@ public class EstadoFinalizado implements IEstadoPartido {
     }
 
     @Override
-    public String nombre() {
+    public String getNombre() {
         return this.nombre;
     }
+
     @Override
     public void comenzar(Partido partido) {
-    System.out.println("No se puede comenzar un partido ya finalizado.");
+        System.out.println("No se puede comenzar un partido ya finalizado.");
     }
 }

@@ -6,6 +6,7 @@ import com.findamatch.model.estado.IEstadoPartido;
 
 public class EstadoDAO {
 
+    ConexionDAO conexionDAO = ConexionDAO.getInstance();
     private static EstadoDAO instance = null;
 
     private EstadoDAO() {
@@ -18,15 +19,8 @@ public class EstadoDAO {
         return instance;
     }
 
-    private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres?sslmode=require";
-        String user = "postgres";
-        String password = "findamatchuade";
-        return DriverManager.getConnection(url, user, password);
-    }
-
     public IEstadoPartido findEstadoById(int id) throws SQLException {
-        Connection con = conectar();
+        Connection con = ConexionDAO.conectar();
         String sql = "SELECT * FROM estado WHERE id = ?";
         IEstadoPartido estado = null;
         try (PreparedStatement ps = con.prepareStatement(sql)) {

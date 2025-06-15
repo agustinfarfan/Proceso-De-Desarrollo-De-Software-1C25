@@ -7,7 +7,7 @@ public class EstadoEnCurso implements IEstadoPartido {
     private final String nombre = "EN_CURSO";
 
     @Override
-    public String nombre() {
+    public String getNombre() {
         return nombre;
     }
 

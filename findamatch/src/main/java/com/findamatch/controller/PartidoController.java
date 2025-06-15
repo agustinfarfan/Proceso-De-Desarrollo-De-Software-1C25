@@ -10,6 +10,8 @@ import com.findamatch.model.Ubicacion;
 import com.findamatch.model.Usuario;
 import com.findamatch.model.dto.PartidoDTO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
+import com.findamatch.model.estado.FactoryEstado;
+import com.findamatch.model.estado.IEstadoPartido;
 
 public class PartidoController {
 
@@ -17,6 +19,8 @@ public class PartidoController {
     Deporte deporte;
     Usuario usuario;
 
+    private DeporteController dc = DeporteController.getInstance();
+    private UsuarioController uc = UsuarioController.getInstance();
     private static PartidoController instance = null;
 
     // Constructor
@@ -61,6 +65,8 @@ public class PartidoController {
     public int createPartido(PartidoDTO partidoDTO) throws Exception {
 
         Partido partido = dtoToPartido(partidoDTO);
+        IEstadoPartido estado = FactoryEstado.getEstadoByName("ARMADO");
+        partido.setEstado(estado);
 
         int id = partido.savePartido(partido);
 
@@ -75,35 +81,6 @@ public class PartidoController {
 
     public void deletePartido(int id) {
         partido.deletePartido(id);
-    }
-
-    // Conversiones DTO - Partido
-    public PartidoDTO partidoToDTO(Partido partido) {
-        PartidoDTO partidoDTO = new PartidoDTO();
-        partidoDTO.setId(partido.getId());
-        partidoDTO.setIdDeporte(partido.getDeporte().getId());
-        partidoDTO.setIdCreador(partido.getCreador().getId());
-        partidoDTO.setUbicacion(partido.getUbicacion().getDireccion());
-        partidoDTO.setComienzo(partido.getFecha());
-        partidoDTO.setDuracion(partido.getDuracion());
-        // REVISAR TEMA IDS CON EL PROFE
-        // partidoDTO.setEstado(partido.getEstado().getId());
-        partidoDTO.setEstrategia(partido.getEstrategiaEmparejamiento().getId());
-        return partidoDTO;
-    }
-
-    public Partido dtoToPartido(PartidoDTO partidoDTO) throws Exception {
-        Partido partido = new Partido();
-        partido.setId(partidoDTO.getId());
-        partido.setDeporte(deporte.findDeporteById(partidoDTO.getIdDeporte()));
-        partido.setCreador(usuario.findUsuarioById(partidoDTO.getIdCreador()));
-        partido.setUbicacion(new Ubicacion(partidoDTO.getUbicacion()));
-        partido.setFecha(partidoDTO.getComienzo());
-        partido.setDuracion(partidoDTO.getDuracion());
-        // REVISAR TEMA IDS CON EL PROFE
-        // partido.setEstado(partido.getEstado().findById(partidoDTO.getEstado())); //
-        // partido.setEstrategiaEmparejamiento(IEstrategiaEmparejamiento.findById(partidoDTO.getEstrategia()));
-        return partido;
     }
 
     public void confirmarPartido(int id) throws Exception {
@@ -126,6 +103,31 @@ public class PartidoController {
         partidoEncontrado.finalizarPartido();
         partido.updatePartido(partidoEncontrado);
 
+    }
+
+    // Conversiones DTO - Partido
+    public PartidoDTO partidoToDTO(Partido partido) {
+        PartidoDTO partidoDTO = new PartidoDTO();
+        partidoDTO.setId(partido.getId());
+        partidoDTO.setDeporte(dc.deporteToDTO(partido.getDeporte()));
+        partidoDTO.setCreador(uc.usuarioToDto(partido.getCreador()));
+        partidoDTO.setUbicacion(partido.getUbicacion().getDireccion());
+        partidoDTO.setComienzo(partido.getFecha());
+        partidoDTO.setDuracion(partido.getDuracion());
+        partidoDTO.setEstado(partido.getEstado().getNombre());
+        return partidoDTO;
+    }
+
+    public Partido dtoToPartido(PartidoDTO partidoDTO) throws Exception {
+        Partido partido = new Partido();
+        partido.setId(partidoDTO.getId());
+        partido.setDeporte(dc.dtoToDeporte(partidoDTO.getDeporte()));
+        partido.setCreador(uc.dtoToUsuario(partidoDTO.getCreador()));
+        partido.setUbicacion(new Ubicacion(partidoDTO.getUbicacion()));
+        partido.setFecha(partidoDTO.getComienzo());
+        partido.setDuracion(partidoDTO.getDuracion());
+        partido.setEstado(FactoryEstado.getEstadoByName(partidoDTO.getEstado()));
+        return partido;
     }
 
 }

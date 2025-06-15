@@ -13,6 +13,7 @@ import com.findamatch.model.emparejamiento.estrategias.PorNivel;
 
 public class EstrategiaDAO {
 
+    ConexionDAO conexionDAO = ConexionDAO.getInstance();
     private static EstrategiaDAO instance = null;
 
     private EstrategiaDAO() {
@@ -25,15 +26,8 @@ public class EstrategiaDAO {
         return instance;
     }
 
-    private Connection conectar() throws SQLException {
-        String url = "jdbc:postgresql://db.fecjpibxphahwlqmcssv.supabase.co:5432/postgres?sslmode=require";
-        String user = "postgres";
-        String password = "findamatchuade";
-        return DriverManager.getConnection(url, user, password);
-    }
-
     public IEstrategiaEmparejamiento findEstrategiaById(int id) throws SQLException {
-        Connection con = conectar();
+        Connection con = ConexionDAO.conectar();
         String sql = "SELECT * FROM estrategia WHERE id = ?";
         IEstrategiaEmparejamiento estrategia = null;
         try (PreparedStatement ps = con.prepareStatement(sql)) {

@@ -25,10 +25,8 @@ public class Partido {
     private LocalDateTime fecha;
     private int duracion;
     private IEstadoPartido estado;
-    private IEstrategiaEmparejamiento estrategiaEmparejamiento;
-    //private List<INotificacion> observadores = new ArrayList<>();
+    // private List<INotificacion> observadores = new ArrayList<>();
     private Notificador notificador = new Notificador();
-
 
     PartidoDAO partidoDAO = PartidoDAO.getInstance();
 
@@ -49,11 +47,10 @@ public class Partido {
         this.fecha = fecha;
         this.duracion = duracionMinutos;
         this.estado = new EstadoCreado(); // Estado inicial
-        this.estrategiaEmparejamiento = new PorCercania(); // Estrategia default
     }
 
     public Partido(int id, Deporte deporte, Usuario creador, Ubicacion ubicacion,
-            LocalDateTime comienzo, int duracion, IEstadoPartido estado, IEstrategiaEmparejamiento estrategia) {
+            LocalDateTime comienzo, int duracion, IEstadoPartido estado) {
         this.id = id;
         this.deporte = deporte;
         this.creador = creador;
@@ -61,7 +58,6 @@ public class Partido {
         this.fecha = comienzo;
         this.duracion = duracion;
         this.estado = estado;
-        this.estrategiaEmparejamiento = estrategia;
     }
 
     // Acciones Estado
@@ -77,15 +73,9 @@ public class Partido {
     public void finalizarPartido() {
         estado.finalizar(this);
     }
+
     public void comenzarPartido() {
-    estado.comenzar(this);
-    }
-
-
-    // Acciones Emparejamiento
-
-    public List<Usuario> buscarEmparejamiento() {
-        return estrategiaEmparejamiento.buscarEmparejamiento(this);
+        estado.comenzar(this);
     }
 
     // CRUD
@@ -197,30 +187,26 @@ public class Partido {
     }
 
     public void setEstado(IEstadoPartido estado) {
-        if (!this.estado.nombre().equals(estado.nombre())) {
+        if (this.estado != null) {
+            if (!this.estado.getNombre().equals(estado.getNombre())) {
+                this.estado = estado;
+                notificarCambioEstado();
+            }
+        } else {
             this.estado = estado;
-            notificarCambioEstado();
         }
-    }
-
-    public IEstrategiaEmparejamiento getEstrategiaEmparejamiento() {
-        return estrategiaEmparejamiento;
-    }
-
-    public void setEstrategiaEmparejamiento(IEstrategiaEmparejamiento estrategiaEmparejamiento) {
-        this.estrategiaEmparejamiento = estrategiaEmparejamiento;
     }
 
     // ToString
     public String toString() {
         return "Partido{" +
-                "deporte=" + deporte +
-                // ", jugadores=" + jugadores +
-                ", ubicacion='" + ubicacion + '\'' +
-                ", comienzo=" + fecha +
-                ", duracionMinutos=" + duracion +
-                // ", estado='" + estado + '\'' +
-                // ", estrategiaEmparejamiento='" + estrategiaEmparejamiento + '\'' +
+                "id=" + id +
+                ", deporte=" + deporte +
+                ", creador=" + creador.getNombreUsuario() +
+                ", ubicacion=" + ubicacion +
+                ", fecha=" + fecha +
+                ", duracion=" + duracion +
+                ", estado=" + estado.getNombre() +
                 '}';
     }
 
