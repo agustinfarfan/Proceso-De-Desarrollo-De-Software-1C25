@@ -114,6 +114,7 @@ public class PartidoController {
         partidoDTO.setComienzo(partido.getFecha());
         partidoDTO.setDuracion(partido.getDuracion());
         partidoDTO.setEstado(partido.getEstado().getNombre());
+        partidoDTO.setMinimoPartidosJugados(partido.getMinimoPartidosJugados());
         return partidoDTO;
     }
 
@@ -126,6 +127,7 @@ public class PartidoController {
         partido.setFecha(partidoDTO.getComienzo());
         partido.setDuracion(partidoDTO.getDuracion());
         partido.setEstado(FactoryEstado.getEstadoByName(partidoDTO.getEstado()));
+        partido.setMinimoPartidosJugados(partidoDTO.getMinimoPartidosJugados());
         return partido;
     }
 
