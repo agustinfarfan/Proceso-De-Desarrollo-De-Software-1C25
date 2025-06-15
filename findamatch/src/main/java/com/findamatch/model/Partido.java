@@ -219,7 +219,7 @@ public class Partido {
                 ", duracion=" + duracion +
                 ", estado=" + (estado != null ? estado.getNombre() : "null") +
                  ", minimoPartidosJugados=" + minimoPartidosJugados +
-                '}'+
+                '}';
     }
 
     public void agregarEstrategiaNotificacion(INotificacion estrategia) {
