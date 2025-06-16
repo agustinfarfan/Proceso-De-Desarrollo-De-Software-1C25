@@ -3,6 +3,7 @@ package com.findamatch.controller;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.findamatch.model.Deporte;
 import com.findamatch.model.Partido;
@@ -175,6 +176,28 @@ public class PartidoController {
         partido.setMinimoPartidosJugados(partidoDTO.getMinimoPartidosJugados());
 
         return partido;
+    }
+
+    public List<PartidoDTO> getPartidosDeUsuarioDTO(int usuarioId) {
+    List<Partido> partidos = partido.getPartidosDeUsuario(usuarioId);
+    return partidos.stream()
+                   .map(this::partidoToDTO)
+                   .collect(Collectors.toList());
+    }
+
+    public void agregarJugadorAPartido(PartidoDTO partidoDTO, UsuarioDTO jugadorDTO) throws Exception {
+    int id = partidoDTO.getId(); 
+    Partido partido = new Partido().findPartidoById(id); 
+    Usuario jugador = UsuarioController.getInstance().dtoToUsuario(jugadorDTO); // Convertimos DTO a entidad
+
+    List<Usuario> jugadores = partido.getJugadores();
+    if (!jugadores.contains(jugador)) {
+        jugadores.add(jugador);
+        partido.setJugadores(jugadores);
+        partido.updatePartido(partido);
+    } else {
+        throw new Exception("Ya estás anotado en este partido.");
+    }
     }
 
 }

@@ -233,4 +233,9 @@ public class Partido {
     public void notificarCambioEstado() {
         notificador.notificar(this);
     }
+
+    public List<Partido> getPartidosDeUsuario(int usuarioId) {
+    return PartidoDAO.getInstance().getPartidosDeUsuario(usuarioId);
+    }
+
 }

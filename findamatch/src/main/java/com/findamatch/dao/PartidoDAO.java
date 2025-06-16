@@ -9,6 +9,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PartidoDAO {
 
@@ -254,5 +255,73 @@ public class PartidoDAO {
         } finally {
             con.close();
         }
+    }
+
+    public List<Partido> getPartidosDeUsuario(int usuarioId) {
+    List<Partido> partidos = new ArrayList<>();
+    Connection con = null;
+
+    String sql = """
+        SELECT p.id, p.id_deporte, p.id_creador, p.ubicacion, p.comienzo, p.duracion,
+               e.nombre AS estado_nombre, p.minimo_partidos_jugados
+        FROM partido p
+        JOIN UsuarioPartido up ON p.id = up.partido_id
+        JOIN estado e ON p.id_estado = e.id
+        WHERE up.usuario_id = ?
+    """;
+
+    try {
+        con = ConexionDAO.conectar();
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, usuarioId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int id = rs.getInt("id");
+                    int idDeporte = rs.getInt("id_deporte");
+                    int idCreador = rs.getInt("id_creador");
+                    String ubicacionStr = rs.getString("ubicacion");
+                    LocalDateTime comienzo = rs.getTimestamp("comienzo").toLocalDateTime();
+                    int duracion = rs.getInt("duracion");
+                    String estadoNombre = rs.getString("estado_nombre");
+                    int minimo = rs.getInt("minimo_partidos_jugados");
+
+                    Deporte deporte = DeporteDAO.getInstance().findDeporteById(idDeporte);
+                    Usuario creador = UsuarioDAO.getInstance().findUsuarioById(idCreador);
+                    Ubicacion ubicacion = new Ubicacion(ubicacionStr);
+                    IEstadoPartido estado = FactoryEstado.getEstadoByName(estadoNombre);
+
+                    Partido partido = new Partido(id, deporte, creador, ubicacion, comienzo, duracion, estado);
+                    partido.setMinimoPartidosJugados(minimo);
+
+                    // Cargar jugadores
+                    String sqlJugadores = "SELECT usuario_id FROM UsuarioPartido WHERE partido_id = ?";
+                    List<Usuario> jugadores = new ArrayList<>();
+                    try (PreparedStatement psJugadores = con.prepareStatement(sqlJugadores)) {
+                        psJugadores.setInt(1, id);
+                        try (ResultSet rsJugadores = psJugadores.executeQuery()) {
+                            while (rsJugadores.next()) {
+                                int idJugador = rsJugadores.getInt("usuario_id");
+                                Usuario jugador = UsuarioDAO.getInstance().findUsuarioById(idJugador);
+                                jugadores.add(jugador);
+                            }
+                        }
+                    }
+
+                    partido.setJugadores(jugadores);
+                    partidos.add(partido);
+                }
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (con != null) con.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    return partidos;
     }
 }

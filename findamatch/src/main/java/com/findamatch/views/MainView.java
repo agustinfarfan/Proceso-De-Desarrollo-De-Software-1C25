@@ -393,45 +393,46 @@ public class MainView extends JFrame {
     btnCrear.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
     btnCrear.addActionListener((ActionEvent e) -> {
-        try {
-            String fechaTexto = txtFecha.getText();
-            if (!esFechaValida(fechaTexto)) {
-                JOptionPane.showMessageDialog(panel, "Formato de fecha inválido. Usa yyyy-MM-ddTHH:mm", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            PartidoDTO partidoDTO = new PartidoDTO();
-            partidoDTO.setCreador(usuarioActual);
-
-            // Obtener coordenadas desde Google Maps
-            Ubicacion ubicacion = new Ubicacion();
-            ubicacion.setDireccion(txtUbicacion.getText());
-            GoogleGeocoderAdapter geocoder = new GoogleGeocoderAdapter();
-            ubicacion = geocoder.getUbicacion(ubicacion);
-            partidoDTO.setUbicacion(ubicacion);
-
-            partidoDTO.setComienzo(LocalDateTime.parse(fechaTexto));
-            partidoDTO.setDuracion(Integer.parseInt(txtDuracion.getText()));
-            partidoDTO.setMinimoPartidosJugados(Integer.parseInt(txtMinPartidos.getText()));
-
-            String nombreDeporte = (String) comboDeporte.getSelectedItem();
-            DeporteDTO deporteSeleccionado = deportes.stream()
-                .filter(d -> d.getNombre().equals(nombreDeporte))
-                .findFirst()
-                .orElse(null);
-            partidoDTO.setDeporte(deporteSeleccionado);
-
-            List<UsuarioDTO> jugadores = new ArrayList<>();
-            jugadores.add(usuarioActual);
-            partidoDTO.setJugadores(jugadores);
-
-            int id = PartidoController.getInstance().createPartido(partidoDTO);
-            JOptionPane.showMessageDialog(panel, "Partido creado con ID: " + id);
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(panel, "Error al crear el partido: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    try {
+        String fechaTexto = txtFecha.getText();
+        if (!esFechaValida(fechaTexto)) {
+            JOptionPane.showMessageDialog(panel, "Formato de fecha inválido. Usa yyyy-MM-ddTHH:mm", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-    });
+
+        PartidoDTO partidoDTO = new PartidoDTO();
+        partidoDTO.setCreador(usuarioActual);
+
+        // Seteo manual de la ubicación
+        Ubicacion ubicacion = new Ubicacion();
+        ubicacion.setDireccion(txtUbicacion.getText()); // Solo la dirección
+        partidoDTO.setUbicacion(ubicacion);
+
+        partidoDTO.setComienzo(LocalDateTime.parse(fechaTexto));
+        partidoDTO.setDuracion(Integer.parseInt(txtDuracion.getText()));
+        partidoDTO.setMinimoPartidosJugados(Integer.parseInt(txtMinPartidos.getText()));
+
+        String nombreDeporte = (String) comboDeporte.getSelectedItem();
+        DeporteDTO deporteSeleccionado = deportes.stream()
+            .filter(d -> d.getNombre().equals(nombreDeporte))
+            .findFirst()
+            .orElse(null);
+        partidoDTO.setDeporte(deporteSeleccionado);
+
+        List<UsuarioDTO> jugadores = new ArrayList<>();
+        jugadores.add(usuarioActual);
+        partidoDTO.setJugadores(jugadores);
+
+        // ✅ Llamás con el DTO armado
+        int id = PartidoController.getInstance().createPartido(partidoDTO);
+        JOptionPane.showMessageDialog(panel, "Partido creado con ID: " + id);
+
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        JOptionPane.showMessageDialog(panel, "Error al crear el partido: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+});
+
 
     formPanel.add(lblUbicacion);
     formPanel.add(txtUbicacion);
@@ -496,8 +497,10 @@ public class MainView extends JFrame {
     partidoList.setSelectionForeground(Color.WHITE);
     partidoList.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+    List<PartidoDTO> partidos = new ArrayList<>();
+
     try {
-        List<PartidoDTO> partidos = PartidoController.getInstance().getAllPartidosDTO();
+        partidos = PartidoController.getInstance().getAllPartidosDTO();
         if (partidos.isEmpty()) {
             partidoListModel.addElement("No hay partidos disponibles en este momento");
         } else {
@@ -513,12 +516,40 @@ public class MainView extends JFrame {
     JScrollPane scrollPane = new JScrollPane(partidoList);
     scrollPane.setBorder(null);
     scrollPane.getViewport().setBackground(CARD_COLOR);
-
     listPanel.add(scrollPane, BorderLayout.CENTER);
+
+    // 🔘 Botón "Unirse"
+    JButton unirseButton = new JButton("Unirse al partido");
+    unirseButton.setBackground(PRIMARY_COLOR);
+    unirseButton.setForeground(Color.WHITE);
+    unirseButton.setFocusPainted(false);
+    unirseButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+
+    unirseButton.addActionListener(e -> {
+    int selectedIndex = partidoList.getSelectedIndex();
+    if (selectedIndex != -1 && selectedIndex < partidos.size()) {
+        PartidoDTO seleccionado = partidos.get(selectedIndex);
+        try {
+            PartidoController.getInstance().agregarJugadorAPartido(seleccionado, usuarioActual);
+            JOptionPane.showMessageDialog(panel, "¡Te uniste al partido exitosamente!");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(panel, "Error al unirse al partido: " + ex.getMessage());
+        }
+    } else {
+        JOptionPane.showMessageDialog(panel, "Seleccioná un partido primero.");
+    }
+    });
+
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.setBackground(BACKGROUND_COLOR);
+    buttonPanel.add(unirseButton);
+
     panel.add(listPanel, BorderLayout.CENTER);
+    panel.add(buttonPanel, BorderLayout.SOUTH);
 
     return panel;
-}
+    }
 
     private JPanel createHistorialPanel() {
     JPanel panel = new JPanel(new BorderLayout());
@@ -558,7 +589,7 @@ public class MainView extends JFrame {
     historialList.setBorder(new EmptyBorder(10, 10, 10, 10));
 
     try {
-        List<PartidoDTO> historial = PartidoController.getInstance().getPartidosDeUsuario(usuarioActual.getId());
+        List<PartidoDTO> historial = PartidoController.getInstance().getPartidosDeUsuarioDTO(usuarioActual.getId());;
         if (historial.isEmpty()) {
             historialListModel.addElement("No has participado en partidos aún");
         } else {

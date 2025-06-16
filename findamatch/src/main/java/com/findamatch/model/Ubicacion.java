@@ -11,12 +11,8 @@ public class Ubicacion {
 
     private Geocoder geocoder;
 
-    public Ubicacion(String ubicacion) throws Exception {
-        // Obtener coordenadas de la ubicacion
-        this.direccion = ubicacion;
-        this.geocoder = new GoogleGeocoderAdapter();
-        geocoder.getUbicacion(this);
-
+    public Ubicacion(String direccion) {
+        this.direccion = direccion;
     }
     // Getters y setters
 
