@@ -25,6 +25,7 @@ public class Partido {
     private LocalDateTime fecha;
     private int duracion;
     private IEstadoPartido estado;
+    private int minimoPartidosJugados;
     // private List<INotificacion> observadores = new ArrayList<>();
     private Notificador notificador = new Notificador();
 
@@ -47,6 +48,7 @@ public class Partido {
         this.fecha = fecha;
         this.duracion = duracionMinutos;
         this.estado = new EstadoCreado(); // Estado inicial
+        this.minimoPartidosJugados = 0;
     }
 
     public Partido(int id, Deporte deporte, Usuario creador, Ubicacion ubicacion,
@@ -197,16 +199,26 @@ public class Partido {
         }
     }
 
+    public int getMinimoPartidosJugados() {
+        return minimoPartidosJugados;
+    }
+
+    public void setMinimoPartidosJugados(int minimoPartidosJugados) {
+        this.minimoPartidosJugados = minimoPartidosJugados;
+    }
+
     // ToString
+    @Override
     public String toString() {
         return "Partido{" +
                 "id=" + id +
-                ", deporte=" + deporte +
-                ", creador=" + creador.getNombreUsuario() +
-                ", ubicacion=" + ubicacion +
+                ", deporte=" + (deporte != null ? deporte.toString() : "null") +
+                ", creador=" + (creador != null ? creador.getNombreUsuario() : "null") +
+                ", ubicacion=" + (ubicacion != null ? ubicacion.toString() : "null") +
                 ", fecha=" + fecha +
                 ", duracion=" + duracion +
-                ", estado=" + estado.getNombre() +
+                ", estado=" + (estado != null ? estado.getNombre() : "null") +
+                ", minimoPartidosJugados=" + minimoPartidosJugados +
                 '}';
     }
 

@@ -12,6 +12,7 @@ public class UsuarioDTO {
     private String contrasena;
     private String ubicacion;
     private List<UsuarioDeporteDTO> deportesDTO;
+    private List<PartidoDTO> partidosDTO;
 
     // Constructor
     public UsuarioDTO() {
@@ -88,6 +89,14 @@ public class UsuarioDTO {
         this.deportesDTO = deportesDTO;
     }
 
+    public List<PartidoDTO> getPartidos() {
+        return partidosDTO;
+    }
+
+    public void setPartidos(List<PartidoDTO> partidosDTO) {
+        this.partidosDTO = partidosDTO;
+    }
+
     // ToString
     @Override
     public String toString() {
@@ -97,6 +106,8 @@ public class UsuarioDTO {
                 ", mail='" + mail + '\'' +
                 ", contrasena='" + contrasena + '\'' +
                 ", ubicacion='" + ubicacion + '\'' +
+                ", deportes='" + deportesDTO + '\'' +
+                ", partidos='" + partidosDTO + '\'' +
                 '}';
     }
 

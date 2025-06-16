@@ -1,47 +1,58 @@
 package com.findamatch.model.emparejamiento.estrategias;
 
+import com.findamatch.dao.PartidoDAO;
+import com.findamatch.model.Deporte;
+import com.findamatch.model.Partido;
+import com.findamatch.model.Usuario;
+import com.findamatch.model.UsuarioDeporte;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
-import com.findamatch.model.enums.*;
-import com.findamatch.dao.UsuarioDAO;
-import com.findamatch.model.*;
+import com.findamatch.model.enums.Nivel;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PorNivel implements IEstrategiaEmparejamiento {
-@Override
-    public int getId() {
-        return 3; // el ID que corresponda a esta estrategia
-    }
+
     @Override
-    public List<Usuario> buscarEmparejamiento(Partido partido) {
-        List<Usuario> emparejados = new ArrayList<>();
-        Deporte deportePartido = partido.getDeporte();
-        Usuario creador = partido.getCreador();
+    public int getId() {
+        return 3; // ID correspondiente a esta estrategia
+    }
 
-        Nivel nivelCreador = creador.getNivelPorDeporte(deportePartido);
-        if (nivelCreador == null) return emparejados; // Si el creador no tiene nivel, no se puede comparar
+    @Override
+    public List<Partido> buscarEmparejamiento(Usuario usuario) {
+        List<Partido> partidosEmparejados = new ArrayList<>();
+        PartidoDAO partidoDAO = PartidoDAO.getInstance();
+        List<Partido> todosLosPartidos;
 
-        UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
-        List<Usuario> todos;
-        try {
-            todos = usuarioDAO.findAllUsuarios();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return emparejados;
-        }
+      try {
+        todosLosPartidos = partidoDAO.findAllPartidos(); // puede tirar Exception
+        } catch (Exception e) {
+        e.printStackTrace();
+        return partidosEmparejados;
+    }
 
-        for (Usuario u : todos) {
-            if (u.getId() == creador.getId()) continue;
+        // Iteramos por cada partido y vemos si coincide en nivel con el usuario
+        for (Partido partido : todosLosPartidos) {
+            // 👇 Filtro por estado "ARMADO"
+            if (!"ARMADO".equals(partido.getEstado().getNombre())) continue;
 
-            Nivel nivel = u.getNivelPorDeporte(deportePartido);
-            if (nivel != null && nivel.equals(nivelCreador)) {
-                emparejados.add(u);
+            Deporte deporte = partido.getDeporte();
+            Nivel nivelUsuario = usuario.getNivelPorDeporte(deporte);
+            Usuario creador = partido.getCreador();
+            Nivel nivelCreador = creador.getNivelPorDeporte(deporte);
+
+            if (nivelUsuario != null && nivelUsuario.equals(nivelCreador)) {
+                // Verifica que no esté ya inscripto
+                boolean yaInscripto = partido.getJugadores().stream()
+                .anyMatch(j -> j.getId() == usuario.getId());
+
+                if (!yaInscripto) {
+                partidosEmparejados.add(partido);
+                }
             }
-        }
-
-        return emparejados;
+}
+        return partidosEmparejados;
     }
 }
 

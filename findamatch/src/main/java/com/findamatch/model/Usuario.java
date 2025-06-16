@@ -16,6 +16,7 @@ public class Usuario {
     private String contrasena;
     private String ubicacion;
     private List<UsuarioDeporte> deportes = new ArrayList<>();
+    private List<Partido> partidos = new ArrayList<>();
 
     UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
     DeporteDAO deporteDAO = DeporteDAO.getInstance();
@@ -37,53 +38,31 @@ public class Usuario {
 
     // CRUD
 
-   public List<Usuario> findAllUsuarios() {
-    List<Usuario> usuarios = new ArrayList<>();
-    try {
-        usuarios = usuarioDAO.findAllUsuarios();
+    public List<Usuario> findAllUsuarios() throws Exception {
 
-        // Relacionar UsuarioDeporte a cada Usuario
-        List<UsuarioDeporte> relaciones = usuarioDAO.getUsuarioDeportes();
-        for (Usuario usuario : usuarios) {
-            List<UsuarioDeporte> deportesUsuario = new ArrayList<>();
-            for (UsuarioDeporte rel : relaciones) {
-                if (rel.getUsuario().getId() == usuario.getId()) {
-                    deportesUsuario.add(rel);
-                }
-            }
-            usuario.setDeportes(deportesUsuario);
+        List<Usuario> usuarios = new ArrayList<>();
+
+        try {
+            usuarios = usuarioDAO.findAllUsuarios();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return usuarios;
+
     }
-    return usuarios;
-}
 
-    
+    public Usuario findUsuarioById(int id) throws Exception {
 
-   public Usuario findUsuarioById(int id) {
-    Usuario usuario = null;
-    try {
-        usuario = usuarioDAO.findUsuarioById(id);
+        Usuario usuario = null;
 
-        // Cargar sus deportes
-        if (usuario != null) {
-            List<UsuarioDeporte> relaciones = usuarioDAO.getUsuarioDeportes();
-            List<UsuarioDeporte> deportesUsuario = new ArrayList<>();
-            for (UsuarioDeporte rel : relaciones) {
-                if (rel.getUsuario().getId() == usuario.getId()) {
-                    deportesUsuario.add(rel);
-                }
-            }
-            usuario.setDeportes(deportesUsuario);
+        try {
+            usuario = usuarioDAO.findUsuarioById(id);
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return usuario;
     }
-    return usuario;
-}
 
     public int saveUsuario(Usuario usuario) {
 
@@ -118,7 +97,7 @@ public class Usuario {
 
     }
 
-    public List<UsuarioDeporte> getUsuarioDeportes() {
+    public List<UsuarioDeporte> getUsuarioDeportes() throws Exception {
         List<UsuarioDeporte> usuarioDeportes = new ArrayList<>();
         try {
             usuarioDeportes = usuarioDAO.getUsuarioDeportes();
@@ -135,17 +114,17 @@ public class Usuario {
     }
 
     public Nivel getNivelPorDeporte(Deporte deporte) {
-    if (deportes == null) return null;
+        if (deportes == null)
+            return null;
 
-    for (UsuarioDeporte ud : deportes) {
-        if (ud.getDeporte().getId() == deporte.getId()) {
-            return ud.getNivelJuego();
+        for (UsuarioDeporte ud : deportes) {
+            if (ud.getDeporte().getId() == deporte.getId()) {
+                return ud.getNivelJuego();
+            }
         }
+
+        return null;
     }
-
-
-    return null;
-}
 
     // Getters y Setters
 
@@ -201,6 +180,14 @@ public class Usuario {
         deportes.add(ud);
     }
 
+    public List<Partido> getPartidos() {
+        return this.partidos;
+    }
+
+    public void setPartidos(List<Partido> partidos) {
+        this.partidos = partidos;
+    }
+
     // ToString
     @Override
     public String toString() {
@@ -210,6 +197,8 @@ public class Usuario {
                 ", mail='" + mail + '\'' +
                 ", contrasena='" + contrasena + '\'' +
                 ", ubicacion='" + ubicacion + '\'' +
+                ", deportes='" + deportes + '\'' +
+                ", partidos='" + partidos + '\'' +
                 '}';
     }
 

@@ -19763,7 +19763,7 @@
 											"top": 652,
 											"width": 207.54638671875,
 											"height": 13,
-											"text": "+notificar(): void",
+											"text": "+notificar(Partido partido): void",
 											"horizontalAlignment": 0
 										}
 									],
@@ -21755,6 +21755,15 @@
 									},
 									"type": "void",
 									"direction": "return"
+								},
+								{
+									"_type": "UMLParameter",
+									"_id": "AAAAAAGXZnQur0QwY+M=",
+									"_parent": {
+										"$ref": "AAAAAAGXXDg5xveD9qo="
+									},
+									"name": "Partido partido",
+									"type": ""
 								}
 							]
 						}
