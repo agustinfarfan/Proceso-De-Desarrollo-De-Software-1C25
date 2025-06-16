@@ -13,6 +13,7 @@ import com.findamatch.model.dto.UsuarioDTO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 import com.findamatch.model.estado.FactoryEstado;
 import com.findamatch.model.estado.IEstadoPartido;
+import com.findamatch.model.geocoding.GoogleGeocoderAdapter;
 import com.findamatch.model.notificacion.NotificacionEmail;
 import com.findamatch.model.notificacion.NotificacionPush;
 
@@ -67,13 +68,17 @@ public class PartidoController {
     }
 
     public int createPartido(PartidoDTO partidoDTO) throws Exception {
-        Partido partido = dtoToPartido(partidoDTO);
-        IEstadoPartido estado = FactoryEstado.getEstadoByName("ARMADO");
-        partido.setEstado(estado);
+    Partido partido = dtoToPartido(partidoDTO);
+    IEstadoPartido estado = FactoryEstado.getEstadoByName("ARMADO");
+    partido.setEstado(estado);
 
-        int id = partido.savePartido(partido);
+    // Geocoding - obtener latitud y longitud
+    GoogleGeocoderAdapter geocoder = new GoogleGeocoderAdapter();
+    Ubicacion ubicacionGeocodificada = geocoder.getUbicacion(partido.getUbicacion());
+    partido.setUbicacion(ubicacionGeocodificada);
 
-        return id;
+    int id = partido.savePartido(partido);
+    return id;
     }
 
     public void updatePartido(PartidoDTO partidoDTO) throws Exception {

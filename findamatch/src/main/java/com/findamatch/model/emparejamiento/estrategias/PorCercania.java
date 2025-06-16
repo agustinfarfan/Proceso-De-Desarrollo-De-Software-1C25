@@ -1,7 +1,13 @@
 package com.findamatch.model.emparejamiento.estrategias;
 
 import com.findamatch.model.Partido;
+import com.findamatch.model.Ubicacion;
 import com.findamatch.model.Usuario;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 import com.findamatch.dao.PartidoDAO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 

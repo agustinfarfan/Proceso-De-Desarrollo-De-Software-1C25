@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
+import com.findamatch.model.Ubicacion;
+
 public class PartidoDTO {
     private int id;
     private DeporteDTO deporte;
@@ -57,8 +59,8 @@ public class PartidoDTO {
         return ubicacion;
     }
 
-    public void setUbicacion(String ubicacion) {
-        this.ubicacion = ubicacion;
+    public void setUbicacion(String ubicacion2) {
+        this.ubicacion = ubicacion2;
     }
 
     public LocalDateTime getComienzo() {
