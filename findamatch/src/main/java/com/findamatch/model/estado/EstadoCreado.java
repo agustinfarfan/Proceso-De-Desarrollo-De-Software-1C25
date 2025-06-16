@@ -1,5 +1,8 @@
 package com.findamatch.model.estado;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.findamatch.model.Partido;
 
 public class EstadoCreado implements IEstadoPartido {
@@ -31,5 +34,10 @@ public class EstadoCreado implements IEstadoPartido {
     @Override
     public void comenzar(Partido partido) {
         System.out.println("El partido debe ser confirmado antes de comenzar.");
+    }
+    
+    @Override
+    public List<String> getTransicionesValidas() {
+        return Arrays.asList("CONFIRMADO", "CANCELADO");
     }
 }

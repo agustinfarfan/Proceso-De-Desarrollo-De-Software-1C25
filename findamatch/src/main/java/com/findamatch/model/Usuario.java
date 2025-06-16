@@ -64,6 +64,18 @@ public class Usuario {
         return usuario;
     }
 
+    public Usuario findUsuarioByUsername(String username) throws Exception {
+
+        Usuario usuario = null;
+
+        try {
+            usuario = usuarioDAO.findUsuarioByUsuario(username);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usuario;
+    }
+
     public int saveUsuario(Usuario usuario) {
 
         try {

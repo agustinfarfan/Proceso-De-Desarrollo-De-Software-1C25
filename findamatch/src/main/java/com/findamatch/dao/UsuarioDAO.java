@@ -2,6 +2,7 @@ package com.findamatch.dao;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,9 +139,9 @@ public class UsuarioDAO {
     }
 
     public Usuario findUsuarioById(int id) throws Exception {
-
         Connection con = ConexionDAO.conectar();
-        String sql = """
+
+        String sqlUsuario = """
                     SELECT
                         u.id AS usuario_id,
                         u.nombre_usuario,
@@ -162,7 +163,7 @@ public class UsuarioDAO {
 
         Usuario usuario = null;
 
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
+        try (PreparedStatement ps = con.prepareStatement(sqlUsuario)) {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
 
@@ -174,43 +175,6 @@ public class UsuarioDAO {
                     usuario.setMail(rs.getString("mail"));
                     usuario.setContrasena(rs.getString("contrasena"));
                     usuario.setUbicacion(rs.getString("domicilio"));
-
-                    // Partidos
-
-                    List<Partido> partidos = new ArrayList<>();
-
-                    String sqlPartidos = "SELECT partido_id FROM usuariopartido WHERE usuario_id = ?";
-                    try (PreparedStatement psPartidos = con.prepareStatement(sqlPartidos)) {
-                        psPartidos.setInt(1, id);
-                        ResultSet rsPartidos = psPartidos.executeQuery();
-
-                        while (rsPartidos.next()) {
-                            System.out.println("COMIENZO PARTIDO");
-                            int partidoId = rsPartidos.getInt("partido_id");
-                            // Busco partido
-                            String sqlPartido = "SELECT id_deporte, ubicacion, comienzo, duracion, nombre FROM partido p JOIN estado e ON p.id_estado = e.id WHERE p.id = ? ";
-                            try (PreparedStatement psPartido = con.prepareStatement(sqlPartido)) {
-                                psPartido.setInt(1, partidoId);
-                                ResultSet rsPartido = psPartido.executeQuery();
-                                while (rsPartido.next()) {
-                                    Partido partido = new Partido();
-                                    partido.setId(partidoId);
-                                    partido.setDeporte(
-                                            DeporteDAO.getInstance().findDeporteById(rsPartido.getInt("id_deporte")));
-                                    partido.setUbicacion(new Ubicacion(rsPartido.getString("ubicacion")));
-                                    partido.setFecha(rsPartido.getTimestamp("comienzo").toLocalDateTime());
-                                    partido.setDuracion(rsPartido.getInt("duracion"));
-                                    partido.setEstado(FactoryEstado.getEstadoByName(rsPartido.getString("nombre")));
-
-                                    partidos.add(partido);
-                                }
-
-                            }
-
-                            usuario.setPartidos(partidos);
-
-                        }
-                    }
                 }
 
                 Deporte deporte = new Deporte(
@@ -224,18 +188,150 @@ public class UsuarioDAO {
                 boolean esFavorito = rs.getBoolean("esFavorito");
 
                 UsuarioDeporte ud = new UsuarioDeporte(usuario, deporte, nivel, esFavorito);
-                usuario.addUsuarioDeporte(ud); // ← volvemos a usar este método
-
+                usuario.addUsuarioDeporte(ud);
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            con.close();
         }
 
+        if (usuario != null) {
+            String sqlPartidos = """
+                        SELECT
+                            p.id,
+                            p.id_creador,
+                            p.id_deporte,
+                            p.ubicacion,
+                            p.comienzo,
+                            p.duracion,
+                            e.nombre AS estado_nombre
+                        FROM partido p
+                        JOIN usuariopartido up ON p.id = up.partido_id
+                        JOIN estado e ON p.id_estado = e.id
+                        WHERE up.usuario_id = ?
+                    """;
+
+            try (PreparedStatement ps = con.prepareStatement(sqlPartidos)) {
+                ps.setInt(1, usuario.getId());
+                ResultSet rs = ps.executeQuery();
+
+                List<Partido> partidos = new ArrayList<>();
+                while (rs.next()) {
+                    Partido partido = new Partido();
+                    partido.setId(rs.getInt("id"));
+                    Usuario creador = new Usuario();
+                    creador.setId(rs.getInt("id_creador"));
+                    partido.setCreador(creador);
+                    partido.setDeporte(DeporteDAO.getInstance().findDeporteById(rs.getInt("id_deporte")));
+                    partido.setUbicacion(new Ubicacion(rs.getString("ubicacion")));
+                    partido.setFecha(rs.getTimestamp("comienzo").toLocalDateTime());
+                    partido.setDuracion(rs.getInt("duracion"));
+                    partido.setEstado(FactoryEstado.getEstadoByName(rs.getString("estado_nombre")));
+                    partidos.add(partido);
+                }
+
+                usuario.setPartidos(partidos);
+            }
+        }
+
+        con.close();
         return usuario;
     }
+
+
+    public Usuario findUsuarioByUsuario(String username) throws Exception {
+        Connection con = ConexionDAO.conectar();
+
+        String sqlUsuario = """
+                    SELECT
+                        u.id AS usuario_id,
+                        u.nombre_usuario,
+                        u.mail,
+                        u.contrasena,
+                        u.domicilio,
+                        d.id AS deporte_id,
+                        d.nombre,
+                        d.minJugadores,
+                        d.maxJugadores,
+                        d.descripcion,
+                        ud.nivelJuego,
+                        ud.esFavorito
+                    FROM usuario u
+                    JOIN usuariodeporte ud ON u.id = ud.usuario_id
+                    JOIN deporte d ON ud.deporte_id = d.id
+                    WHERE u.nombre_usuario = ?
+                """;
+
+        Usuario usuario = null;
+
+        try (PreparedStatement ps = con.prepareStatement(sqlUsuario)) {
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                if (usuario == null) {
+                    usuario = new Usuario();
+                    usuario.setId(rs.getInt("usuario_id"));
+                    usuario.setNombreUsuario(rs.getString("nombre_usuario"));
+                    usuario.setMail(rs.getString("mail"));
+                    usuario.setContrasena(rs.getString("contrasena"));
+                    usuario.setUbicacion(rs.getString("domicilio"));
+                }
+
+                Deporte deporte = new Deporte(
+                        rs.getInt("deporte_id"),
+                        rs.getString("nombre"),
+                        rs.getInt("minJugadores"),
+                        rs.getInt("maxJugadores"),
+                        rs.getString("descripcion"));
+
+                Nivel nivel = Nivel.valueOf(rs.getString("nivelJuego"));
+                boolean esFavorito = rs.getBoolean("esFavorito");
+
+                UsuarioDeporte ud = new UsuarioDeporte(usuario, deporte, nivel, esFavorito);
+                usuario.addUsuarioDeporte(ud);
+            }
+        }
+
+        if (usuario != null) {
+            String sqlPartidos = """
+                        SELECT
+                            p.id,
+                            p.id_creador,
+                            p.id_deporte,
+                            p.ubicacion,
+                            p.comienzo,
+                            p.duracion,
+                            e.nombre AS estado_nombre
+                        FROM partido p
+                        JOIN usuariopartido up ON p.id = up.partido_id
+                        JOIN estado e ON p.id_estado = e.id
+                        WHERE up.usuario_id = ?
+                    """;
+
+            try (PreparedStatement ps = con.prepareStatement(sqlPartidos)) {
+                ps.setInt(1, usuario.getId());
+                ResultSet rs = ps.executeQuery();
+
+                List<Partido> partidos = new ArrayList<>();
+                while (rs.next()) {
+                    Partido partido = new Partido();
+                    partido.setId(rs.getInt("id"));
+                    Usuario creador = new Usuario();
+                    creador.setId(rs.getInt("id_creador"));
+                    partido.setCreador(creador);
+                    partido.setDeporte(DeporteDAO.getInstance().findDeporteById(rs.getInt("id_deporte")));
+                    partido.setUbicacion(new Ubicacion(rs.getString("ubicacion")));
+                    partido.setFecha(rs.getTimestamp("comienzo").toLocalDateTime());
+                    partido.setDuracion(rs.getInt("duracion"));
+                    partido.setEstado(FactoryEstado.getEstadoByName(rs.getString("estado_nombre")));
+                    partidos.add(partido);
+                }
+
+                usuario.setPartidos(partidos);
+            }
+        }
+
+        con.close();
+        return usuario;
+    }    
 
     public int saveUsuario(Usuario usuario) throws SQLException {
         Connection con = ConexionDAO.conectar();

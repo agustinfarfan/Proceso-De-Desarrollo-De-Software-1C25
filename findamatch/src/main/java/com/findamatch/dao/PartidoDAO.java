@@ -8,7 +8,9 @@ import com.findamatch.model.estado.IEstadoPartido;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class PartidoDAO {
@@ -26,56 +28,81 @@ public class PartidoDAO {
         return instance;
     }
 
-    public List<Partido> findAllPartidos() throws Exception {
-        Connection con = ConexionDAO.conectar();
-        String sql = "SELECT p.id, id_deporte, id_creador, ubicacion, comienzo, duracion, nombre FROM partido p JOIN estado e ON p.id_estado = e.id";
-        List<Partido> partidos = new ArrayList<>();
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
+public List<Partido> findAllPartidos() throws Exception {
+    Connection con = ConexionDAO.conectar();
+
+    String sqlPartidos = """
+        SELECT p.id, p.id_deporte, p.id_creador, p.ubicacion, p.comienzo, p.duracion,
+               p.minimo_partidos_jugados, e.nombre AS estado_nombre,
+               u.nombre_usuario AS creador_nombre, u.mail, u.domicilio
+        FROM partido p
+        JOIN estado e ON p.id_estado = e.id
+        JOIN usuario u ON p.id_creador = u.id
+    """;
+
+    String sqlJugadores = """
+        SELECT up.partido_id, u.id, u.nombre_usuario, u.mail, u.domicilio
+        FROM usuariopartido up
+        JOIN usuario u ON up.usuario_id = u.id
+    """;
+
+    List<Partido> partidos = new ArrayList<>();
+    Map<Integer, List<Usuario>> jugadoresPorPartido = new HashMap<>();
+
+    try {
+        try (PreparedStatement psJugadores = con.prepareStatement(sqlJugadores)) {
+            ResultSet rsJugadores = psJugadores.executeQuery();
+            while (rsJugadores.next()) {
+                int partidoId = rsJugadores.getInt("partido_id");
+                Usuario jugador = new Usuario();
+                jugador.setId(rsJugadores.getInt("id"));
+                jugador.setNombreUsuario(rsJugadores.getString("nombre_usuario"));
+                jugador.setMail(rsJugadores.getString("mail"));
+                jugador.setUbicacion(rsJugadores.getString("domicilio"));
+
+                jugadoresPorPartido
+                    .computeIfAbsent(partidoId, k -> new ArrayList<>())
+                    .add(jugador);
+            }
+        }
+
+        try (PreparedStatement ps = con.prepareStatement(sqlPartidos)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 int id = rs.getInt("id");
-                int idDeporte = rs.getInt("id_deporte");
-                int idCreador = rs.getInt("id_creador");
-                String ubicacionStr = rs.getString("ubicacion");
-                LocalDateTime comienzo = rs.getTimestamp("comienzo").toLocalDateTime();
-                int duracion = rs.getInt("duracion");
+                Deporte deporte = DeporteDAO.getInstance().findDeporteById(rs.getInt("id_deporte"));
 
-                String estadoNombre = rs.getString("nombre");
-                int minimo = rs.getInt("minimo_partidos_jugados");
+                Usuario creador = new Usuario();
+                creador.setId(rs.getInt("id_creador"));
+                creador.setNombreUsuario(rs.getString("creador_nombre"));
+                creador.setMail(rs.getString("mail"));
+                creador.setUbicacion(rs.getString("domicilio"));
 
-
-                Deporte deporte = DeporteDAO.getInstance().findDeporteById(idDeporte);
-                Usuario creador = UsuarioDAO.getInstance().findUsuarioById(idCreador);
-                Ubicacion ubicacion = new Ubicacion(ubicacionStr);
-                IEstadoPartido estado = FactoryEstado.getEstadoByName(estadoNombre);
-
-                Partido partido = new Partido(id, deporte, creador, ubicacion, comienzo, duracion, estado);
-                // Jugadores
-                String sqlJugadores = "SELECT usuario_id FROM UsuarioPartido WHERE partido_id = ?";
-                List<Usuario> jugadores = new ArrayList<>();
-                try (PreparedStatement psJugadores = con.prepareStatement(sqlJugadores)) {
-                    psJugadores.setInt(1, id);
-                    try (ResultSet rsJugadores = psJugadores.executeQuery()) {
-                        while (rsJugadores.next()) {
-                            int idJugador = rsJugadores.getInt("usuario_id");
-                            Usuario jugador = UsuarioDAO.getInstance().findUsuarioById(idJugador);
-                            jugadores.add(jugador);
-                        }
-                    }
-                }
-                partido.setJugadores(jugadores);
-
-                partido.setMinimoPartidosJugados(minimo);
+                Partido partido = new Partido(
+                    id,
+                    deporte,
+                    creador,
+                    new Ubicacion(rs.getString("ubicacion")),
+                    rs.getTimestamp("comienzo").toLocalDateTime(),
+                    rs.getInt("duracion"),
+                    FactoryEstado.getEstadoByName(rs.getString("estado_nombre"))
+                );
+                partido.setMinimoPartidosJugados(rs.getInt("minimo_partidos_jugados"));
+                partido.setJugadores(jugadoresPorPartido.getOrDefault(id, new ArrayList<>()));
 
                 partidos.add(partido);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            con.close();
         }
-        return partidos;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        con.close();
     }
+
+    return partidos;
+}
+
 
     public Partido findPartidoById(int id) throws Exception {
         Connection con = ConexionDAO.conectar();
@@ -146,7 +173,7 @@ public class PartidoDAO {
             }
 
             String sql = "INSERT INTO partido (id_deporte, id_creador, ubicacion, comienzo, duracion, id_estado, minimo_partidos_jugados) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id";
+                    + "VALUES (?, ?, ?, ?, ?, ?, ? ) RETURNING id";
 
             int partidoId;
             try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -167,7 +194,7 @@ public class PartidoDAO {
                 }
             }
 
-            String insertUsuarioPartido = "INSERT INTO UsuarioPartido (usuario_id, partido_id, confirmado) VALUES (?, ?, ?)";
+            String insertUsuarioPartido = "INSERT INTO UsuarioPartido (usuario_id, partido_id, notificado) VALUES (?, ?, ?)";
             try (PreparedStatement psRelacion = con.prepareStatement(insertUsuarioPartido)) {
                 psRelacion.setInt(1, partido.getCreador().getId());
                 psRelacion.setInt(2, partidoId);

@@ -10,7 +10,7 @@ public class FactoryEstado {
                 return new EstadoConfirmado();
             case "CANCELADO":
                 return new EstadoCancelado();
-            case "EN_JUEGO":
+            case "EN_CURSO":
                 return new EstadoEnCurso();
             case "FINALIZADO":
                 return new EstadoFinalizado();

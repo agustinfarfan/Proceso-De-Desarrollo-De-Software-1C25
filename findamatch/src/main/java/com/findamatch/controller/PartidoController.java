@@ -95,8 +95,8 @@ public class PartidoController {
 
     public void confirmarPartido(int id) throws Exception {
         Partido partidoEncontrado = partido.findPartidoById(id);
-        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
-        partido.agregarEstrategiaNotificacion(new NotificacionPush());
+        partidoEncontrado.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partidoEncontrado.agregarEstrategiaNotificacion(new NotificacionPush());
         partidoEncontrado.confirmarPartido();
         partido.updatePartido(partidoEncontrado);
     }
@@ -104,16 +104,25 @@ public class PartidoController {
     public void cancelarPartido(int id) throws Exception {
 
         Partido partidoEncontrado = partido.findPartidoById(id);
-        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
-        partido.agregarEstrategiaNotificacion(new NotificacionPush());
+        partidoEncontrado.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partidoEncontrado.agregarEstrategiaNotificacion(new NotificacionPush());
         partidoEncontrado.cancelarPartido();
+        partido.updatePartido(partidoEncontrado);
+    }
+
+    public void comenzarPartido(int id) throws Exception {
+
+        Partido partidoEncontrado = partido.findPartidoById(id);
+        partidoEncontrado.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partidoEncontrado.agregarEstrategiaNotificacion(new NotificacionPush());
+        partidoEncontrado.comenzarPartido();
         partido.updatePartido(partidoEncontrado);
     }
 
     public void finalizarPartido(int id) throws Exception {
         Partido partidoEncontrado = partido.findPartidoById(id);
-        partido.agregarEstrategiaNotificacion(new NotificacionEmail());
-        partido.agregarEstrategiaNotificacion(new NotificacionPush());
+        partidoEncontrado.agregarEstrategiaNotificacion(new NotificacionEmail());
+        partidoEncontrado.agregarEstrategiaNotificacion(new NotificacionPush());
         partidoEncontrado.finalizarPartido();
         partido.updatePartido(partidoEncontrado);
     }

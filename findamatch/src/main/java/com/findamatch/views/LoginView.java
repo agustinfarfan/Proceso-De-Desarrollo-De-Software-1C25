@@ -122,7 +122,7 @@ public class LoginView extends JFrame {
 
     private JLabel createFieldLabel(String text) {
         JLabel label = new JLabel(text);
-        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        label.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
         label.setForeground(TEXT_PRIMARY);
         label.setAlignmentX(Component.LEFT_ALIGNMENT);
         return label;
@@ -244,20 +244,22 @@ public class LoginView extends JFrame {
         }
 
         try {
-            for (UsuarioDTO u : UsuarioController.getInstance().getAllUsuariosDTO()) {
-                if (u.getNombreUsuario().equals(usuario) && u.getContrasena().equals(contrasena)) {
-                    showStyledMessage("¡Bienvenido, " + usuario + "!", "Inicio exitoso", JOptionPane.INFORMATION_MESSAGE);
-                    dispose();
-                    new MainView(u);
-                    return;
-                }
+            UsuarioDTO u = UsuarioController.getInstance().getUsuarioByUsernameDTO(usuario);
+
+            if (u == null) {
+                showStyledMessage("El usuario no existe", "Error", JOptionPane.ERROR_MESSAGE);
+            } else if (!u.getContrasena().equals(contrasena)) {
+                showStyledMessage("Contraseña incorrecta", "Error", JOptionPane.ERROR_MESSAGE);
+            } else {
+                showStyledMessage("¡Bienvenido, " + usuario + "!", "Inicio exitoso", JOptionPane.INFORMATION_MESSAGE);
+                dispose();
+                new MainView(u);
             }
-            showStyledMessage("Usuario o contraseña incorrectos", "Error de autenticación", JOptionPane.ERROR_MESSAGE);
         } catch (Exception ex) {
             showStyledMessage("Error de conexión: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
         }
-    }
+    }    
 
     private void showStyledMessage(String message, String title, int messageType) {
         UIManager.put("OptionPane.background", CARD_COLOR);

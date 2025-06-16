@@ -100,6 +100,30 @@ public class UsuarioController {
         return usuarioDTO;
     }
 
+    public UsuarioDTO getUsuarioByUsernameDTO(String username) throws Exception {
+        this.pc = PartidoController.getInstance();
+
+        Usuario usuarioEncontrado = usuario.findUsuarioByUsername(username);
+
+        if (usuarioEncontrado == null) {
+            return null;
+        }
+        
+        UsuarioDTO usuarioDTO = usuarioToDto(usuarioEncontrado);
+
+        List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioEncontrado.getDeportes());
+        usuarioDTO.setDeportes(usuariosDeporteDTO);
+
+        List<PartidoDTO> partidosDTO = new ArrayList<>();
+        for (Partido p : usuarioEncontrado.getPartidos()) {
+            PartidoDTO partidoDTO = pc.partidoToDTO(p);
+            partidosDTO.add(partidoDTO);
+        }
+        usuarioDTO.setPartidos(partidosDTO);
+
+        return usuarioDTO;
+    }
+    
     public int createUsuario(UsuarioDTO usuarioDTO) {
         Usuario usuarioNuevo = dtoToUsuario(usuarioDTO);
         int id = usuario.saveUsuario(usuarioNuevo);
