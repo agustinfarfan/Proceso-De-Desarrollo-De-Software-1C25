@@ -15,8 +15,10 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import java.awt.*;
@@ -55,46 +57,41 @@ public class MainView extends JFrame {
     private UsuarioDTO usuarioActual;
     private JButton selectedButton = null;
 
-    public MainView(UsuarioDTO usuarioDTO) {
-        this.usuarioActual = usuarioDTO;
+    public MainView(UsuarioDTO usuarioActual) {
+        this.usuarioActual = usuarioActual;
         initializeFrame();
         createComponents();
         setupLayout();
+
         setVisible(true);
-    }
+
+        showPanel("loading");
+
+        SwingUtilities.invokeLater(() -> {
+            refrescarHomePanel();
+            showPanel("inicio");
+        });
+    }   
 
     private void initializeFrame() {
-        setTitle("Find a Match - Panel Principal");
-        setSize(1200, 700);
+        setTitle("Find a Match");
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
-        getContentPane().setBackground(BACKGROUND_COLOR);
-
-        // Establecer Look and Feel más moderno
-        try {
-            UIManager.setLookAndFeel(UIManager.getLookAndFeel());
-        } catch (Exception e) {
-            // Continuar con el Look and Feel por defecto
-        }
     }
 
     private void createComponents() {
-        // Panels principales
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
         mainPanel.setBackground(BACKGROUND_COLOR);
 
-        homePanel = createHomePanel();
-        crearPartidoPanel = createCrearPartidoPanel();
-        unirsePartidoPanel = createUnirsePartidoPanel();
-        historialPanel = createHistorialPanel();
+        JPanel loadingPanel = new JPanel();
+        loadingPanel.setBackground(BACKGROUND_COLOR);
+        loadingPanel.add(new JLabel("Cargando..."));
+        mainPanel.add(loadingPanel, "loading");
 
-        mainPanel.add(homePanel, "inicio");
-        mainPanel.add(crearPartidoPanel, "crear");
-        mainPanel.add(unirsePartidoPanel, "unirse");
-        mainPanel.add(historialPanel, "historial");
-    }
+        add(mainPanel); 
+    }      
 
     private void setupLayout() {
         // Sidebar
@@ -206,12 +203,116 @@ public class MainView extends JFrame {
 
         button.addActionListener(e -> {
             selectButton(button);
+
+            switch (action) {
+                case "inicio":
+                    refrescarHomePanel();
+                    break;
+                case "crear":
+                    refrescarCrearPartidoPanel();
+                    break;
+                case "unirse":
+                    refrescarUnirsePartidoPanel();
+                    break;
+                case "historial":
+                    refrescarHistorialPanel();
+                    break;
+            }
+
             cardLayout.show(mainPanel, action);
-        });
+        });        
 
         return button;
     }
 
+    private void refrescarHomePanel() {
+        JDialog loadingDialog = createLoadingDialog("Cargando inicio...");
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                if (homePanel != null) {
+                    mainPanel.remove(homePanel);
+                }
+                homePanel = createHomePanel();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                mainPanel.add(homePanel, "inicio");
+                loadingDialog.dispose();
+            }
+        };
+        worker.execute();
+        loadingDialog.setVisible(true);
+    }      
+    
+    private void refrescarCrearPartidoPanel() {
+        JDialog loadingDialog = createLoadingDialog("Cargando formulario de creación...");
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                if (crearPartidoPanel != null) {
+                    mainPanel.remove(crearPartidoPanel);
+                }
+                crearPartidoPanel = createCrearPartidoPanel();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                mainPanel.add(crearPartidoPanel, "crear");
+                loadingDialog.dispose();
+            }
+        };
+        worker.execute();
+        loadingDialog.setVisible(true);
+    }    
+    
+    private void refrescarUnirsePartidoPanel() {
+        JDialog loadingDialog = createLoadingDialog("Buscando partidos disponibles...");
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                if (unirsePartidoPanel != null) {
+                    mainPanel.remove(unirsePartidoPanel);
+                }
+                unirsePartidoPanel = createUnirsePartidoPanel();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                mainPanel.add(unirsePartidoPanel, "unirse");
+                loadingDialog.dispose();
+            }
+        };
+        worker.execute();
+        loadingDialog.setVisible(true);
+    }     
+    
+    private void refrescarHistorialPanel() {
+        JDialog loadingDialog = createLoadingDialog("Cargando historial...");
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                if (historialPanel != null) {
+                    mainPanel.remove(historialPanel);
+                }
+                historialPanel = createHistorialPanel();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                mainPanel.add(historialPanel, "historial");
+                loadingDialog.dispose();
+            }
+        };
+        worker.execute();
+        loadingDialog.setVisible(true);
+    }    
+    
     private JButton createLogoutButton() {
         JButton btnSalir = new JButton("🚪 Cerrar Sesión");
         btnSalir.setPreferredSize(new Dimension(200, 40));
@@ -395,7 +496,7 @@ public class MainView extends JFrame {
             JSpinner spHora = new JSpinner(new SpinnerNumberModel(now.getHour(), 0, 23, 1));
             JSpinner spMin = new JSpinner(new SpinnerNumberModel(now.getMinute(), 0, 59, 1));
 
-            Dimension smallSpinnerSize = new Dimension(45, 24); // más angosto y bajo
+            Dimension smallSpinnerSize = new Dimension(45, 24);
             for (JSpinner sp : List.of(spDia, spMes, spAnio, spHora, spMin)) {
                 sp.setPreferredSize(smallSpinnerSize);
                 sp.setMinimumSize(smallSpinnerSize);
@@ -701,7 +802,7 @@ public class MainView extends JFrame {
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         contentPanel.setBackground(BACKGROUND_COLOR);
 
-        String[] columnasHistorial = { "ID", "Deporte", "Ubicación", "Fecha" };
+        String[] columnasHistorial = { "ID", "Deporte", "Ubicación", "Fecha", "Estado" };
         String[] columnasCreados = { "ID", "Deporte", "Ubicación", "Fecha", "Estado" };
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -721,25 +822,34 @@ public class MainView extends JFrame {
 
         DefaultTableModel modeloCreados = new DefaultTableModel(columnasCreados, 0);
         JTable tablaCreados = new JTable(modeloCreados) {
+            @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 4;
+                if (column != 4)
+                    return false;
+
+                String estadoActual = getValueAt(row, column).toString();
+                IEstadoPartido estado = FactoryEstado.getEstadoByName(estadoActual);
+                return estado != null && estado.getTransicionesValidas() != null
+                        && !estado.getTransicionesValidas().isEmpty();
             }
         };
+        
         configurarTabla(tablaCreados);
-
+            
         try {
             List<PartidoDTO> todos = this.usuarioActual.getPartidos();
 
             if (todos.isEmpty()) {
-                modeloHistorial.addRow(new Object[] { "-", "No hay partidos", "-", "-" });
+                modeloHistorial.addRow(new Object[] { "❌", "Error al cargar", "-", "-" });
             } else {
                 for (PartidoDTO p : todos) {
                     Object[] filaBase = new Object[] {
                             p.getId(),
                             p.getDeporte().getNombre(),
                             p.getUbicacion(),
-                            p.getComienzo().format(formatter)
-                    };
+                            p.getComienzo().format(formatter),
+                            p.getEstado()
+                    };                    
 
                     if (p.getCreador() != null && p.getCreador().getId() == usuarioActual.getId()) {
                         Object[] filaCreador = Arrays.copyOf(filaBase, 5);
@@ -756,12 +866,13 @@ public class MainView extends JFrame {
                     modeloCreados.addRow(new Object[] { "-", "No creaste ningún partido", "-", "-", "-" });
             }
         } catch (Exception e) {
-            modeloHistorial.addRow(new Object[] { "❌", "Error al cargar", "-", "-" });
+            modeloHistorial.addRow(new Object[] { "❌", "Error al cargar", "-", "-", "-" });
             modeloCreados.addRow(new Object[] { "❌", "Error al cargar", "-", "-", "-" });
         }
 
         TableColumn estadoColumn = tablaCreados.getColumnModel().getColumn(4);
         estadoColumn.setCellEditor(new EstadoPartidoCellEditor(tablaCreados));
+        estadoColumn.setCellRenderer(getEstadoRenderer());
 
         contentPanel.add(labelHistorial);
         contentPanel.add(crearScrollPane(tablaHistorial));
@@ -771,6 +882,37 @@ public class MainView extends JFrame {
         panel.add(contentPanel, BorderLayout.CENTER);
         return panel;
     }
+
+    private TableCellRenderer getEstadoRenderer() {
+    return new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                                                       boolean isSelected, boolean hasFocus,
+                                                       int row, int column) {
+            String estadoActual = value != null ? value.toString() : "";
+            IEstadoPartido estado = FactoryEstado.getEstadoByName(estadoActual);
+
+            if (estado != null && estado.getTransicionesValidas() != null && !estado.getTransicionesValidas().isEmpty()) {
+                JComboBox<String> comboBox = new JComboBox<>();
+                comboBox.addItem(estadoActual);
+                for (String t : estado.getTransicionesValidas()) {
+                    if (!t.equals(estadoActual)) comboBox.addItem(t);
+                }
+                comboBox.setEnabled(false);
+                comboBox.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+                return comboBox;
+            } else {
+                // Estado final, se muestra como texto
+                JLabel label = new JLabel(estadoActual);
+                label.setOpaque(true);
+                label.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+                label.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+                label.setHorizontalAlignment(SwingConstants.CENTER);
+                return label;
+            }
+        }
+    };
+}
 
     class EstadoPartidoCellEditor extends AbstractCellEditor implements TableCellEditor {
         private JComboBox<String> comboBox;
@@ -791,20 +933,20 @@ public class MainView extends JFrame {
 
             IEstadoPartido estado = FactoryEstado.getEstadoByName(estadoAnterior);
 
-            if (estadoAnterior != null && !estadoAnterior.isEmpty()) {
+            if (estado == null || estado.getTransicionesValidas().isEmpty()) {
                 comboBox.addItem(estadoAnterior);
-            }
+                comboBox.setEnabled(false);
+                return comboBox;
+            }            
 
-            if (estado != null) {
-                for (String transicion : estado.getTransicionesValidas()) {
-                    if (!transicion.equals(estadoAnterior)) {
-                        comboBox.addItem(transicion);
-                    }
+            comboBox.addItem(estadoAnterior);
+            for (String transicion : estado.getTransicionesValidas()) {
+                if (!transicion.equals(estadoAnterior)) {
+                    comboBox.addItem(transicion);
                 }
             }
 
             comboBox.setSelectedItem(estadoAnterior);
-
             comboBox.addActionListener(e -> {
                 String nuevoEstado = (String) comboBox.getSelectedItem();
                 if (!nuevoEstado.equals(estadoAnterior)) {
@@ -818,40 +960,48 @@ public class MainView extends JFrame {
                     if (confirm != JOptionPane.YES_OPTION) {
                         comboBox.setSelectedItem(estadoAnterior);
                     } else {
-                        try {
-                            int partidoId = (int) tabla.getValueAt(fila, 0);
-                            PartidoController controller = PartidoController.getInstance();
+                        JDialog loading = createLoadingDialog((JFrame) SwingUtilities.getWindowAncestor(tabla));
+                        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                            @Override
+                            protected Void doInBackground() throws Exception {
+                                int partidoId = (int) tabla.getValueAt(fila, 0);
+                                PartidoController controller = PartidoController.getInstance();
 
-                            switch (nuevoEstado.toUpperCase()) {
-                                case "EN_CURSO":
-                                    controller.comenzarPartido(partidoId);
-                                    break;
-                                case "CONFIRMADO":
-                                    controller.confirmarPartido(partidoId);
-                                    break;
-                                case "CANCELADO":
-                                    controller.cancelarPartido(partidoId);
-                                    break;
-                                case "FINALIZADO":
-                                    controller.finalizarPartido(partidoId);
-                                    break;
-                                default:
-                                    throw new IllegalStateException("Estado no soportado: " + nuevoEstado);
+                                switch (nuevoEstado.toUpperCase()) {
+                                    case "EN_CURSO":
+                                        controller.comenzarPartido(partidoId);
+                                        break;
+                                    case "CONFIRMADO":
+                                        controller.confirmarPartido(partidoId);
+                                        break;
+                                    case "CANCELADO":
+                                        controller.cancelarPartido(partidoId);
+                                        break;
+                                    case "FINALIZADO":
+                                        controller.finalizarPartido(partidoId);
+                                        break;
+                                    default:
+                                        throw new IllegalStateException("Estado no soportado: " + nuevoEstado);
+                                }
+                                return null;
                             }
 
-                            tabla.setValueAt(nuevoEstado, fila, 4);
-                            JOptionPane.showMessageDialog(null, "Estado actualizado correctamente.");
-                            stopCellEditing();
-                        } catch (Exception ex) {
-                            comboBox.setSelectedItem(estadoAnterior);
-                            JOptionPane.showMessageDialog(null, "Error al actualizar el estado: " + ex.getMessage());
-                        }
+                            @Override
+                            protected void done() {
+                                loading.dispose();
+                                tabla.setValueAt(nuevoEstado, fila, 4);
+                                JOptionPane.showMessageDialog(null, "Estado actualizado correctamente.");
+                                stopCellEditing();
+                            }
+                        };
+
+                        worker.execute();
+                        loading.setVisible(true);
                     }
                 }
-            });
-
+            });            
             return comboBox;
-        }
+        }        
 
         @Override
         public Object getCellEditorValue() {
@@ -897,4 +1047,59 @@ public class MainView extends JFrame {
             });
         }
     }
+
+    private JDialog createLoadingDialog(String mensaje) {
+        JDialog loadingDialog = new JDialog(this, "Por favor espere...", true);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(new EmptyBorder(20, 30, 20, 30));
+
+        JLabel label = new JLabel(mensaje);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+
+        panel.add(label, BorderLayout.NORTH);
+        panel.add(progressBar, BorderLayout.CENTER);
+        loadingDialog.setContentPane(panel);
+        loadingDialog.pack();
+        loadingDialog.setLocationRelativeTo(this);
+        loadingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+
+        return loadingDialog;
+    }
+    
+    public void showPanel(String nombrePanel) {
+        cardLayout.show(mainPanel, nombrePanel);
+    }
+
+    private JDialog createLoadingDialog(JFrame parent) {
+        JDialog dialog = new JDialog(parent, "Cargando", true);
+        dialog.setUndecorated(true);
+
+        JPanel panel = new JPanel();
+        panel.setBackground(new Color(30, 30, 30));
+        panel.setBorder(new EmptyBorder(20, 40, 20, 40));
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        JLabel label = new JLabel("Actualizando estado...");
+        label.setForeground(Color.WHITE);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+        progressBar.setAlignmentX(Component.CENTER_ALIGNMENT);
+        progressBar.setBackground(new Color(30, 30, 30));
+
+        panel.add(label);
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(progressBar);
+
+        dialog.getContentPane().add(panel);
+        dialog.pack();
+        dialog.setLocationRelativeTo(parent);
+
+        return dialog;
+    }       
 }

@@ -292,18 +292,23 @@ public class UsuarioDAO {
 
         if (usuario != null) {
             String sqlPartidos = """
-                        SELECT
-                            p.id,
-                            p.id_creador,
-                            p.id_deporte,
-                            p.ubicacion,
-                            p.comienzo,
-                            p.duracion,
-                            e.nombre AS estado_nombre
-                        FROM partido p
-                        JOIN usuariopartido up ON p.id = up.partido_id
-                        JOIN estado e ON p.id_estado = e.id
-                        WHERE up.usuario_id = ?
+                    SELECT
+                        p.id,
+                        p.id_creador,
+                        p.id_deporte,
+                        d.nombre AS deporte_nombre,
+                        d.minJugadores,
+                        d.maxJugadores,
+                        d.descripcion AS deporte_descripcion,
+                        p.ubicacion,
+                        p.comienzo,
+                        p.duracion,
+                        e.nombre AS estado_nombre
+                    FROM partido p
+                    JOIN usuariopartido up ON p.id = up.partido_id
+                    JOIN estado e ON p.id_estado = e.id
+                    JOIN deporte d ON p.id_deporte = d.id
+                    WHERE up.usuario_id = ?
                     """;
 
             try (PreparedStatement ps = con.prepareStatement(sqlPartidos)) {
@@ -317,7 +322,13 @@ public class UsuarioDAO {
                     Usuario creador = new Usuario();
                     creador.setId(rs.getInt("id_creador"));
                     partido.setCreador(creador);
-                    partido.setDeporte(DeporteDAO.getInstance().findDeporteById(rs.getInt("id_deporte")));
+                    Deporte deporte = new Deporte(
+                            rs.getInt("id_deporte"),
+                            rs.getString("deporte_nombre"),
+                            rs.getInt("minJugadores"),
+                            rs.getInt("maxJugadores"),
+                            rs.getString("deporte_descripcion"));
+                    partido.setDeporte(deporte);                    
                     partido.setUbicacion(new Ubicacion(rs.getString("ubicacion")));
                     partido.setFecha(rs.getTimestamp("comienzo").toLocalDateTime());
                     partido.setDuracion(rs.getInt("duracion"));

@@ -66,6 +66,28 @@ public class LoginView extends JFrame {
         add(mainPanel);
     }
 
+    private JDialog createLoadingDialog(String mensaje) {
+        JDialog dialog = new JDialog(this, "Cargando", true);
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(new EmptyBorder(20, 20, 20, 20));
+        panel.setBackground(Color.WHITE);
+
+        JLabel label = new JLabel(mensaje, JLabel.CENTER);
+        label.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        panel.add(label, BorderLayout.CENTER);
+
+        JProgressBar progress = new JProgressBar();
+        progress.setIndeterminate(true);
+        panel.add(progress, BorderLayout.SOUTH);
+
+        dialog.getContentPane().add(panel);
+        dialog.setSize(300, 120);
+        dialog.setLocationRelativeTo(this);
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+
+        return dialog;
+    }
+    
     private JPanel createHeaderPanel() {
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
@@ -243,22 +265,46 @@ public class LoginView extends JFrame {
             return;
         }
 
-        try {
-            UsuarioDTO u = UsuarioController.getInstance().getUsuarioByUsernameDTO(usuario);
+        JDialog loadingDialog = createLoadingDialog("Verificando credenciales...");
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            UsuarioDTO u = null;
+            Exception error = null;
 
-            if (u == null) {
-                showStyledMessage("El usuario no existe", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if (!u.getContrasena().equals(contrasena)) {
-                showStyledMessage("Contraseña incorrecta", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                showStyledMessage("¡Bienvenido, " + usuario + "!", "Inicio exitoso", JOptionPane.INFORMATION_MESSAGE);
-                dispose();
-                new MainView(u);
+            @Override
+            protected Void doInBackground() {
+                try {
+                    u = UsuarioController.getInstance().getUsuarioByUsernameDTO(usuario);
+                } catch (Exception ex) {
+                    error = ex;
+                }
+                return null;
             }
-        } catch (Exception ex) {
-            showStyledMessage("Error de conexión: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        }
+
+            @Override
+            protected void done() {
+                loadingDialog.dispose();
+
+                if (error != null) {
+                    showStyledMessage("Error de conexión: " + error.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    error.printStackTrace();
+                    return;
+                }
+
+                if (u == null) {
+                    showStyledMessage("El usuario no existe", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (!u.getContrasena().equals(contrasena)) {
+                    showStyledMessage("Contraseña incorrecta", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    showStyledMessage("¡Bienvenido, " + usuario + "!", "Inicio exitoso",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    dispose();
+                    new MainView(u);
+                }
+            }
+        };
+
+        worker.execute();
+        loadingDialog.setVisible(true);
     }    
 
     private void showStyledMessage(String message, String title, int messageType) {
