@@ -11,8 +11,13 @@ public class Ubicacion {
 
     private Geocoder geocoder;
 
-    public Ubicacion(String direccion) {
-        this.direccion = direccion;
+    public Ubicacion(String ubicacion) throws Exception {
+        // Obtener coordenadas de la ubicacion
+        this.direccion = ubicacion;
+        this.varianza = 10.0; 
+        this.geocoder = new GoogleGeocoderAdapter();
+        geocoder.getUbicacion(this);
+
     }
     // Getters y setters
 

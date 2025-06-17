@@ -53,7 +53,6 @@ public class Usuario {
     }
 
     public Usuario findUsuarioById(int id) throws Exception {
-
         Usuario usuario = null;
 
         try {
