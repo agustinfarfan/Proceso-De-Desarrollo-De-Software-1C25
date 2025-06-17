@@ -1,5 +1,9 @@
 package com.findamatch.model.estado;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.findamatch.model.Partido;
 
 public class EstadoCancelado implements IEstadoPartido {
@@ -29,5 +33,10 @@ public class EstadoCancelado implements IEstadoPartido {
     @Override
     public void comenzar(Partido partido) {
         System.out.println("No se puede comenzar un partido cancelado.");
+    }
+    
+    @Override
+    public List<String> getTransicionesValidas() {
+        return Collections.emptyList();
     }
 }

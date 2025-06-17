@@ -1,5 +1,8 @@
 package com.findamatch.model.estado;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.findamatch.model.Partido;
 
 public class EstadoEnCurso implements IEstadoPartido {
@@ -30,5 +33,10 @@ public class EstadoEnCurso implements IEstadoPartido {
     @Override
     public void comenzar(Partido partido) {
         System.out.println("El partido ya está en curso.");
+    }
+
+    @Override
+    public List<String> getTransicionesValidas() {
+        return Arrays.asList("FINALIZADO");
     }
 }

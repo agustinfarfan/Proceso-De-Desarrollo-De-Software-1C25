@@ -1,5 +1,9 @@
 package com.findamatch.model.estado;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.findamatch.model.Partido;
 
 public class EstadoFinalizado implements IEstadoPartido {
@@ -29,5 +33,9 @@ public class EstadoFinalizado implements IEstadoPartido {
     @Override
     public void comenzar(Partido partido) {
         System.out.println("No se puede comenzar un partido ya finalizado.");
+    }
+        @Override
+    public List<String> getTransicionesValidas() {
+        return Collections.emptyList();
     }
 }

@@ -1,5 +1,8 @@
 package com.findamatch.model.estado;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.findamatch.model.Partido;
 
 public class EstadoConfirmado implements IEstadoPartido {
@@ -34,4 +37,8 @@ public class EstadoConfirmado implements IEstadoPartido {
         System.out.println("El partido ha comenzado.");
     }
 
+    @Override
+    public List<String> getTransicionesValidas() {
+        return Arrays.asList("EN_CURSO");
+    }
 }
