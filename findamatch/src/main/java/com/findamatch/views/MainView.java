@@ -4,6 +4,7 @@ import com.findamatch.controller.UsuarioController;
 import com.findamatch.controller.DeporteController;
 import com.findamatch.controller.PartidoController;
 import com.findamatch.model.Ubicacion;
+import com.findamatch.model.Usuario;
 import com.findamatch.model.dto.DeporteDTO;
 import com.findamatch.model.dto.PartidoDTO;
 import com.findamatch.model.dto.UsuarioDTO;
@@ -583,46 +584,74 @@ public class MainView extends JFrame {
             btnCrear.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
             btnCrear.addActionListener((ActionEvent e) -> {
-                try {
-                    LocalDateTime comienzo = LocalDateTime.of(
-                            (Integer) spAnio.getValue(),
-                            (Integer) spMes.getValue(),
-                            (Integer) spDia.getValue(),
-                            (Integer) spHora.getValue(),
-                            (Integer) spMin.getValue());
+                JDialog loading = createLoadingDialog((JFrame) SwingUtilities.getWindowAncestor(panel),
+                        "Creando partido...");
 
-                    if (!esFechaValida(comienzo)) {
-                        JOptionPane.showMessageDialog(panel, "La fecha y hora deben ser futuras.", "Fecha inválida",
-                                JOptionPane.WARNING_MESSAGE);
-                        return;
+                SwingWorker<Void, Void> worker = new SwingWorker<>() {
+                    private int partidoId = -1;
+                    private Exception error = null;
+
+                    @Override
+                    protected Void doInBackground() {
+                        try {
+                            LocalDateTime comienzo = LocalDateTime.of(
+                                    (Integer) spAnio.getValue(),
+                                    (Integer) spMes.getValue(),
+                                    (Integer) spDia.getValue(),
+                                    (Integer) spHora.getValue(),
+                                    (Integer) spMin.getValue());
+
+                            if (!esFechaValida(comienzo)) {
+                                throw new IllegalArgumentException("La fecha y hora deben ser futuras.");
+                            }
+
+                            PartidoDTO partidoDTO = new PartidoDTO();
+                            partidoDTO.setCreador(usuarioActual);
+                            partidoDTO.setUbicacion(new Ubicacion(txtUbicacion.getText()).getDireccion());
+                            partidoDTO.setComienzo(comienzo);
+                            partidoDTO.setDuracion(Integer.parseInt(txtDuracion.getText()));
+                            partidoDTO.setMinimoPartidosJugados(Integer.parseInt(txtMinPartidos.getText()));
+
+                            String nombreDeporte = (String) comboDeporte.getSelectedItem();
+                            DeporteDTO deporteSeleccionado = deportes.stream()
+                                    .filter(d -> d.getNombre().equals(nombreDeporte))
+                                    .findFirst()
+                                    .orElse(null);
+                            partidoDTO.setDeporte(deporteSeleccionado);
+
+                            partidoDTO.setJugadores(List.of(usuarioActual));
+                            partidoDTO.setEstado("1");
+
+                            partidoId = PartidoController.getInstance().createPartido(partidoDTO);
+                            usuarioActual = UsuarioController.getInstance().getUsuarioByIdDTO(usuarioActual.getId());
+
+                        } catch (Exception ex) {
+                            this.error = ex;
+                        }
+                        return null;
                     }
 
-                    PartidoDTO partidoDTO = new PartidoDTO();
-                    partidoDTO.setCreador(usuarioActual);
-                    partidoDTO.setUbicacion(new Ubicacion(txtUbicacion.getText()).getDireccion());
-                    partidoDTO.setComienzo(comienzo);
-                    partidoDTO.setDuracion(Integer.parseInt(txtDuracion.getText()));
-                    partidoDTO.setMinimoPartidosJugados(Integer.parseInt(txtMinPartidos.getText()));
+                    @Override
+                    protected void done() {
+                        loading.dispose();
+                        if (error != null) {
+                            if (error instanceof IllegalArgumentException) {
+                                JOptionPane.showMessageDialog(panel, error.getMessage(), "Fecha inválida",
+                                        JOptionPane.WARNING_MESSAGE);
+                            } else {
+                                error.printStackTrace();
+                                JOptionPane.showMessageDialog(panel, "Error al crear el partido: " + error.getMessage(),
+                                        "Error", JOptionPane.ERROR_MESSAGE);
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(panel, "Partido creado con ID: " + partidoId);
+                        }
+                    }
+                };
 
-                    String nombreDeporte = (String) comboDeporte.getSelectedItem();
-                    DeporteDTO deporteSeleccionado = deportes.stream()
-                            .filter(d -> d.getNombre().equals(nombreDeporte))
-                            .findFirst()
-                            .orElse(null);
-                    partidoDTO.setDeporte(deporteSeleccionado);
-
-                    partidoDTO.setJugadores(List.of(usuarioActual));
-                    partidoDTO.setEstado("1");
-
-                    int id = PartidoController.getInstance().createPartido(partidoDTO);
-                    JOptionPane.showMessageDialog(panel, "Partido creado con ID: " + id);
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(panel, "Error al crear el partido: " + ex.getMessage(), "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            });
+                worker.execute();
+                SwingUtilities.invokeLater(() -> loading.setVisible(true));
+            });                       
 
             formPanel.add(lblUbicacion);
             formPanel.add(txtUbicacion);
@@ -960,7 +989,7 @@ public class MainView extends JFrame {
                     if (confirm != JOptionPane.YES_OPTION) {
                         comboBox.setSelectedItem(estadoAnterior);
                     } else {
-                        JDialog loading = createLoadingDialog((JFrame) SwingUtilities.getWindowAncestor(tabla));
+                        JDialog loading = createLoadingDialog((JFrame) SwingUtilities.getWindowAncestor(tabla),"Actualizando Estado...");
                         SwingWorker<Void, Void> worker = new SwingWorker<>() {
                             @Override
                             protected Void doInBackground() throws Exception {
@@ -1074,7 +1103,7 @@ public class MainView extends JFrame {
         cardLayout.show(mainPanel, nombrePanel);
     }
 
-    private JDialog createLoadingDialog(JFrame parent) {
+    private JDialog createLoadingDialog(JFrame parent, String mensaje) {
         JDialog dialog = new JDialog(parent, "Cargando", true);
         dialog.setUndecorated(true);
 
@@ -1083,7 +1112,7 @@ public class MainView extends JFrame {
         panel.setBorder(new EmptyBorder(20, 40, 20, 40));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        JLabel label = new JLabel("Actualizando estado...");
+        JLabel label = new JLabel(mensaje != null ? mensaje : "Cargando...");
         label.setForeground(Color.WHITE);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -1101,5 +1130,6 @@ public class MainView extends JFrame {
         dialog.setLocationRelativeTo(parent);
 
         return dialog;
-    }       
+    }
+          
 }
