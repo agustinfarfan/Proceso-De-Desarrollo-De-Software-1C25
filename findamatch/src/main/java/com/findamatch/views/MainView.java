@@ -1064,13 +1064,19 @@ public class MainView extends JFrame {
                     }
 
                     if (hayCambios) {
-                        UsuarioDeporte ud = new UsuarioDeporte();
+                        /*UsuarioDeporte ud = new UsuarioDeporte();
                         ud.setUsuario(UsuarioController.getInstance().dtoToUsuario(usuarioActual));
                         ud.setDeporte(DeporteController.getInstance().dtoToDeporte(d));
                         ud.setNivelJuego(nivelSeleccionado);
                         ud.setEsFavorito(favoritoSeleccionado);
+                    
+                        UsuarioController.getInstance().guardarOActualizarUsuarioDeporte(ud);*/
 
-                        UsuarioController.getInstance().guardarOActualizarUsuarioDeporte(ud);
+                        existente.setDeporte(d);
+                        existente.setUsuario(usuarioActual);
+                        existente.setNivel(nivelSeleccionado);
+                        existente.setEsFavorito(favoritoSeleccionado);
+
                         huboCambios = true;
                     }
                 }
@@ -1078,11 +1084,11 @@ public class MainView extends JFrame {
                 String estrategiaSeleccionada = (String) estrategiaCombo.getSelectedItem();
                 if (!estrategiaSeleccionada.equals(usuarioActual.getEstrategia())) {
                     usuarioActual.setEstrategia(estrategiaSeleccionada);
-                    UsuarioController.getInstance().updateUsuario(usuarioActual);
                     huboCambios = true;
                 }
 
                 if (huboCambios) {
+                    UsuarioController.getInstance().updateUsuario(usuarioActual);
                     JOptionPane.showMessageDialog(panel, "Cambios guardados con éxito.");
                 } else {
                     JOptionPane.showMessageDialog(panel, "No se detectaron cambios.");
