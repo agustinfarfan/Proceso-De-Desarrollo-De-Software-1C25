@@ -1036,7 +1036,7 @@ public class MainView extends JFrame {
         estrategiaLabel.setForeground(TEXT_PRIMARY);
         estrategiaPanel.add(estrategiaLabel);
 
-        String[] estrategias = { "PorHistorial", "PorCercania", "PorNivel" };
+        String[] estrategias = { "HISTORIAL", "CERCANIA", "NIVEL" };
         JComboBox<String> estrategiaCombo = new JComboBox<>(estrategias);
         estrategiaCombo.setSelectedItem(usuarioActual.getEstrategia());
         estrategiaPanel.add(estrategiaCombo);
