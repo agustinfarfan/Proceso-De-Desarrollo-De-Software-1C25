@@ -12,6 +12,9 @@ findamatch/release.properties
 
 # IntelliJ IDEA
 /findamatch/.idea/
+/.idea/
+/*.iml/
+/out/
 /findamatch/*.iml
 /findamatch/out/
 

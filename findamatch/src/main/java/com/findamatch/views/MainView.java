@@ -771,13 +771,8 @@ public class MainView extends JFrame {
         scrollPane.getViewport().setBackground(CARD_COLOR);
 
         try {
-            List<PartidoDTO> partidos = PartidoController.getInstance().getAllPartidosDTO();
-            List<PartidoDTO> misPartidos = usuarioActual.getPartidos();
 
-            List<PartidoDTO> disponibles = partidos.stream()
-                    .filter(p -> misPartidos.stream().noneMatch(mp -> mp.getId() == p.getId()))
-                    .toList();
-
+            List<PartidoDTO> disponibles = UsuarioController.getInstance().buscarPartidos(this.usuarioActual);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
             if (disponibles.isEmpty()) {
