@@ -45,7 +45,7 @@ public class UsuarioDeporte {
         this.nivelJuego = nivelJuego;
     }
 
-    public boolean isEsFavorito() {
+    public boolean isFavorito() {
         return esFavorito;
     }
 

@@ -235,7 +235,6 @@ public class UsuarioDAO {
         return usuario;
     }
 
-
     public Usuario findUsuarioByUsuario(String username) throws Exception {
         Connection con = ConexionDAO.conectar();
 
@@ -328,7 +327,7 @@ public class UsuarioDAO {
                             rs.getInt("minJugadores"),
                             rs.getInt("maxJugadores"),
                             rs.getString("deporte_descripcion"));
-                    partido.setDeporte(deporte);                    
+                    partido.setDeporte(deporte);
                     partido.setUbicacion(new Ubicacion(rs.getString("ubicacion")));
                     partido.setFecha(rs.getTimestamp("comienzo").toLocalDateTime());
                     partido.setDuracion(rs.getInt("duracion"));
@@ -342,7 +341,7 @@ public class UsuarioDAO {
 
         con.close();
         return usuario;
-    }    
+    }
 
     public int saveUsuario(Usuario usuario) throws SQLException {
         Connection con = ConexionDAO.conectar();
@@ -383,21 +382,40 @@ public class UsuarioDAO {
         }
     }
 
+    /*
+     * 
+     */
     public void updateUsuario(Usuario usuario) throws SQLException {
         Connection con = ConexionDAO.conectar();
-        String sql = "UPDATE usuario SET nombre_usuario =?, mail =?, contrasena =?, domicilio =? WHERE id =?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+        // Actualizar datos del usuario
+        String sqlUsuario = "UPDATE usuario SET nombre_usuario = ?, mail = ?, contrasena = ?, domicilio = ? WHERE id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sqlUsuario)) {
             ps.setString(1, usuario.getNombreUsuario());
             ps.setString(2, usuario.getMail());
             ps.setString(3, usuario.getContrasena());
             ps.setString(4, usuario.getUbicacion());
             ps.setInt(5, usuario.getId());
             ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            con.close();
         }
+
+        // Actualizar nivelJuego y esFavorito en usuariodeporte
+        String sqlUsuarioDeporte = """
+                UPDATE usuariodeporte
+                SET nivelJuego = ?, esFavorito = ?
+                WHERE usuario_id = ? AND deporte_id = ?
+                """;
+        try (PreparedStatement ps = con.prepareStatement(sqlUsuarioDeporte)) {
+            for (UsuarioDeporte ud : usuario.getDeportes()) {
+                ps.setString(1, ud.getNivelJuego().toString());
+                ps.setBoolean(2, ud.isFavorito());
+                ps.setInt(3, usuario.getId());
+                ps.setInt(4, ud.getDeporte().getId());
+                ps.executeUpdate();
+            }
+        }
+
+        con.close();
     }
 
     public void deleteUsuario(int id) throws SQLException {
@@ -457,7 +475,7 @@ public class UsuarioDAO {
                 PreparedStatement ps = con.prepareStatement(sql)) {
 
             ps.setString(1, usuarioDeporte.getNivelJuego().name()); // suponiendo enum
-            ps.setBoolean(2, usuarioDeporte.isEsFavorito());
+            ps.setBoolean(2, usuarioDeporte.isFavorito());
             ps.setInt(3, usuarioDeporte.getUsuario().getId());
             ps.setInt(4, usuarioDeporte.getDeporte().getId());
 
