@@ -958,7 +958,7 @@ public class MainView extends JFrame {
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(TEXT_PRIMARY);
 
-        JLabel subtitleLabel = new JLabel("Seleccioná tu nivel y favorito por cada deporte");
+        JLabel subtitleLabel = new JLabel("Seleccioná tu nivel, favorito y estrategia de emparejamiento");
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         subtitleLabel.setForeground(TEXT_SECONDARY);
 
@@ -976,13 +976,11 @@ public class MainView extends JFrame {
         deportesPanel.setBackground(BACKGROUND_COLOR);
 
         List<DeporteDTO> deportes;
-        List<UsuarioDeporteDTO> misDeportesDTO = new ArrayList<>();
+        List<UsuarioDeporteDTO> misDeportesDTO;
         try {
             deportes = DeporteController.getInstance().getAllDeportesDTOs();
-
             usuarioActual = UsuarioController.getInstance().getUsuarioByIdDTO(usuarioActual.getId());
-            misDeportesDTO = usuarioActual.getDeportes(); // DTOs
-
+            misDeportesDTO = usuarioActual.getDeportes();
         } catch (Exception e) {
             deportesPanel.add(new JLabel("❌ Error al cargar los deportes"));
             panel.add(deportesPanel, BorderLayout.CENTER);
@@ -1023,59 +1021,52 @@ public class MainView extends JFrame {
             deporteRow.add(lbl);
             deporteRow.add(comboNivel);
             deporteRow.add(chkFavorito);
-
             deportesPanel.add(deporteRow);
         }
-
-        JPanel estrategiaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        estrategiaPanel.setBackground(BACKGROUND_COLOR);
-
-        JLabel estrategiaLabel = new JLabel("Estrategia de emparejamiento:");
-        estrategiaLabel.setPreferredSize(new Dimension(220, 25));
-        estrategiaLabel.setForeground(TEXT_PRIMARY);
-
-        Map<String, Integer> estrategiaMap = Map.of(
-                "Por historial", 1,
-                "Por cercanía", 2,
-                "Por nivel", 3
-        );
-
-        JComboBox<String> comboEstrategia = new JComboBox<>(estrategiaMap.keySet().toArray(new String[0]));
-        int estrategiaActual = usuarioActual.getEstrategiaEmparejamientoId();
-
-        for (Map.Entry<String, Integer> entry : estrategiaMap.entrySet()) {
-            if (entry.getValue() == estrategiaActual) {
-                comboEstrategia.setSelectedItem(entry.getKey());
-                break;
-            }
-        }
-
-        estrategiaPanel.add(estrategiaLabel);
-        estrategiaPanel.add(comboEstrategia);
-        deportesPanel.add(Box.createVerticalStrut(15));
-        deportesPanel.add(estrategiaPanel);
 
         JScrollPane scrollPane = new JScrollPane(deportesPanel);
         scrollPane.setBorder(null);
         scrollPane.getViewport().setBackground(BACKGROUND_COLOR);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // ComboBox de Estrategia
+        JPanel estrategiaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        estrategiaPanel.setBackground(BACKGROUND_COLOR);
+        JLabel estrategiaLabel = new JLabel("Estrategia de emparejamiento:");
+        estrategiaLabel.setForeground(TEXT_PRIMARY);
+        estrategiaPanel.add(estrategiaLabel);
+
+        String[] estrategias = { "PorHistorial", "PorCercania", "PorNivel" };
+        JComboBox<String> estrategiaCombo = new JComboBox<>(estrategias);
+        estrategiaCombo.setSelectedItem(usuarioActual.getEstrategia());
+        estrategiaPanel.add(estrategiaCombo);
+
+        deportesPanel.add(Box.createVerticalStrut(20));
+        deportesPanel.add(estrategiaPanel);
+
+        // Botón guardar
         JButton btnGuardar = new JButton("Guardar Cambios");
-        List<UsuarioDeporteDTO> finalMisDeportesDTO = misDeportesDTO;
         btnGuardar.addActionListener(e -> {
             try {
+                boolean huboCambios = false;
+
                 for (DeporteDTO d : deportes) {
                     Nivel nivelSeleccionado = (Nivel) nivelMap.get(d).getSelectedItem();
                     boolean favoritoSeleccionado = favoritoMap.get(d).isSelected();
 
-                    UsuarioDeporteDTO existente = finalMisDeportesDTO.stream()
+                    UsuarioDeporteDTO existente = misDeportesDTO.stream()
                             .filter(ud -> ud.getDeporte().getId() == d.getId())
                             .findFirst()
                             .orElse(null);
 
-                    boolean hayCambios = (existente == null) ||
-                            !existente.getNivel().equals(nivelSeleccionado) ||
-                            existente.isEsFavorito() != favoritoSeleccionado;
+                    boolean hayCambios = false;
+
+                    if (existente == null) {
+                        hayCambios = true;
+                    } else {
+                        hayCambios = !existente.getNivel().equals(nivelSeleccionado)
+                                || existente.isEsFavorito() != favoritoSeleccionado;
+                    }
 
                     if (hayCambios) {
                         UsuarioDeporte ud = new UsuarioDeporte();
@@ -1085,20 +1076,26 @@ public class MainView extends JFrame {
                         ud.setEsFavorito(favoritoSeleccionado);
 
                         UsuarioController.getInstance().guardarOActualizarUsuarioDeporte(ud);
+                        huboCambios = true;
                     }
                 }
 
-                String seleccion = (String) comboEstrategia.getSelectedItem();
-                int estrategiaSeleccionadaId = estrategiaMap.get(seleccion);
-
-                if (estrategiaSeleccionadaId != usuarioActual.getEstrategiaEmparejamientoId()) {
-                    UsuarioController.getInstance().updateU(usuarioActual.getId(), estrategiaSeleccionadaId);
-                    usuarioActual.setEstrategiaEmparejamientoId(estrategiaSeleccionadaId);
+                String estrategiaSeleccionada = (String) estrategiaCombo.getSelectedItem();
+                if (!estrategiaSeleccionada.equals(usuarioActual.getEstrategia())) {
+                    usuarioActual.setEstrategia(estrategiaSeleccionada);
+                    UsuarioController.getInstance().updateUsuario(usuarioActual);
+                    huboCambios = true;
                 }
 
-                JOptionPane.showMessageDialog(panel, "Cambios guardados con éxito.");
+                if (huboCambios) {
+                    JOptionPane.showMessageDialog(panel, "Cambios guardados con éxito.");
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No se detectaron cambios.");
+                }
+
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(panel, "Error al guardar: " + ex.getMessage());
+                ex.printStackTrace();
             }
         });
 
@@ -1109,6 +1106,7 @@ public class MainView extends JFrame {
 
         return panel;
     }
+
 
     private TableCellRenderer getEstadoRenderer() {
     return new DefaultTableCellRenderer() {
