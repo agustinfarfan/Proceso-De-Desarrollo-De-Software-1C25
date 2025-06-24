@@ -12,15 +12,15 @@ import com.findamatch.dao.PartidoDAO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 
 public class PorCercania implements IEstrategiaEmparejamiento {
-    private int id;
+    private final String nombre = "CERCANIA";
 
     public PorCercania() {
 
     }
 
     @Override
-    public int getId() {
-        return 3; // ID de estrategia
+    public String getNombre() {
+        return nombre; // ID de estrategia
     }
 
     @Override

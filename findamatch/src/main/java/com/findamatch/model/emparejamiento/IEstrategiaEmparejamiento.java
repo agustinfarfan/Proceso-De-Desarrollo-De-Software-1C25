@@ -6,7 +6,7 @@ import com.findamatch.model.Usuario;
 import java.util.List;
 
 public interface IEstrategiaEmparejamiento {
-    int getId();
+    String getNombre();
 
     List<Partido> buscarEmparejamiento(Usuario usuario); // Nuevo enfoque
 }

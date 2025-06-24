@@ -6,6 +6,7 @@ import java.util.*;
 import com.findamatch.dao.DeporteDAO;
 import com.findamatch.dao.UsuarioDAO;
 import com.findamatch.model.dto.UsuarioDTO;
+import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 import com.findamatch.model.enums.Nivel;
 
 public class Usuario {
@@ -17,6 +18,7 @@ public class Usuario {
     private String ubicacion;
     private List<UsuarioDeporte> deportes = new ArrayList<>();
     private List<Partido> partidos = new ArrayList<>();
+    private IEstrategiaEmparejamiento estrategia;
 
     UsuarioDAO usuarioDAO = UsuarioDAO.getInstance();
     DeporteDAO deporteDAO = DeporteDAO.getInstance();
@@ -197,6 +199,14 @@ public class Usuario {
 
     public void setPartidos(List<Partido> partidos) {
         this.partidos = partidos;
+    }
+
+    public void setEstrategia(IEstrategiaEmparejamiento est) {
+        this.estrategia = est;
+    }
+
+    public IEstrategiaEmparejamiento getEstrategia() {
+        return this.estrategia;
     }
 
     // ToString

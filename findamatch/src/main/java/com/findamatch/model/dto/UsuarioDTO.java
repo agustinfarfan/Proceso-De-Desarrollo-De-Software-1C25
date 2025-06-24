@@ -13,6 +13,7 @@ public class UsuarioDTO {
     private String ubicacion;
     private List<UsuarioDeporteDTO> deportesDTO;
     private List<PartidoDTO> partidosDTO;
+    private String estrategia;
 
     // Constructor
     public UsuarioDTO() {
@@ -95,6 +96,14 @@ public class UsuarioDTO {
 
     public void setPartidos(List<PartidoDTO> partidosDTO) {
         this.partidosDTO = partidosDTO;
+    }
+
+    public void setEstrategia(String est) {
+        this.estrategia = est;
+    }
+
+    public String getEstrategia() {
+        return this.estrategia;
     }
 
     // ToString
