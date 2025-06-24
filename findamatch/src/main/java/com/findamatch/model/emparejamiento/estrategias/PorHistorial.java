@@ -13,7 +13,7 @@ public class PorHistorial implements IEstrategiaEmparejamiento {
 
     @Override
     public int getId() {
-        return 1; // ID correspondiente a esta estrategia
+        return 2; // ID correspondiente a esta estrategia
     }
     @Override
     public List<Partido> buscarEmparejamiento(Usuario usuario) {

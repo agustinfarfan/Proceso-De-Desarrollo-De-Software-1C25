@@ -46,7 +46,7 @@ public class Ubicacion {
     }
 
     public double getVarianza() {
-        return varianza;
+        return this.varianza;
     }
 
     public void setVarianza(double varianza) {

@@ -47,7 +47,6 @@ public class GoogleGeocoderAdapter implements Geocoder {
 
         ubicacion.setLatitud(lat);
         ubicacion.setLongitud(lng);
-        ubicacion.setVarianza(0); // podés calcularlo después si querés
 
         return ubicacion;
     }

@@ -20,7 +20,7 @@ public class PorCercania implements IEstrategiaEmparejamiento {
 
     @Override
     public int getId() {
-        return 2; // ID de estrategia
+        return 3; // ID de estrategia
     }
 
     @Override
@@ -36,32 +36,35 @@ public class PorCercania implements IEstrategiaEmparejamiento {
             return partidosEmparejados;
         }
 
-    Ubicacion ubicacionUsuario;
+        Ubicacion ubicacionUsuario;
         try {
             ubicacionUsuario = new Ubicacion(usuario.getUbicacion()); // crea el objeto y geolocaliza
         } catch (Exception e) {
             e.printStackTrace();
             return partidosEmparejados; // no se pudo obtener coordenadas
-}
+        }
 
         double varianzaMaxima = ubicacionUsuario.getVarianza(); // radio de búsqueda
 
         List<PartidoDistancia> candidatos = new ArrayList<>();
 
-       for (Partido partido : todosLosPartidos) {
-            if (partido.getCreador().getId() == usuario.getId()) continue; // omitir propios
+        for (Partido partido : todosLosPartidos) {
+            if (partido.getCreador().getId() == usuario.getId())
+                continue; // omitir propios
 
             // 👇 FILTRO POR ESTADO
-            if (!"ARMADO".equals(partido.getEstado().getNombre())) continue;
+            if (!"ARMADO".equals(partido.getEstado().getNombre()))
+                continue;
 
             Ubicacion ubicacionPartido = partido.getUbicacion();
-            if (ubicacionPartido == null) continue;
+            if (ubicacionPartido == null)
+                continue;
 
             double distancia = calcularDistancia(ubicacionUsuario, ubicacionPartido);
             if (distancia <= varianzaMaxima) {
-        candidatos.add(new PartidoDistancia(partido, distancia));
-    }
-}
+                candidatos.add(new PartidoDistancia(partido, distancia));
+            }
+        }
 
         candidatos.sort(Comparator.comparingDouble(PartidoDistancia::getDistancia));
 
@@ -82,7 +85,7 @@ public class PorCercania implements IEstrategiaEmparejamiento {
 
         double a = Math.pow(Math.sin(dLat / 2), 2)
                 + Math.cos(lat1) * Math.cos(lat2)
-                * Math.pow(Math.sin(dLon / 2), 2);
+                        * Math.pow(Math.sin(dLon / 2), 2);
 
         double c = 2 * Math.asin(Math.sqrt(a));
         return RADIO_TIERRA_KM * c;

@@ -7,6 +7,8 @@ import java.util.List;
 import com.findamatch.controller.DeporteController;
 import com.findamatch.controller.PartidoController;
 import com.findamatch.controller.UsuarioController;
+import com.findamatch.dao.EstrategiaDAO;
+import com.findamatch.dao.UsuarioDAO;
 import com.findamatch.model.Deporte;
 import com.findamatch.model.Partido;
 import com.findamatch.model.Ubicacion;
@@ -37,8 +39,11 @@ public class App2 {
         // System.out.println(u);
         // }
 
-        UsuarioDTO usuario = uc.getUsuarioByIdDTO(7);
-        System.out.println(usuario);
+        UsuarioDTO usuario = uc.getUsuarioByIdDTO(18);
+        Ubicacion ubicacionUsuario = new Ubicacion("Cabildo 3373, CABA");
+        EstrategiaDAO Estrategia = EstrategiaDAO.getInstance();
+        List<Partido> partidos = Estrategia.findEstrategiaById(3).buscarEmparejamiento(uc.dtoToUsuario(usuario));
+        System.out.println(partidos);
 
     }
 }

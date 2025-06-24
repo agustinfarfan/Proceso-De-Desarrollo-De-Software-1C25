@@ -16,7 +16,7 @@ public class PorNivel implements IEstrategiaEmparejamiento {
 
     @Override
     public int getId() {
-        return 3; // ID correspondiente a esta estrategia
+        return 1; // ID correspondiente a esta estrategia
     }
 
     @Override
