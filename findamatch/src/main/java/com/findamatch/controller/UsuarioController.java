@@ -158,11 +158,11 @@ public class UsuarioController {
 
     public Usuario dtoToUsuario(UsuarioDTO usuarioDTO) {
         Usuario usuario = new Usuario();
-        usuario.setId(usuario.getId());
-        usuario.setNombreUsuario(usuario.getNombreUsuario());
-        usuario.setMail(usuario.getMail());
-        usuario.setContrasena(usuario.getContrasena());
-        usuario.setUbicacion(usuario.getUbicacion());
+        usuario.setId(usuarioDTO.getId());
+        usuario.setNombreUsuario(usuarioDTO.getNombreUsuario());
+        usuario.setMail(usuarioDTO.getMail());
+        usuario.setContrasena(usuarioDTO.getContrasena());
+        usuario.setUbicacion(usuarioDTO.getUbicacion());
         if (usuarioDTO.getEstrategia() != null) {
             usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia()));
         }
