@@ -42,6 +42,7 @@ public class MainView extends JFrame {
     private JPanel crearPartidoPanel;
     private JPanel unirsePartidoPanel;
     private JPanel historialPanel;
+    private JPanel abmDeportesPanel;
 
     // Colores del tema
     private static final Color PRIMARY_COLOR = new Color(33, 150, 243);
@@ -118,7 +119,10 @@ public class MainView extends JFrame {
         JButton btnCrearPartido = createSidebarButton("⚽ Crear Partido", "crear");
         JButton btnUnirsePartido = createSidebarButton("👥 Unirse a Partido", "unirse");
         JButton btnHistorial = createSidebarButton("📊 Historial", "historial");
+        JButton btnABMDeportes = createSidebarButton("🏋️‍♂️ ABM Deportes", "abm_deportes");
 
+        sidebar.add(btnABMDeportes);
+        sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(btnInicio);
         sidebar.add(Box.createVerticalStrut(10));
         sidebar.add(btnCrearPartido);
@@ -217,6 +221,9 @@ public class MainView extends JFrame {
                     break;
                 case "historial":
                     refrescarHistorialPanel();
+                    break;
+                case "abm_deportes":
+                    refrescarABMDeportesPanel();
                     break;
             }
 
@@ -1131,5 +1138,202 @@ public class MainView extends JFrame {
 
         return dialog;
     }
-          
+    private void refrescarABMDeportesPanel() {
+        JDialog loadingDialog = createLoadingDialog("Cargando deportes...");
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                if (abmDeportesPanel != null) {
+                    mainPanel.remove(abmDeportesPanel);
+                }
+                abmDeportesPanel = createABMDeportesPanel();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                mainPanel.add(abmDeportesPanel, "abm_deportes");
+                loadingDialog.dispose();
+            }
+        };
+        worker.execute();
+        loadingDialog.setVisible(true);
+    }
+
+    private JPanel createABMDeportesPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(BACKGROUND_COLOR);
+        panel.setBorder(new EmptyBorder(30, 30, 30, 30));
+
+        JLabel titleLabel = new JLabel("Gestión de Deportes");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        titleLabel.setForeground(TEXT_PRIMARY);
+
+        JLabel subtitleLabel = new JLabel("Agregá, editá o eliminá deportes disponibles en el sistema");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        subtitleLabel.setForeground(TEXT_SECONDARY);
+
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setBackground(BACKGROUND_COLOR);
+        headerPanel.add(titleLabel);
+        headerPanel.add(Box.createVerticalStrut(5));
+        headerPanel.add(subtitleLabel);
+
+        panel.add(headerPanel, BorderLayout.NORTH);
+
+        DefaultListModel<String> listModel = new DefaultListModel<>();
+        JList<String> listDeportes = new JList<>(listModel);
+        listDeportes.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        JScrollPane scrollPane = new JScrollPane(listDeportes);
+
+        JTextField txtNombre = new JTextField(20);
+        JTextField txtDescripcion = new JTextField(20);
+        JSpinner spMin = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
+        JSpinner spMax = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
+
+        JButton btnAgregar = new JButton("Agregar");
+        JButton btnEditar = new JButton("Editar");
+        JButton btnEliminar = new JButton("Eliminar");
+
+        try {
+            List<DeporteDTO> deportes = DeporteController.getInstance().getAllDeportesDTOs();
+            for (DeporteDTO d : deportes) {
+                listModel.addElement(d.getNombre());
+            }
+        } catch (Exception e) {
+            listModel.addElement("❌ Error al cargar deportes");
+        }
+
+        listDeportes.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                String seleccionado = listDeportes.getSelectedValue();
+                if (seleccionado != null) {
+                    try {
+                        List<DeporteDTO> deportes = DeporteController.getInstance().getAllDeportesDTOs();
+                        DeporteDTO dep = deportes.stream()
+                                .filter(d -> d.getNombre().equals(seleccionado))
+                                .findFirst().orElse(null);
+                        if (dep != null) {
+                            txtNombre.setText(dep.getNombre());
+                            txtDescripcion.setText(dep.getDescripcion());
+                            spMin.setValue(dep.getCantMinJugadores());
+                            spMax.setValue(dep.getCantMaxJugadores());
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(panel, "Error al cargar datos del deporte.");
+                    }
+                }
+            }
+        });
+
+        btnAgregar.addActionListener(e -> {
+            try {
+                String nombre = txtNombre.getText().trim();
+                String desc = txtDescripcion.getText().trim();
+                int min = (int) spMin.getValue();
+                int max = (int) spMax.getValue();
+
+                if (nombre.isEmpty())
+                    throw new Exception("El nombre no puede estar vacío");
+
+                DeporteDTO nuevo = new DeporteDTO(nombre, min, max, desc);
+                DeporteController.getInstance().createDeporte(nuevo);
+
+                listModel.addElement(nombre);
+                JOptionPane.showMessageDialog(panel, "Deporte creado con éxito.");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+            }
+        });
+
+        btnEditar.addActionListener(e -> {
+            String nombreSeleccionado = listDeportes.getSelectedValue();
+            if (nombreSeleccionado == null) {
+                JOptionPane.showMessageDialog(panel, "Seleccioná un deporte para editar.");
+                return;
+            }
+
+            try {
+                String nombre = txtNombre.getText().trim();
+                String desc = txtDescripcion.getText().trim();
+                int min = (int) spMin.getValue();
+                int max = (int) spMax.getValue();
+
+                if (nombre.isEmpty())
+                    throw new Exception("El nombre no puede estar vacío.");
+
+                List<DeporteDTO> deportes = DeporteController.getInstance().getAllDeportesDTOs();
+                DeporteDTO original = deportes.stream()
+                        .filter(d -> d.getNombre().equals(nombreSeleccionado))
+                        .findFirst()
+                        .orElseThrow(() -> new Exception("No se encontró el deporte original."));
+
+                DeporteDTO actualizado = new DeporteDTO(
+                        original.getId(),
+                        nombre,
+                        min,
+                        max,
+                        desc);
+
+                DeporteController.getInstance().updateDeporte(actualizado);
+
+                int index = listDeportes.getSelectedIndex();
+                listModel.set(index, nombre);
+                listDeportes.setSelectedIndex(index);
+
+                JOptionPane.showMessageDialog(panel, "Deporte actualizado correctamente.");
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error al actualizar: " + ex.getMessage());
+            }
+        });
+
+        btnEliminar.addActionListener(e -> {
+            String seleccionado = listDeportes.getSelectedValue();
+            if (seleccionado == null)
+                return;
+
+            int confirm = JOptionPane.showConfirmDialog(panel, "¿Eliminar deporte '" + seleccionado + "'?", "Confirmar",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    List<DeporteDTO> deportes = DeporteController.getInstance().getAllDeportesDTOs();
+                    DeporteDTO deporte = deportes.stream()
+                            .filter(d -> d.getNombre().equals(seleccionado))
+                            .findFirst()
+                            .orElseThrow(() -> new Exception("No se encontró el deporte seleccionado."));
+
+                    DeporteController.getInstance().deleteDeporte(deporte.getId());
+                    listModel.removeElement(seleccionado);
+                    JOptionPane.showMessageDialog(panel, "Deporte eliminado.");
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
+                }
+            }
+        });        
+
+        JPanel form = new JPanel(new GridLayout(5, 2, 10, 10));
+        form.setBorder(new EmptyBorder(20, 0, 0, 0));
+        form.add(new JLabel("Nombre:"));
+        form.add(txtNombre);
+        form.add(new JLabel("Descripción:"));
+        form.add(txtDescripcion);
+        form.add(new JLabel("Mínimo Jugadores:"));
+        form.add(spMin);
+        form.add(new JLabel("Máximo Jugadores:"));
+        form.add(spMax);
+
+        JPanel botones = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        botones.add(btnAgregar);
+        botones.add(btnEditar);
+        botones.add(btnEliminar);
+        form.add(new JLabel(""));
+        form.add(botones);
+
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(form, BorderLayout.SOUTH);
+        return panel;
+    }    
+        
 }

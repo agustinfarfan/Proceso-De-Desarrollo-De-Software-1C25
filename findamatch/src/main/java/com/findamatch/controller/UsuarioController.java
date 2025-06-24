@@ -191,7 +191,7 @@ public class UsuarioController {
                     usuarioToDto(deporte.getUsuario()),
                     dc.deporteToDTO(deporte.getDeporte()),
                     deporte.getNivelJuego(),
-                    deporte.isEsFavorito());
+                    deporte.isFavorito());
             deportesDTO.add(usuarioDeporteDTO);
         }
         return deportesDTO;
