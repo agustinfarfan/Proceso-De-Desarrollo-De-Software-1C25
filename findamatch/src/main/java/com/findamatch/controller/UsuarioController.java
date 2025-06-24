@@ -197,4 +197,27 @@ public class UsuarioController {
         return deportesDTO;
     }
 
+    public void guardarOActualizarUsuarioDeporte(UsuarioDeporte usuarioDeporteNuevo) throws Exception {
+        Usuario usuarioBD = usuario.findUsuarioById(usuarioDeporteNuevo.getUsuario().getId());
+        List<UsuarioDeporte> deportesActuales = usuarioBD.getDeportes();
+
+        boolean actualizado = false;
+
+        for (UsuarioDeporte ud : deportesActuales) {
+            if (ud.getDeporte().getId() == usuarioDeporteNuevo.getDeporte().getId()) {
+                // Ya existe → actualizamos nivel y favorito
+                ud.setNivelJuego(usuarioDeporteNuevo.getNivelJuego());
+                ud.setEsFavorito(usuarioDeporteNuevo.isFavorito());
+                usuario.updateUsuarioDeporte(ud);
+                actualizado = true;
+                break;
+            }
+        }
+
+        if (!actualizado) {
+            // No existe → creamos nueva relación
+            usuario.updateUsuarioDeporte(usuarioDeporteNuevo);
+        }
+    }
+
 }
