@@ -149,8 +149,10 @@ public class UsuarioController {
         usuarioDTO.setMail(usuario.getMail());
         usuarioDTO.setContrasena(usuario.getContrasena());
         usuarioDTO.setUbicacion(usuario.getUbicacion());
-        usuarioDTO.setEstrategia(usuario.getEstrategia().getNombre());
-
+        if (usuario.getEstrategia() != null){
+            usuarioDTO.setEstrategia(usuario.getEstrategia().getNombre());
+        }
+ 
         return usuarioDTO;
     }
 
@@ -161,7 +163,9 @@ public class UsuarioController {
         usuario.setMail(usuario.getMail());
         usuario.setContrasena(usuario.getContrasena());
         usuario.setUbicacion(usuario.getUbicacion());
-        usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia()));
+        if (usuarioDTO.getEstrategia() != null) {
+            usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia()));
+        }
         return usuario;
     }
 
