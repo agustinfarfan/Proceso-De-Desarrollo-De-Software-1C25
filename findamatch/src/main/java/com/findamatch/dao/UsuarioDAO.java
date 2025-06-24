@@ -41,7 +41,7 @@ public class UsuarioDAO {
                         u.mail,
                         u.contrasena,
                         u.domicilio,
-                        u.id_estrategia,
+                        e.nombre as nombreEstrategia ,
                         d.id AS deporte_id,
                         d.nombre,
                         d.minJugadores,
@@ -52,6 +52,7 @@ public class UsuarioDAO {
                     FROM usuario u
                     JOIN usuariodeporte ud ON u.id = ud.usuario_id
                     JOIN deporte d ON ud.deporte_id = d.id
+                    JOIN estrategia e on E.id = U.id_estrategia
                     ORDER BY u.id
                 """;
 
@@ -73,7 +74,7 @@ public class UsuarioDAO {
                     usuario.setMail(rs.getString("mail"));
                     usuario.setContrasena(rs.getString("contrasena"));
                     usuario.setUbicacion(rs.getString("domicilio"));
-                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("id_estrategia")));
+                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("nombreEstrategia")));
 
                     mapaUsuarios.put(usuarioId, usuario);
 
@@ -151,7 +152,7 @@ public class UsuarioDAO {
                         u.mail,
                         u.contrasena,
                         u.domicilio,
-                        u.id_estrategia,
+                        e.nombre as nombreEstrategia ,
                         d.id AS deporte_id,
                         d.nombre,
                         d.minJugadores,
@@ -162,6 +163,7 @@ public class UsuarioDAO {
                     FROM usuario u
                     JOIN usuariodeporte ud ON u.id = ud.usuario_id
                     JOIN deporte d ON ud.deporte_id = d.id
+                    JOIN estrategia e on E.id = U.id_estrategia
                     WHERE u.id = ?
                 """;
 
@@ -179,7 +181,7 @@ public class UsuarioDAO {
                     usuario.setMail(rs.getString("mail"));
                     usuario.setContrasena(rs.getString("contrasena"));
                     usuario.setUbicacion(rs.getString("domicilio"));
-                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("id_estrategia")));
+                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("nombreEstrategia")));
 
                 }
 
@@ -251,7 +253,7 @@ public class UsuarioDAO {
                         u.mail,
                         u.contrasena,
                         u.domicilio,
-                        u.id_estrategia,
+                        e.nombre as nombreEstrategia ,
                         d.id AS deporte_id,
                         d.nombre,
                         d.minJugadores,
@@ -262,6 +264,7 @@ public class UsuarioDAO {
                     FROM usuario u
                     JOIN usuariodeporte ud ON u.id = ud.usuario_id
                     JOIN deporte d ON ud.deporte_id = d.id
+                    JOIN estrategia e on E.id = U.id_estrategia
                     WHERE u.nombre_usuario = ?
                 """;
 
@@ -279,7 +282,7 @@ public class UsuarioDAO {
                     usuario.setMail(rs.getString("mail"));
                     usuario.setContrasena(rs.getString("contrasena"));
                     usuario.setUbicacion(rs.getString("domicilio"));
-                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("id_estrategia")));
+                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("nombreEstrategia")));
 
                 }
 
