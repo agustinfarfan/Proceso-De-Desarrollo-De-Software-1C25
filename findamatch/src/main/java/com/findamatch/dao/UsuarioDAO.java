@@ -12,6 +12,7 @@ import com.findamatch.model.Partido;
 import com.findamatch.model.Ubicacion;
 import com.findamatch.model.Usuario;
 import com.findamatch.model.UsuarioDeporte;
+import com.findamatch.model.emparejamiento.estrategias.FactoryEstrategia;
 import com.findamatch.model.enums.Nivel;
 import com.findamatch.model.estado.FactoryEstado;
 
@@ -40,6 +41,7 @@ public class UsuarioDAO {
                         u.mail,
                         u.contrasena,
                         u.domicilio,
+                        u.id_estrategia,
                         d.id AS deporte_id,
                         d.nombre,
                         d.minJugadores,
@@ -71,6 +73,7 @@ public class UsuarioDAO {
                     usuario.setMail(rs.getString("mail"));
                     usuario.setContrasena(rs.getString("contrasena"));
                     usuario.setUbicacion(rs.getString("domicilio"));
+                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("id_estrategia")));
 
                     mapaUsuarios.put(usuarioId, usuario);
 
@@ -148,6 +151,7 @@ public class UsuarioDAO {
                         u.mail,
                         u.contrasena,
                         u.domicilio,
+                        u.id_estrategia,
                         d.id AS deporte_id,
                         d.nombre,
                         d.minJugadores,
@@ -175,6 +179,8 @@ public class UsuarioDAO {
                     usuario.setMail(rs.getString("mail"));
                     usuario.setContrasena(rs.getString("contrasena"));
                     usuario.setUbicacion(rs.getString("domicilio"));
+                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("id_estrategia")));
+
                 }
 
                 Deporte deporte = new Deporte(
@@ -245,6 +251,7 @@ public class UsuarioDAO {
                         u.mail,
                         u.contrasena,
                         u.domicilio,
+                        u.id_estrategia,
                         d.id AS deporte_id,
                         d.nombre,
                         d.minJugadores,
@@ -272,6 +279,8 @@ public class UsuarioDAO {
                     usuario.setMail(rs.getString("mail"));
                     usuario.setContrasena(rs.getString("contrasena"));
                     usuario.setUbicacion(rs.getString("domicilio"));
+                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("id_estrategia")));
+
                 }
 
                 Deporte deporte = new Deporte(
@@ -345,12 +354,13 @@ public class UsuarioDAO {
 
     public int saveUsuario(Usuario usuario) throws SQLException {
         Connection con = ConexionDAO.conectar();
-        String sql = "INSERT INTO usuario (nombre_usuario, mail, contrasena, domicilio) VALUES (?,?,?,?) RETURNING id";
+        String sql = "INSERT INTO usuario (nombre_usuario, mail, contrasena, domicilio, id_estrategia) VALUES (?,?,?,?, ?) RETURNING id";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, usuario.getNombreUsuario());
             ps.setString(2, usuario.getMail());
             ps.setString(3, usuario.getContrasena());
             ps.setString(4, usuario.getUbicacion());
+            ps.setInt(5, EstrategiaDAO.findIDEstrategiaByName(usuario.getEstrategia().getNombre()));
 
             // Obtener el ID generado
             int usuarioId = -1;
@@ -388,18 +398,19 @@ public class UsuarioDAO {
     public void updateUsuario(Usuario usuario) throws SQLException {
         Connection con = ConexionDAO.conectar();
 
-        // Actualizar datos del usuario
-        String sqlUsuario = "UPDATE usuario SET nombre_usuario = ?, mail = ?, contrasena = ?, domicilio = ? WHERE id = ?";
+        // Actualiza datos del usuario
+        String sqlUsuario = "UPDATE usuario SET nombre_usuario = ?, mail = ?, contrasena = ?, domicilio = ?, id_estrategia = ? WHERE id = ?";
         try (PreparedStatement ps = con.prepareStatement(sqlUsuario)) {
             ps.setString(1, usuario.getNombreUsuario());
             ps.setString(2, usuario.getMail());
             ps.setString(3, usuario.getContrasena());
             ps.setString(4, usuario.getUbicacion());
-            ps.setInt(5, usuario.getId());
+            ps.setInt(5, EstrategiaDAO.findIDEstrategiaByName(usuario.getEstrategia().getNombre()));
+            ps.setInt(6, usuario.getId());
             ps.executeUpdate();
         }
 
-        // Actualizar nivelJuego y esFavorito en usuariodeporte
+        // Actualiza nivelJuego y esFavorito en usuariodeporte
         String sqlUsuarioDeporte = """
                 UPDATE usuariodeporte
                 SET nivelJuego = ?, esFavorito = ?

@@ -9,12 +9,13 @@ import com.findamatch.model.Usuario;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
 
 public class PorHistorial implements IEstrategiaEmparejamiento {
-    private int id;
+    private final String nombre = "HISTORIAL";
 
     @Override
-    public int getId() {
-        return 2; // ID correspondiente a esta estrategia
+    public String getNombre() {
+        return nombre; // ID correspondiente a esta estrategia
     }
+
     @Override
     public List<Partido> buscarEmparejamiento(Usuario usuario) {
         List<Partido> partidosEmparejados = new ArrayList<>();
@@ -30,13 +31,14 @@ public class PorHistorial implements IEstrategiaEmparejamiento {
 
         // Calcular cantidad de partidos FINALIZADOS en los que el usuario participó
         long cantidadJugados = todosLosPartidos.stream()
-            .filter(p -> p.getEstado().getNombre().equals("FINALIZADO"))
-            .filter(p -> p.getJugadores().stream()
-                    .anyMatch(j -> j.getId() == usuario.getId()))
-            .count();
+                .filter(p -> p.getEstado().getNombre().equals("FINALIZADO"))
+                .filter(p -> p.getJugadores().stream()
+                        .anyMatch(j -> j.getId() == usuario.getId()))
+                .count();
 
         for (Partido partido : todosLosPartidos) {
-            if (!partido.getEstado().getNombre().equals("ARMADO")) continue;
+            if (!partido.getEstado().getNombre().equals("ARMADO"))
+                continue;
 
             // Si cumple con el mínimo de historial requerido
             if (cantidadJugados >= partido.getMinimoPartidosJugados()) {

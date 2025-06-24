@@ -40,10 +40,10 @@ public class App2 {
         // }
 
         UsuarioDTO usuario = uc.getUsuarioByIdDTO(18);
-        Ubicacion ubicacionUsuario = new Ubicacion("Cabildo 3373, CABA");
-        EstrategiaDAO Estrategia = EstrategiaDAO.getInstance();
-        List<Partido> partidos = Estrategia.findEstrategiaById(3).buscarEmparejamiento(uc.dtoToUsuario(usuario));
-        System.out.println(partidos);
+
+        usuario.setEstrategia("NIVEL");
+
+        uc.updateUsuario(usuario);
 
     }
 }

@@ -15,6 +15,8 @@ import com.findamatch.model.dto.DeporteDTO;
 import com.findamatch.model.dto.PartidoDTO;
 import com.findamatch.model.dto.UsuarioDTO;
 import com.findamatch.model.dto.UsuarioDeporteDTO;
+import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
+import com.findamatch.model.emparejamiento.estrategias.FactoryEstrategia;
 import com.findamatch.model.enums.Nivel;
 
 public class UsuarioController {
@@ -53,7 +55,6 @@ public class UsuarioController {
     public List<UsuarioDTO> getAllUsuariosDTO() throws Exception {
 
         pc = getPartidoController();
-
 
         List<Usuario> usuarios = usuario.findAllUsuarios();
         List<UsuarioDTO> usuariosDTO = new ArrayList<UsuarioDTO>();
@@ -108,7 +109,7 @@ public class UsuarioController {
         if (usuarioEncontrado == null) {
             return null;
         }
-        
+
         UsuarioDTO usuarioDTO = usuarioToDto(usuarioEncontrado);
 
         List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioEncontrado.getDeportes());
@@ -123,7 +124,7 @@ public class UsuarioController {
 
         return usuarioDTO;
     }
-    
+
     public int createUsuario(UsuarioDTO usuarioDTO) {
         Usuario usuarioNuevo = dtoToUsuario(usuarioDTO);
         int id = usuario.saveUsuario(usuarioNuevo);
@@ -139,15 +140,6 @@ public class UsuarioController {
         usuario.deleteUsuario(id);
     }
 
-    public void updateUsuarioDeporte(UsuarioDTO usuarioDTO, DeporteDTO deporteDTO, Nivel nivelJuego,
-            boolean esFavorito) throws SQLException {
-
-        Usuario usuario = dtoToUsuario(usuarioDTO);
-        Deporte deporte = dc.dtoToDeporte(deporteDTO);
-        UsuarioDeporte usuarioDeporte = new UsuarioDeporte(usuario, deporte, nivelJuego, esFavorito);
-        usuario.updateUsuarioDeporte(usuarioDeporte);
-    }
-
     // Auxiliar
 
     public UsuarioDTO usuarioToDto(Usuario usuario) {
@@ -157,18 +149,20 @@ public class UsuarioController {
         usuarioDTO.setMail(usuario.getMail());
         usuarioDTO.setContrasena(usuario.getContrasena());
         usuarioDTO.setUbicacion(usuario.getUbicacion());
+        usuarioDTO.setEstrategia(usuario.getEstrategia().getNombre());
 
         return usuarioDTO;
     }
 
     public Usuario dtoToUsuario(UsuarioDTO usuarioDTO) {
-        Usuario usuarioNuevo = new Usuario();
-        usuarioNuevo.setId(usuarioDTO.getId());
-        usuarioNuevo.setNombreUsuario(usuarioDTO.getNombreUsuario());
-        usuarioNuevo.setMail(usuarioDTO.getMail());
-        usuarioNuevo.setContrasena(usuarioDTO.getContrasena());
-        usuarioNuevo.setUbicacion(usuarioDTO.getUbicacion());
-        return usuarioNuevo;
+        Usuario usuario = new Usuario();
+        usuario.setId(usuario.getId());
+        usuario.setNombreUsuario(usuario.getNombreUsuario());
+        usuario.setMail(usuario.getMail());
+        usuario.setContrasena(usuario.getContrasena());
+        usuario.setUbicacion(usuario.getUbicacion());
+        usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia()));
+        return usuario;
     }
 
     private List<UsuarioDeporte> dtoToUsuarioDeporte(List<UsuarioDeporteDTO> deportesDTO) {
@@ -218,6 +212,21 @@ public class UsuarioController {
             // No existe → creamos nueva relación
             usuario.updateUsuarioDeporte(usuarioDeporteNuevo);
         }
+    }
+
+    public List<PartidoDTO> buscarPartidos(UsuarioDTO usuarioDTO) {
+        IEstrategiaEmparejamiento estrategia = FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia());
+        Usuario u = dtoToUsuario(usuarioDTO);
+        List<Partido> partidosEncontrados = estrategia.buscarEmparejamiento(u);
+
+        List<PartidoDTO> partidosDTO = new ArrayList<>();
+
+        for (Partido p : partidosEncontrados) {
+            partidosDTO.add(PartidoController.getInstance().partidoToDTO(p));
+        }
+
+        return partidosDTO;
+
     }
 
 }

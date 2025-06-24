@@ -14,9 +14,11 @@ import java.util.List;
 
 public class PorNivel implements IEstrategiaEmparejamiento {
 
+    private final String nombre = "NIVEL";
+
     @Override
-    public int getId() {
-        return 1; // ID correspondiente a esta estrategia
+    public String getNombre() {
+        return nombre; // ID correspondiente a esta estrategia
     }
 
     @Override
@@ -25,17 +27,18 @@ public class PorNivel implements IEstrategiaEmparejamiento {
         PartidoDAO partidoDAO = PartidoDAO.getInstance();
         List<Partido> todosLosPartidos;
 
-      try {
-        todosLosPartidos = partidoDAO.findAllPartidos(); // puede tirar Exception
+        try {
+            todosLosPartidos = partidoDAO.findAllPartidos(); // puede tirar Exception
         } catch (Exception e) {
-        e.printStackTrace();
-        return partidosEmparejados;
-    }
+            e.printStackTrace();
+            return partidosEmparejados;
+        }
 
         // Iteramos por cada partido y vemos si coincide en nivel con el usuario
         for (Partido partido : todosLosPartidos) {
             // 👇 Filtro por estado "ARMADO"
-            if (!"ARMADO".equals(partido.getEstado().getNombre())) continue;
+            if (!"ARMADO".equals(partido.getEstado().getNombre()))
+                continue;
 
             Deporte deporte = partido.getDeporte();
             Nivel nivelUsuario = usuario.getNivelPorDeporte(deporte);
@@ -45,14 +48,13 @@ public class PorNivel implements IEstrategiaEmparejamiento {
             if (nivelUsuario != null && nivelUsuario.equals(nivelCreador)) {
                 // Verifica que no esté ya inscripto
                 boolean yaInscripto = partido.getJugadores().stream()
-                .anyMatch(j -> j.getId() == usuario.getId());
+                        .anyMatch(j -> j.getId() == usuario.getId());
 
                 if (!yaInscripto) {
-                partidosEmparejados.add(partido);
+                    partidosEmparejados.add(partido);
                 }
             }
-}
+        }
         return partidosEmparejados;
     }
 }
-

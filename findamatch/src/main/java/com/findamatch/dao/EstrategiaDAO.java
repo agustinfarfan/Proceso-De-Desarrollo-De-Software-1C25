@@ -26,36 +26,22 @@ public class EstrategiaDAO {
         return instance;
     }
 
-    public IEstrategiaEmparejamiento findEstrategiaById(int id) throws SQLException {
+    public static int findIDEstrategiaByName(String name) throws SQLException {
         Connection con = ConexionDAO.conectar();
-        String sql = "SELECT * FROM estrategia WHERE id = ?";
-        IEstrategiaEmparejamiento estrategia = null;
+        String sql = "SELECT * FROM estrategia WHERE nombre = ?";
+        int idEstrategia = -1;
         try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
+            ps.setString(1, name);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                String nombre = rs.getString("nombre");
-
-                switch (nombre.toUpperCase()) {
-                    case "CERCANIA":
-                        estrategia = new PorCercania();
-                        break;
-                    case "HISTORIAL":
-                        estrategia = new PorHistorial();
-                        break;
-                    case "NIVEL":
-                        estrategia = new PorNivel();
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Estrategia desconocida: " + nombre);
-                }
+                idEstrategia = rs.getInt("id");
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             con.close();
         }
-        return estrategia;
+        return idEstrategia;
     }
 
 }
