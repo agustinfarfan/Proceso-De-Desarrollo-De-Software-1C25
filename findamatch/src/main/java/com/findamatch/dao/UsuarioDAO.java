@@ -142,6 +142,69 @@ public class UsuarioDAO {
         return new ArrayList<>(mapaUsuarios.values());
     }
 
+    public Usuario getCreadorbyID(int id) throws Exception {
+        Connection con = ConexionDAO.conectar();
+
+        String sqlUsuario = """
+                    SELECT
+                        u.id AS usuario_id,
+                        u.nombre_usuario,
+                        u.mail,
+                        u.contrasena,
+                        u.domicilio,
+                        e.nombre as nombreEstrategia ,
+                        d.id AS deporte_id,
+                        d.nombre,
+                        d.minJugadores,
+                        d.maxJugadores,
+                        d.descripcion,
+                        ud.nivelJuego,
+                        ud.esFavorito
+                    FROM usuario u
+                    JOIN usuariodeporte ud ON u.id = ud.usuario_id
+                    JOIN deporte d ON ud.deporte_id = d.id
+                    JOIN estrategia e on E.id = U.id_estrategia
+                    WHERE u.id = ?
+                """;
+
+        Usuario usuario = null;
+
+        try (PreparedStatement ps = con.prepareStatement(sqlUsuario)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                if (usuario == null) {
+                    usuario = new Usuario();
+                    usuario.setId(rs.getInt("usuario_id"));
+                    usuario.setNombreUsuario(rs.getString("nombre_usuario"));
+                    usuario.setMail(rs.getString("mail"));
+                    usuario.setContrasena(rs.getString("contrasena"));
+                    usuario.setUbicacion(rs.getString("domicilio"));
+                    usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(rs.getString("nombreEstrategia")));
+
+                }
+
+                Deporte deporte = new Deporte(
+                        rs.getInt("deporte_id"),
+                        rs.getString("nombre"),
+                        rs.getInt("minJugadores"),
+                        rs.getInt("maxJugadores"),
+                        rs.getString("descripcion"));
+
+                Nivel nivel = Nivel.valueOf(rs.getString("nivelJuego"));
+                boolean esFavorito = rs.getBoolean("esFavorito");
+
+                UsuarioDeporte ud = new UsuarioDeporte(usuario, deporte, nivel, esFavorito);
+                usuario.addUsuarioDeporte(ud);
+            }
+        }
+
+        con.close();
+        return usuario;
+    }
+
+
     public Usuario findUsuarioById(int id) throws Exception {
         Connection con = ConexionDAO.conectar();
 

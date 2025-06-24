@@ -61,7 +61,7 @@ public class UsuarioController {
 
         for (Usuario u : usuarios) {
             UsuarioDTO usuarioDTO = usuarioToDto(u);
-            usuarioDTO.setDeportes(usuarioDeporteToDto(u.getDeportes()));
+            usuarioDTO.setDeportes(usuarioDeporteToDto(u.getDeportes(), usuarioDTO));
 
             List<PartidoDTO> partidosDTO = new ArrayList<PartidoDTO>();
             List<Partido> partidos = u.getPartidos();
@@ -85,7 +85,7 @@ public class UsuarioController {
 
         UsuarioDTO usuarioDTO = usuarioToDto(usuarioEncontrado);
 
-        List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioEncontrado.getDeportes());
+        List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioEncontrado.getDeportes(), usuarioDTO);
         usuarioDTO.setDeportes(usuariosDeporteDTO);
 
         List<PartidoDTO> partidosDTO = new ArrayList<PartidoDTO>();
@@ -112,7 +112,7 @@ public class UsuarioController {
 
         UsuarioDTO usuarioDTO = usuarioToDto(usuarioEncontrado);
 
-        List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioEncontrado.getDeportes());
+        List<UsuarioDeporteDTO> usuariosDeporteDTO = usuarioDeporteToDto(usuarioEncontrado.getDeportes(), usuarioDTO);
         usuarioDTO.setDeportes(usuariosDeporteDTO);
 
         List<PartidoDTO> partidosDTO = new ArrayList<>();
@@ -152,7 +152,9 @@ public class UsuarioController {
         if (usuario.getEstrategia() != null){
             usuarioDTO.setEstrategia(usuario.getEstrategia().getNombre());
         }
- 
+        if (usuario.getDeportes() != null) {
+            usuarioDTO.setDeportes(usuarioDeporteToDto(usuario.getDeportes(), usuarioDTO));
+        }
         return usuarioDTO;
     }
 
@@ -166,14 +168,17 @@ public class UsuarioController {
         if (usuarioDTO.getEstrategia() != null) {
             usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia()));
         }
+        if (usuarioDTO.getDeportes() != null){
+            usuario.setDeportes(dtoToUsuarioDeporte(usuarioDTO.getDeportes(),usuario));
+        }
         return usuario;
     }
 
-    private List<UsuarioDeporte> dtoToUsuarioDeporte(List<UsuarioDeporteDTO> deportesDTO) {
+    private List<UsuarioDeporte> dtoToUsuarioDeporte(List<UsuarioDeporteDTO> deportesDTO, Usuario usuario) {
         List<UsuarioDeporte> deportes = new ArrayList<UsuarioDeporte>();
         for (UsuarioDeporteDTO deporteDTO : deportesDTO) {
             UsuarioDeporte usuarioDeporte = new UsuarioDeporte(
-                    dtoToUsuario(deporteDTO.getUsuario()),
+                    usuario,
                     dc.dtoToDeporte(deporteDTO.getDeporte()),
                     deporteDTO.getNivel(),
                     deporteDTO.isEsFavorito());
@@ -182,11 +187,11 @@ public class UsuarioController {
         return deportes;
     }
 
-    private List<UsuarioDeporteDTO> usuarioDeporteToDto(List<UsuarioDeporte> deportes) {
+    private List<UsuarioDeporteDTO> usuarioDeporteToDto(List<UsuarioDeporte> deportes, UsuarioDTO usuarioDTO) {
         List<UsuarioDeporteDTO> deportesDTO = new ArrayList<UsuarioDeporteDTO>();
         for (UsuarioDeporte deporte : deportes) {
             UsuarioDeporteDTO usuarioDeporteDTO = new UsuarioDeporteDTO(
-                    usuarioToDto(deporte.getUsuario()),
+                    usuarioDTO,
                     dc.deporteToDTO(deporte.getDeporte()),
                     deporte.getNivelJuego(),
                     deporte.isFavorito());

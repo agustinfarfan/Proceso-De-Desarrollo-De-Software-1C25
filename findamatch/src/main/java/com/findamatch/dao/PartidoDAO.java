@@ -94,11 +94,7 @@ public class PartidoDAO {
                             rs.getInt("maxJugadores"),
                             rs.getString("deporte_descripcion"));
 
-                    Usuario creador = new Usuario();
-                    creador.setId(rs.getInt("id_creador"));
-                    creador.setNombreUsuario(rs.getString("creador_nombre"));
-                    creador.setMail(rs.getString("mail"));
-                    creador.setUbicacion(rs.getString("domicilio"));
+                    Usuario creador = UsuarioDAO.getInstance().getCreadorbyID(rs.getInt("id_creador"));
 
                     Partido partido = new Partido(
                             id,
