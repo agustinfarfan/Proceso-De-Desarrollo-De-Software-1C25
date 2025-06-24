@@ -958,7 +958,7 @@ public class MainView extends JFrame {
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
         titleLabel.setForeground(TEXT_PRIMARY);
 
-        JLabel subtitleLabel = new JLabel("Seleccioná tu nivel y favorito por cada deporte");
+        JLabel subtitleLabel = new JLabel("Seleccioná tu nivel, favorito y estrategia de emparejamiento");
         subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         subtitleLabel.setForeground(TEXT_SECONDARY);
 
@@ -976,15 +976,11 @@ public class MainView extends JFrame {
         deportesPanel.setBackground(BACKGROUND_COLOR);
 
         List<DeporteDTO> deportes;
-        List<UsuarioDeporteDTO> misDeportesDTO = new ArrayList<>(); // Cambio aquí
-
+        List<UsuarioDeporteDTO> misDeportesDTO;
         try {
             deportes = DeporteController.getInstance().getAllDeportesDTOs();
-
-            // Traer los datos actuales del usuario
             usuarioActual = UsuarioController.getInstance().getUsuarioByIdDTO(usuarioActual.getId());
-            misDeportesDTO = usuarioActual.getDeportes(); // Ahora es consistente
-
+            misDeportesDTO = usuarioActual.getDeportes();
         } catch (Exception e) {
             deportesPanel.add(new JLabel("❌ Error al cargar los deportes"));
             panel.add(deportesPanel, BorderLayout.CENTER);
@@ -1006,14 +1002,13 @@ public class MainView extends JFrame {
             JCheckBox chkFavorito = new JCheckBox("Favorito");
             chkFavorito.setBackground(BACKGROUND_COLOR);
 
-            // Buscar si ya tiene ese deporte cargado (cambio aquí)
             UsuarioDeporteDTO existente = misDeportesDTO.stream()
                     .filter(ud -> ud.getDeporte().getId() == deporte.getId())
                     .findFirst()
                     .orElse(null);
 
             if (existente != null) {
-                comboNivel.setSelectedItem(existente.getNivel()); // Cambio: getNivel() en lugar de getNivelJuego()
+                comboNivel.setSelectedItem(existente.getNivel());
                 chkFavorito.setSelected(existente.isEsFavorito());
             } else {
                 comboNivel.setSelectedItem(Nivel.PRINCIPIANTE);
@@ -1026,7 +1021,6 @@ public class MainView extends JFrame {
             deporteRow.add(lbl);
             deporteRow.add(comboNivel);
             deporteRow.add(chkFavorito);
-
             deportesPanel.add(deporteRow);
         }
 
@@ -1035,85 +1029,74 @@ public class MainView extends JFrame {
         scrollPane.getViewport().setBackground(BACKGROUND_COLOR);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // ComboBox de Estrategia
+        JPanel estrategiaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        estrategiaPanel.setBackground(BACKGROUND_COLOR);
+        JLabel estrategiaLabel = new JLabel("Estrategia de emparejamiento:");
+        estrategiaLabel.setForeground(TEXT_PRIMARY);
+        estrategiaPanel.add(estrategiaLabel);
+
+        String[] estrategias = { "PorHistorial", "PorCercania", "PorNivel" };
+        JComboBox<String> estrategiaCombo = new JComboBox<>(estrategias);
+        estrategiaCombo.setSelectedItem(usuarioActual.getEstrategia());
+        estrategiaPanel.add(estrategiaCombo);
+
+        deportesPanel.add(Box.createVerticalStrut(20));
+        deportesPanel.add(estrategiaPanel);
+
+        // Botón guardar
         JButton btnGuardar = new JButton("Guardar Cambios");
-        List<UsuarioDeporteDTO> finalMisDeportesDTO = misDeportesDTO;
         btnGuardar.addActionListener(e -> {
-            // Deshabilitar el botón y cambiar texto
-            btnGuardar.setText("Guardando...");
-            btnGuardar.setEnabled(false);
+            try {
+                boolean huboCambios = false;
 
-            // Ejecutar en un hilo separado para no bloquear la UI
-            new Thread(() -> {
-                try {
-                    // Cachear el usuario convertido una vez
-                    Usuario usuario = UsuarioController.getInstance().dtoToUsuario(usuarioActual);
+                for (DeporteDTO d : deportes) {
+                    Nivel nivelSeleccionado = (Nivel) nivelMap.get(d).getSelectedItem();
+                    boolean favoritoSeleccionado = favoritoMap.get(d).isSelected();
 
-                    // Crear lista de cambios
-                    List<UsuarioDeporte> cambios = new ArrayList<>();
-                    for (DeporteDTO d : deportes) {
-                        Nivel nivelSeleccionado = (Nivel) nivelMap.get(d).getSelectedItem();
-                        boolean favoritoSeleccionado = favoritoMap.get(d).isSelected();
-                        UsuarioDeporteDTO existente = finalMisDeportesDTO.stream()
-                                .filter(ud -> ud.getDeporte().getId() == d.getId())
-                                .findFirst()
-                                .orElse(null);
-                        boolean hayCambios = (existente == null) ||
-                                !existente.getNivel().equals(nivelSeleccionado) ||
-                                existente.isEsFavorito() != favoritoSeleccionado;
-                        if (hayCambios) {
-                            UsuarioDeporte ud = new UsuarioDeporte();
-                            ud.setUsuario(usuario);
-                            ud.setDeporte(DeporteController.getInstance().dtoToDeporte(d));
-                            ud.setNivelJuego(nivelSeleccionado);
-                            ud.setEsFavorito(favoritoSeleccionado);
-                            cambios.add(ud);
-                        }
+                    UsuarioDeporteDTO existente = misDeportesDTO.stream()
+                            .filter(ud -> ud.getDeporte().getId() == d.getId())
+                            .findFirst()
+                            .orElse(null);
+
+                    boolean hayCambios = false;
+
+                    if (existente == null) {
+                        hayCambios = true;
+                    } else {
+                        hayCambios = !existente.getNivel().equals(nivelSeleccionado)
+                                || existente.isEsFavorito() != favoritoSeleccionado;
                     }
 
-                    // Si no hay cambios, mostrar mensaje y salir
-                    if (cambios.isEmpty()) {
-                        SwingUtilities.invokeLater(() -> {
-                            btnGuardar.setText("Guardar Cambios");
-                            btnGuardar.setEnabled(true);
-                            JOptionPane.showMessageDialog(panel, "No hay cambios para guardar.");
-                        });
-                        return;
-                    }
-
-                    // Guardar todos los cambios con progreso
-                    int total = cambios.size();
-                    int contador = 0;
-
-                    for (UsuarioDeporte ud : cambios) {
-                        contador++;
-                        final int currentCount = contador;
-
-                        // Actualizar el texto del botón con progreso
-                        SwingUtilities.invokeLater(() ->
-                                btnGuardar.setText("Guardando... (" + currentCount + "/" + total + ")")
-                        );
+                    if (hayCambios) {
+                        UsuarioDeporte ud = new UsuarioDeporte();
+                        ud.setUsuario(UsuarioController.getInstance().dtoToUsuario(usuarioActual));
+                        ud.setDeporte(DeporteController.getInstance().dtoToDeporte(d));
+                        ud.setNivelJuego(nivelSeleccionado);
+                        ud.setEsFavorito(favoritoSeleccionado);
 
                         UsuarioController.getInstance().guardarOActualizarUsuarioDeporte(ud);
+                        huboCambios = true;
                     }
-
-                    // Operación completada exitosamente
-                    SwingUtilities.invokeLater(() -> {
-                        btnGuardar.setText("Guardar Cambios");
-                        btnGuardar.setEnabled(true);
-                        JOptionPane.showMessageDialog(panel,
-                                "✅ " + total + " cambio" + (total == 1 ? "" : "s") + " guardado" + (total == 1 ? "" : "s") + " con éxito.");
-                    });
-
-                } catch (Exception ex) {
-                    // Error en la operación
-                    SwingUtilities.invokeLater(() -> {
-                        btnGuardar.setText("Guardar Cambios");
-                        btnGuardar.setEnabled(true);
-                        JOptionPane.showMessageDialog(panel, "❌ Error al guardar: " + ex.getMessage());
-                    });
-                    ex.printStackTrace(); // Para debugging
                 }
-            }).start();
+
+                String estrategiaSeleccionada = (String) estrategiaCombo.getSelectedItem();
+                if (!estrategiaSeleccionada.equals(usuarioActual.getEstrategia())) {
+                    usuarioActual.setEstrategia(estrategiaSeleccionada);
+                    UsuarioController.getInstance().updateUsuario(usuarioActual);
+                    huboCambios = true;
+                }
+
+                if (huboCambios) {
+                    JOptionPane.showMessageDialog(panel, "Cambios guardados con éxito.");
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No se detectaron cambios.");
+                }
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(panel, "Error al guardar: " + ex.getMessage());
+                ex.printStackTrace();
+            }
         });
 
         JPanel southPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -1123,6 +1106,7 @@ public class MainView extends JFrame {
 
         return panel;
     }
+
 
     private TableCellRenderer getEstadoRenderer() {
     return new DefaultTableCellRenderer() {
