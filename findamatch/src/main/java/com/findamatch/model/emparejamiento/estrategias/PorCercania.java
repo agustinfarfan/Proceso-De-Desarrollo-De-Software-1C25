@@ -52,7 +52,6 @@ public class PorCercania implements IEstrategiaEmparejamiento {
             if (partido.getCreador().getId() == usuario.getId())
                 continue; // omitir propios
 
-            // 👇 FILTRO POR ESTADO
             if (!"ARMADO".equals(partido.getEstado().getNombre()))
                 continue;
 

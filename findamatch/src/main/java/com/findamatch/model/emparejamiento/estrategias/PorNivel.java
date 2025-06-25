@@ -36,7 +36,7 @@ public class PorNivel implements IEstrategiaEmparejamiento {
 
         // Iteramos por cada partido y vemos si coincide en nivel con el usuario
         for (Partido partido : todosLosPartidos) {
-            // 👇 Filtro por estado "ARMADO"
+
             if (!"ARMADO".equals(partido.getEstado().getNombre()))
                 continue;
 

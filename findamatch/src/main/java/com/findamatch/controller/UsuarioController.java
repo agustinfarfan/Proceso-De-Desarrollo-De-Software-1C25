@@ -149,7 +149,7 @@ public class UsuarioController {
         usuarioDTO.setMail(usuario.getMail());
         usuarioDTO.setContrasena(usuario.getContrasena());
         usuarioDTO.setUbicacion(usuario.getUbicacion());
-        if (usuario.getEstrategia() != null){
+        if (usuario.getEstrategia() != null) {
             usuarioDTO.setEstrategia(usuario.getEstrategia().getNombre());
         }
         if (usuario.getDeportes() != null) {
@@ -168,8 +168,8 @@ public class UsuarioController {
         if (usuarioDTO.getEstrategia() != null) {
             usuario.setEstrategia(FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia()));
         }
-        if (usuarioDTO.getDeportes() != null){
-            usuario.setDeportes(dtoToUsuarioDeporte(usuarioDTO.getDeportes(),usuario));
+        if (usuarioDTO.getDeportes() != null) {
+            usuario.setDeportes(dtoToUsuarioDeporte(usuarioDTO.getDeportes(), usuario));
         }
         return usuario;
     }
@@ -200,42 +200,9 @@ public class UsuarioController {
         return deportesDTO;
     }
 
-    public void guardarOActualizarUsuarioDeporte(UsuarioDeporte usuarioDeporteNuevo) throws Exception {
-        Usuario usuarioBD = usuario.findUsuarioById(usuarioDeporteNuevo.getUsuario().getId());
-        List<UsuarioDeporte> deportesActuales = usuarioBD.getDeportes();
-
-        boolean actualizado = false;
-
-        for (UsuarioDeporte ud : deportesActuales) {
-            if (ud.getDeporte().getId() == usuarioDeporteNuevo.getDeporte().getId()) {
-                // Ya existe → actualizamos nivel y favorito
-                ud.setNivelJuego(usuarioDeporteNuevo.getNivelJuego());
-                ud.setEsFavorito(usuarioDeporteNuevo.isFavorito());
-                usuario.updateUsuarioDeporte(ud);
-                actualizado = true;
-                break;
-            }
-        }
-
-        if (!actualizado) {
-            // No existe → creamos nueva relación
-            usuario.updateUsuarioDeporte(usuarioDeporteNuevo);
-        }
-    }
-
-    public List<PartidoDTO> buscarPartidos(UsuarioDTO usuarioDTO) {
-        IEstrategiaEmparejamiento estrategia = FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia());
-        Usuario u = dtoToUsuario(usuarioDTO);
-        List<Partido> partidosEncontrados = estrategia.buscarEmparejamiento(u);
-
-        List<PartidoDTO> partidosDTO = new ArrayList<>();
-
-        for (Partido p : partidosEncontrados) {
-            partidosDTO.add(PartidoController.getInstance().partidoToDTO(p));
-        }
-
-        return partidosDTO;
-
+    public void cambiarEstrategiaUsuario(UsuarioDTO usuarioActual, String estrategiaSeleccionada) {
+        usuarioActual.setEstrategia(estrategiaSeleccionada);
+        updateUsuario(usuarioActual);
     }
 
 }

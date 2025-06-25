@@ -75,7 +75,7 @@ public class MainView extends JFrame {
             refrescarHomePanel();
             showPanel("inicio");
         });
-    }   
+    }
 
     private void initializeFrame() {
         setTitle("Find a Match");
@@ -94,8 +94,8 @@ public class MainView extends JFrame {
         loadingPanel.add(new JLabel("Cargando..."));
         mainPanel.add(loadingPanel, "loading");
 
-        add(mainPanel); 
-    }      
+        add(mainPanel);
+    }
 
     private void setupLayout() {
         // Sidebar
@@ -236,7 +236,7 @@ public class MainView extends JFrame {
             }
 
             cardLayout.show(mainPanel, action);
-        });        
+        });
 
         return button;
     }
@@ -261,8 +261,8 @@ public class MainView extends JFrame {
         };
         worker.execute();
         loadingDialog.setVisible(true);
-    }      
-    
+    }
+
     private void refrescarCrearPartidoPanel() {
         JDialog loadingDialog = createLoadingDialog("Cargando formulario de creación...");
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
@@ -283,8 +283,8 @@ public class MainView extends JFrame {
         };
         worker.execute();
         loadingDialog.setVisible(true);
-    }    
-    
+    }
+
     private void refrescarUnirsePartidoPanel() {
         JDialog loadingDialog = createLoadingDialog("Buscando partidos disponibles...");
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
@@ -305,8 +305,8 @@ public class MainView extends JFrame {
         };
         worker.execute();
         loadingDialog.setVisible(true);
-    }     
-    
+    }
+
     private void refrescarHistorialPanel() {
         JDialog loadingDialog = createLoadingDialog("Cargando historial...");
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
@@ -688,7 +688,7 @@ public class MainView extends JFrame {
 
                 worker.execute();
                 SwingUtilities.invokeLater(() -> loading.setVisible(true));
-            });                       
+            });
 
             formPanel.add(lblUbicacion);
             formPanel.add(txtUbicacion);
@@ -772,7 +772,7 @@ public class MainView extends JFrame {
 
         try {
 
-            List<PartidoDTO> disponibles = UsuarioController.getInstance().buscarPartidos(this.usuarioActual);
+            List<PartidoDTO> disponibles = PartidoController.getInstance().buscarPartidos(this.usuarioActual);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
             if (disponibles.isEmpty()) {
@@ -894,9 +894,9 @@ public class MainView extends JFrame {
                         && !estado.getTransicionesValidas().isEmpty();
             }
         };
-        
+
         configurarTabla(tablaCreados);
-            
+
         try {
             List<PartidoDTO> todos = this.usuarioActual.getPartidos();
 
@@ -910,7 +910,7 @@ public class MainView extends JFrame {
                             p.getUbicacion(),
                             p.getComienzo().format(formatter),
                             p.getEstado()
-                    };                    
+                    };
 
                     if (p.getCreador() != null && p.getCreador().getId() == usuarioActual.getId()) {
                         Object[] filaCreador = Arrays.copyOf(filaBase, 5);
@@ -1064,18 +1064,14 @@ public class MainView extends JFrame {
                     }
 
                     if (hayCambios) {
-                        /*UsuarioDeporte ud = new UsuarioDeporte();
-                        ud.setUsuario(UsuarioController.getInstance().dtoToUsuario(usuarioActual));
-                        ud.setDeporte(DeporteController.getInstance().dtoToDeporte(d));
-                        ud.setNivelJuego(nivelSeleccionado);
-                        ud.setEsFavorito(favoritoSeleccionado);
-                    
-                        UsuarioController.getInstance().guardarOActualizarUsuarioDeporte(ud);*/
 
-                        existente.setDeporte(d);
-                        existente.setUsuario(usuarioActual);
-                        existente.setNivel(nivelSeleccionado);
-                        existente.setEsFavorito(favoritoSeleccionado);
+                        if (existente != null) {
+                            existente.setDeporte(d);
+                            existente.setUsuario(usuarioActual);
+                            existente.setNivel(nivelSeleccionado);
+                            existente.setEsFavorito(favoritoSeleccionado);
+
+                        }
 
                         huboCambios = true;
                     }
@@ -1083,7 +1079,8 @@ public class MainView extends JFrame {
 
                 String estrategiaSeleccionada = (String) estrategiaCombo.getSelectedItem();
                 if (!estrategiaSeleccionada.equals(usuarioActual.getEstrategia())) {
-                    usuarioActual.setEstrategia(estrategiaSeleccionada);
+                    // usuarioActual.setEstrategia(estrategiaSeleccionada);
+                    UsuarioController.getInstance().cambiarEstrategiaUsuario(usuarioActual, estrategiaSeleccionada);
                     huboCambios = true;
                 }
 
@@ -1108,37 +1105,38 @@ public class MainView extends JFrame {
         return panel;
     }
 
-
     private TableCellRenderer getEstadoRenderer() {
-    return new DefaultTableCellRenderer() {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus,
-                                                       int row, int column) {
-            String estadoActual = value != null ? value.toString() : "";
-            IEstadoPartido estado = FactoryEstado.getEstadoByName(estadoActual);
+        return new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus,
+                    int row, int column) {
+                String estadoActual = value != null ? value.toString() : "";
+                IEstadoPartido estado = FactoryEstado.getEstadoByName(estadoActual);
 
-            if (estado != null && estado.getTransicionesValidas() != null && !estado.getTransicionesValidas().isEmpty()) {
-                JComboBox<String> comboBox = new JComboBox<>();
-                comboBox.addItem(estadoActual);
-                for (String t : estado.getTransicionesValidas()) {
-                    if (!t.equals(estadoActual)) comboBox.addItem(t);
+                if (estado != null && estado.getTransicionesValidas() != null
+                        && !estado.getTransicionesValidas().isEmpty()) {
+                    JComboBox<String> comboBox = new JComboBox<>();
+                    comboBox.addItem(estadoActual);
+                    for (String t : estado.getTransicionesValidas()) {
+                        if (!t.equals(estadoActual))
+                            comboBox.addItem(t);
+                    }
+                    comboBox.setEnabled(false);
+                    comboBox.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+                    return comboBox;
+                } else {
+                    // Estado final, se muestra como texto
+                    JLabel label = new JLabel(estadoActual);
+                    label.setOpaque(true);
+                    label.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+                    label.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+                    label.setHorizontalAlignment(SwingConstants.CENTER);
+                    return label;
                 }
-                comboBox.setEnabled(false);
-                comboBox.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
-                return comboBox;
-            } else {
-                // Estado final, se muestra como texto
-                JLabel label = new JLabel(estadoActual);
-                label.setOpaque(true);
-                label.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
-                label.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-                label.setHorizontalAlignment(SwingConstants.CENTER);
-                return label;
             }
-        }
-    };
-}
+        };
+    }
 
     class EstadoPartidoCellEditor extends AbstractCellEditor implements TableCellEditor {
         private JComboBox<String> comboBox;
@@ -1163,7 +1161,7 @@ public class MainView extends JFrame {
                 comboBox.addItem(estadoAnterior);
                 comboBox.setEnabled(false);
                 return comboBox;
-            }            
+            }
 
             comboBox.addItem(estadoAnterior);
             for (String transicion : estado.getTransicionesValidas()) {
@@ -1186,7 +1184,8 @@ public class MainView extends JFrame {
                     if (confirm != JOptionPane.YES_OPTION) {
                         comboBox.setSelectedItem(estadoAnterior);
                     } else {
-                        JDialog loading = createLoadingDialog((JFrame) SwingUtilities.getWindowAncestor(tabla),"Actualizando Estado...");
+                        JDialog loading = createLoadingDialog((JFrame) SwingUtilities.getWindowAncestor(tabla),
+                                "Actualizando Estado...");
                         SwingWorker<Void, Void> worker = new SwingWorker<>() {
                             @Override
                             protected Void doInBackground() throws Exception {
@@ -1225,9 +1224,9 @@ public class MainView extends JFrame {
                         loading.setVisible(true);
                     }
                 }
-            });            
+            });
             return comboBox;
-        }        
+        }
 
         @Override
         public Object getCellEditorValue() {
@@ -1295,7 +1294,7 @@ public class MainView extends JFrame {
 
         return loadingDialog;
     }
-    
+
     public void showPanel(String nombrePanel) {
         cardLayout.show(mainPanel, nombrePanel);
     }
@@ -1328,6 +1327,7 @@ public class MainView extends JFrame {
 
         return dialog;
     }
+
     private void refrescarABMDeportesPanel() {
         JDialog loadingDialog = createLoadingDialog("Cargando deportes...");
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
@@ -1501,7 +1501,7 @@ public class MainView extends JFrame {
                     JOptionPane.showMessageDialog(panel, "Error: " + ex.getMessage());
                 }
             }
-        });        
+        });
 
         JPanel form = new JPanel(new GridLayout(5, 2, 10, 10));
         form.setBorder(new EmptyBorder(20, 0, 0, 0));
@@ -1524,6 +1524,6 @@ public class MainView extends JFrame {
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(form, BorderLayout.SOUTH);
         return panel;
-    }    
-        
+    }
+
 }

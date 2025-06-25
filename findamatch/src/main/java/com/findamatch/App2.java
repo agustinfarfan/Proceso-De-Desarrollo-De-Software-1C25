@@ -40,9 +40,9 @@ public class App2 {
         // }
 
         UsuarioDTO usuario = uc.getUsuarioByIdDTO(18);
-        //usuario.setEstrategia("CERCANIA");
+        // usuario.setEstrategia("CERCANIA");
 
-        List<PartidoDTO> PARTIDOS  = uc.buscarPartidos(usuario);
-        //uc.updateUsuario(usuario);
+        List<PartidoDTO> PARTIDOS = pc.buscarPartidos(usuario);
+        // uc.updateUsuario(usuario);
     }
 }

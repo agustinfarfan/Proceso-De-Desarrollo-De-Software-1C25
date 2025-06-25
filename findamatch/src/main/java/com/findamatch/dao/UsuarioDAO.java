@@ -204,7 +204,6 @@ public class UsuarioDAO {
         return usuario;
     }
 
-
     public Usuario findUsuarioById(int id) throws Exception {
         Connection con = ConexionDAO.conectar();
 
@@ -426,9 +425,10 @@ public class UsuarioDAO {
             ps.setString(2, usuario.getMail());
             ps.setString(3, usuario.getContrasena());
             ps.setString(4, usuario.getUbicacion());
-            ps.setInt(5, EstrategiaDAO.findIDEstrategiaByName(usuario.getEstrategia().getNombre()));
+            ps.setInt(5, EstrategiaDAO.findIDEstrategiaByName("CERCANIA")); // Definimos cercania como estrategia
+                                                                            // default
 
-            // Obtener el ID generado
+            // obtiene el ID generado
             int usuarioId = -1;
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

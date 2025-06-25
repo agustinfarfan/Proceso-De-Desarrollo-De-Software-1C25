@@ -12,6 +12,7 @@ import com.findamatch.model.Usuario;
 import com.findamatch.model.dto.PartidoDTO;
 import com.findamatch.model.dto.UsuarioDTO;
 import com.findamatch.model.emparejamiento.IEstrategiaEmparejamiento;
+import com.findamatch.model.emparejamiento.estrategias.FactoryEstrategia;
 import com.findamatch.model.estado.FactoryEstado;
 import com.findamatch.model.estado.IEstadoPartido;
 import com.findamatch.model.geocoding.GoogleGeocoderAdapter;
@@ -26,7 +27,7 @@ public class PartidoController {
     private DeporteController dc = DeporteController.getInstance();
     private UsuarioController uc = null;
     private static PartidoController instance = null;
-    
+
     // Constructor
     private PartidoController() {
         this.partido = new Partido();
@@ -69,17 +70,17 @@ public class PartidoController {
     }
 
     public int createPartido(PartidoDTO partidoDTO) throws Exception {
-    Partido partido = dtoToPartido(partidoDTO);
-    IEstadoPartido estado = FactoryEstado.getEstadoByName("ARMADO");
-    partido.setEstado(estado);
+        Partido partido = dtoToPartido(partidoDTO);
+        IEstadoPartido estado = FactoryEstado.getEstadoByName("ARMADO");
+        partido.setEstado(estado);
 
-    // Geocoding - obtener latitud y longitud
-    GoogleGeocoderAdapter geocoder = new GoogleGeocoderAdapter();
-    Ubicacion ubicacionGeocodificada = geocoder.getUbicacion(partido.getUbicacion());
-    partido.setUbicacion(ubicacionGeocodificada);
+        // Geocoding - obtener latitud y longitud
+        GoogleGeocoderAdapter geocoder = new GoogleGeocoderAdapter();
+        Ubicacion ubicacionGeocodificada = geocoder.getUbicacion(partido.getUbicacion());
+        partido.setUbicacion(ubicacionGeocodificada);
 
-    int id = partido.savePartido(partido);
-    return id;
+        int id = partido.savePartido(partido);
+        return id;
     }
 
     public void updatePartido(PartidoDTO partidoDTO) throws Exception {
@@ -171,7 +172,6 @@ public class PartidoController {
         partido.setDuracion(partidoDTO.getDuracion());
         partido.setEstado(FactoryEstado.getEstadoByName(partidoDTO.getEstado()));
 
-
         List<UsuarioDTO> jugadoresDTO = partidoDTO.getJugadores();
         List<Usuario> jugadores = new ArrayList<>();
 
@@ -181,32 +181,46 @@ public class PartidoController {
 
         partido.setJugadores(jugadores);
 
-
         partido.setMinimoPartidosJugados(partidoDTO.getMinimoPartidosJugados());
 
         return partido;
     }
 
     public List<PartidoDTO> getPartidosDeUsuarioDTO(int usuarioId) {
-    List<Partido> partidos = partido.getPartidosDeUsuario(usuarioId);
-    return partidos.stream()
-                   .map(this::partidoToDTO)
-                   .collect(Collectors.toList());
+        List<Partido> partidos = partido.getPartidosDeUsuario(usuarioId);
+        return partidos.stream()
+                .map(this::partidoToDTO)
+                .collect(Collectors.toList());
     }
 
     public void agregarJugadorAPartido(PartidoDTO partidoDTO, UsuarioDTO jugadorDTO) throws Exception {
-    int id = partidoDTO.getId(); 
-    Partido partido = new Partido().findPartidoById(id); 
-    Usuario jugador = UsuarioController.getInstance().dtoToUsuario(jugadorDTO); // Convertimos DTO a entidad
+        int id = partidoDTO.getId();
+        Partido partido = new Partido().findPartidoById(id);
+        Usuario jugador = UsuarioController.getInstance().dtoToUsuario(jugadorDTO); // Convertimos DTO a entidad
 
-    List<Usuario> jugadores = partido.getJugadores();
-    if (!jugadores.contains(jugador)) {
-        jugadores.add(jugador);
-        partido.setJugadores(jugadores);
-        partido.updatePartido(partido);
-    } else {
-        throw new Exception("Ya estás anotado en este partido.");
+        List<Usuario> jugadores = partido.getJugadores();
+        if (!jugadores.contains(jugador)) {
+            jugadores.add(jugador);
+            partido.setJugadores(jugadores);
+            partido.updatePartido(partido);
+        } else {
+            throw new Exception("Ya estás anotado en este partido.");
+        }
     }
+
+    public List<PartidoDTO> buscarPartidos(UsuarioDTO usuarioDTO) {
+        IEstrategiaEmparejamiento estrategia = FactoryEstrategia.getEstrategiaByName(usuarioDTO.getEstrategia());
+        Usuario u = UsuarioController.getInstance().dtoToUsuario(usuarioDTO);
+        List<Partido> partidosEncontrados = estrategia.buscarEmparejamiento(u);
+
+        List<PartidoDTO> partidosDTO = new ArrayList<>();
+
+        for (Partido p : partidosEncontrados) {
+            partidosDTO.add(PartidoController.getInstance().partidoToDTO(p));
+        }
+
+        return partidosDTO;
+
     }
 
 }
